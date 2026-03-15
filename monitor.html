@@ -341,6 +341,31 @@ html, body { height:100%; overflow:hidden; font-family:'Plus Jakarta Sans',sans-
 .action-btn.outline:hover { border-color:var(--gold-border); color:var(--gold); }
 
 @media(max-width:1100px) { .stat-row { grid-template-columns:repeat(3,1fr); } }
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:900px){
+  :root{--sidebar-w:0px;}
+  .sidebar{display:none;position:fixed;left:0;top:60px;bottom:0;z-index:200;width:240px;box-shadow:8px 0 32px rgba(0,0,0,0.5);}
+  .sidebar.mobile-open{display:flex;}
+  .main{padding:16px;}
+  .stat-row{grid-template-columns:repeat(2,1fr)!important;}
+  .grid-2,.grid-3{grid-template-columns:1fr!important;}
+  .trader-row{grid-template-columns:200px 80px 100px 1fr!important;}
+  .trader-row>div:nth-child(n+5){display:none;}
+  .lb-row{grid-template-columns:40px 1fr 80px 80px 1fr!important;}
+  .lb-row>div:nth-child(n+6){display:none;}
+  .payout-row{grid-template-columns:1fr 80px 80px 1fr!important;}
+  .payout-row>div:nth-child(n+5){display:none;}
+  .state-toggle{display:none!important;}
+  .tb-clock{display:none;}
+}
+@media(max-width:520px){
+  .stat-row{grid-template-columns:1fr 1fr!important;}
+  .topbar{padding:0 12px;}
+  .trader-row{grid-template-columns:1fr 80px 1fr!important;}
+  .trader-row>div:nth-child(n+4){display:none;}
+}
+
 </style>
 </head>
 <body>
@@ -360,6 +385,7 @@ html, body { height:100%; overflow:hidden; font-family:'Plus Jakarta Sans',sans-
     <span class="tb-title" id="tb-section">Live Monitor</span>
   </div>
   <div class="tb-right">
+    <button id="mob-menu" onclick="document.querySelector('.sidebar').classList.toggle('mobile-open')" style="display:none;width:34px;height:34px;border-radius:7px;background:transparent;border:1px solid var(--navy-border);cursor:pointer;font-size:16px;color:var(--muted);align-items:center;justify-content:center;">☰</button>
     <div class="live-indicator"><div class="live-dot"></div>LIVE</div>
     <div class="alert-bell" onclick="showSection('alerts', document.getElementById('sl-alerts'))" title="Alerts">
       🔔
@@ -411,6 +437,12 @@ html, body { height:100%; overflow:hidden; font-family:'Plus Jakarta Sans',sans-
       </div>
       <div class="sb-link" onclick="window.location.href='financials.html'">
         <span class="sb-icon">💰</span> Financials
+      </div>
+      <div class="sb-link" onclick="window.location.href='contract.html'">
+        <span class="sb-icon">✍️</span> Trader Contract
+      </div>
+      <div class="sb-link" onclick="window.location.href='audit.html'">
+        <span class="sb-icon">📋</span> Audit Log
       </div>
       <div class="sb-link" onclick="window.location.href='register.html#admin'">
         <span class="sb-icon">⚙️</span> Registration Mgr
@@ -611,10 +643,10 @@ html, body { height:100%; overflow:hidden; font-family:'Plus Jakarta Sans',sans-
       </div>
 
       <div class="stat-row" style="grid-template-columns:repeat(4,1fr);">
-        <div class="stat-card green"><div class="sc-lbl">Ready for Payout</div><div class="sc-val" style="color:var(--green)">3</div><div class="sc-sub up">Threshold reached</div></div>
-        <div class="stat-card gold"><div class="sc-lbl">Total Trader Share</div><div class="sc-val" style="color:var(--gold)">$298.40</div><div class="sc-sub neutral">70% allocation</div></div>
-        <div class="stat-card blue"><div class="sc-lbl">Firm Share</div><div class="sc-val" style="color:var(--blue)">$127.89</div><div class="sc-sub neutral">30% allocation</div></div>
-        <div class="stat-card orange"><div class="sc-lbl">Total Firm P&L</div><div class="sc-val" style="color:var(--orange)">$426.29</div><div class="sc-sub up">All funded traders</div></div>
+        <div class="stat-card green"><div class="sc-lbl">Ready for Payout</div><div class="sc-val" style="color:var(--green)" id="ready-count">0</div><div class="sc-sub up">Threshold reached</div></div>
+        <div class="stat-card gold"><div class="sc-lbl">Total Trader Share</div><div class="sc-val" style="color:var(--gold)" id="total-trader-share">$0.00</div><div class="sc-sub neutral">70% of profit only</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">Firm Share (30%)</div><div class="sc-val" style="color:var(--blue)" id="total-firm-share">$0.00</div><div class="sc-sub neutral">Retained by firm</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">Total Trading Profit</div><div class="sc-val" style="color:var(--orange)" id="total-trading-profit">$0.00</div><div class="sc-sub up">Balance minus starting capital</div></div>
       </div>
 
       <div class="chart-card" style="padding:0; overflow:hidden;">
@@ -1114,26 +1146,51 @@ let selectedMethod = 'wise';
 let firstWithdrawal = true; // In Phase 2B this checks the DB
 
 function renderPayouts() {
+  // Compute totals from profit only (balance - account = profit)
+  const totalProfit = FUNDED.reduce((s,t) => s + Math.max(t.balance - t.account, 0), 0);
+  const totalTraderShare = totalProfit * 0.70;
+  const totalFirmShare   = totalProfit * 0.30;
+  const el_ts = document.getElementById('total-trader-share');
+  const el_fs = document.getElementById('total-firm-share');
+  const el_tp = document.getElementById('total-trading-profit');
+  if (el_ts) el_ts.textContent = '$' + totalTraderShare.toFixed(2);
+  if (el_fs) el_fs.textContent = '$' + totalFirmShare.toFixed(2);
+  if (el_tp) el_tp.textContent = '$' + totalProfit.toFixed(2);
+
+  const readyCount = FUNDED.filter(t => t.balance >= t.threshold && (t.balance - t.account) > 0).length;
+  const el_rc = document.getElementById('ready-count');
+  if (el_rc) el_rc.textContent = readyCount;
+
   document.getElementById('payout-rows').innerHTML = FUNDED.map(t => {
     const profit = t.balance - t.account;
     const traderShare = Math.max(profit * 0.7, 0);
     const ready = t.balance >= t.threshold;
     const pct = Math.min((t.balance / t.threshold) * 100, 100).toFixed(0);
     return `<div class="payout-row">
-      <div class="tr-name"><div class="tr-avatar">${t.initials}</div><div><div class="tr-n">${t.name}</div><div class="tr-d">${t.level} · $${t.threshold} threshold</div></div></div>
-      <div style="font-family:'Outfit',sans-serif; font-weight:700; font-size:15px;">$${t.account}</div>
-      <div style="font-family:'Outfit',sans-serif; font-weight:700; font-size:15px; color:var(--white)">$${t.balance.toFixed(2)}</div>
+      <div class="tr-name"><div class="tr-avatar">${t.initials}</div><div>
+        <div class="tr-n">${t.name}</div>
+        <div class="tr-d">${t.level} · $${t.threshold} threshold</div>
+      </div></div>
       <div>
-        <div style="margin-bottom:4px; font-size:12px; color:var(--muted);">$${t.balance.toFixed(2)} / $${t.threshold} (${pct}%)</div>
-        <div class="mini-progress" style="width:120px;"><div class="mini-fill" style="width:${pct}%; background:${ready ? 'var(--green)' : 'var(--gold)'};"></div></div>
-      </div>
-      <div style="font-family:'Outfit',sans-serif; font-weight:800; font-size:16px; color:${ready ? 'var(--green)' : 'var(--text)'}">
-        ${ready ? '$'+traderShare.toFixed(2) : '—'}
+        <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;">$${t.account.toFixed(2)}</div>
+        <div style="font-size:11px;color:var(--muted);">Starting capital</div>
       </div>
       <div>
-        <button class="payout-btn ${ready ? 'ready' : 'pending'}"
-          onclick="${ready ? `openPayModal('${t.name}','${t.initials}',${traderShare.toFixed(2)},${t.account},'${t.level}')` : ''}">
-          ${ready ? '💳 Pay Now' : 'Not Ready'}
+        <div style="font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;color:var(--white);">$${t.balance.toFixed(2)}</div>
+        <div style="font-size:11px;color:var(--green);">Profit: +$${profit.toFixed(2)}</div>
+      </div>
+      <div>
+        <div style="margin-bottom:4px;font-size:12px;color:var(--muted);">$${t.balance.toFixed(2)} / $${t.threshold} (${pct}%)</div>
+        <div class="mini-progress" style="width:120px;"><div class="mini-fill" style="width:${pct}%;background:${ready?'var(--green)':'var(--gold)'};"></div></div>
+      </div>
+      <div>
+        <div style="font-family:'Outfit',sans-serif;font-weight:800;font-size:15px;color:${ready?'var(--green)':'var(--text)'};">${ready?'$'+traderShare.toFixed(2):'—'}</div>
+        ${ready ? `<div style="font-size:11px;color:var(--muted);">70% of $${profit.toFixed(2)} profit</div>` : ''}
+      </div>
+      <div>
+        <button class="payout-btn ${ready?'ready':'pending'}"
+          onclick="${ready?`openPayModal('${t.name}','${t.initials}',${traderShare.toFixed(2)},${t.account},'${t.level}',${profit.toFixed(2)})`:''}">
+          ${ready?'💳 Pay Now':'Not Ready'}
         </button>
       </div>
     </div>`;
@@ -1141,8 +1198,11 @@ function renderPayouts() {
 }
 
 // ── Pay Modal ──
-function openPayModal(name, initials, amount, account, level) {
-  currentPayout = { name, initials, amount, account, level };
+function openPayModal(name, initials, traderShare, account, level, grossProfit) {
+  // traderShare = 70% of gross profit (what trader receives)
+  // grossProfit = full profit before split
+  const firmShare = parseFloat((grossProfit * 0.30).toFixed(2));
+  currentPayout = { name, initials, amount: traderShare, account, level, grossProfit, firmShare };
   payStep = 1;
   selectedMethod = 'wise';
   firstWithdrawal = true; // Phase 2B: check DB here
@@ -1160,15 +1220,18 @@ function openPayModal(name, initials, amount, account, level) {
   document.getElementById('wise-fields').style.display = 'block';
   document.getElementById('usdt-fields').style.display = 'none';
 
-  // Build summary
-  const fee = selectedMethod === 'wise' ? (amount * 0.008).toFixed(2) : (amount * 0.01).toFixed(2);
-  const net = (amount - fee).toFixed(2);
+  // Build summary — clearly shows profit split
   document.getElementById('pay-summary').innerHTML = `
     <div class="ps-row"><span class="ps-label">Trader</span><span class="ps-val">${name}</span></div>
     <div class="ps-row"><span class="ps-label">Account Level</span><span class="ps-val">${level}</span></div>
-    <div class="ps-row"><span class="ps-label">Gross Profit</span><span class="ps-val" style="color:var(--green)">$${amount.toFixed(2)}</span></div>
-    <div class="ps-row"><span class="ps-label">Trader Share (70%)</span><span class="ps-val" style="color:var(--green)">$${amount.toFixed(2)}</span></div>
-    <div class="ps-row"><span class="ps-label" style="font-weight:700; color:var(--white);">Amount to Send</span><span class="ps-val" style="color:var(--gold); font-size:18px;">$${amount.toFixed(2)}</span></div>
+    <div class="ps-row"><span class="ps-label">Starting Account</span><span class="ps-val">$${account.toFixed(2)}</span></div>
+    <div class="ps-row"><span class="ps-label">Gross Profit Made</span><span class="ps-val" style="color:var(--white)">$${grossProfit.toFixed(2)}</span></div>
+    <div class="ps-row"><span class="ps-label">Trader's Share (70%)</span><span class="ps-val" style="color:var(--green)">$${traderShare.toFixed(2)}</span></div>
+    <div class="ps-row"><span class="ps-label">Firm's Share (30%)</span><span class="ps-val" style="color:var(--gold)">$${firmShare.toFixed(2)}</span></div>
+    <div class="ps-row" style="border-top:1px solid var(--gold-border);padding-top:12px;margin-top:4px;">
+      <span class="ps-label" style="font-weight:700;color:var(--white);">Amount to Send Trader</span>
+      <span class="ps-val" style="color:var(--green);font-size:20px;font-weight:800;">$${traderShare.toFixed(2)}</span>
+    </div>
   `;
 
   updateStepDots();
@@ -1255,8 +1318,9 @@ function buildConfirmStep() {
   document.getElementById('pay-next-btn').textContent = '✓ Confirm & Send';
 
   const method = selectedMethod === 'wise' ? 'Wise Bank Transfer' : 'USDT (Tether)';
-  const fee = selectedMethod === 'wise' ? (currentPayout.amount * 0.008).toFixed(2) : (currentPayout.amount * 0.01).toFixed(2);
-  const net = (currentPayout.amount - parseFloat(fee)).toFixed(2);
+  const traderShare = currentPayout.amount;
+  const fee = parseFloat((traderShare * (selectedMethod === 'wise' ? 0.008 : 0.01)).toFixed(2));
+  const net = (traderShare - fee).toFixed(2);
 
   let dest = '';
   if (selectedMethod === 'wise') {
@@ -1268,11 +1332,16 @@ function buildConfirmStep() {
 
   document.getElementById('pay-confirm-summary').innerHTML = `
     <div class="ps-row"><span class="ps-label">Trader</span><span class="ps-val">${currentPayout.name}</span></div>
+    <div class="ps-row"><span class="ps-label">Gross Profit</span><span class="ps-val">$${currentPayout.grossProfit.toFixed(2)}</span></div>
+    <div class="ps-row"><span class="ps-label">Trader's 70% Share</span><span class="ps-val" style="color:var(--green)">$${traderShare.toFixed(2)}</span></div>
+    <div class="ps-row"><span class="ps-label">Firm's 30% Share</span><span class="ps-val" style="color:var(--gold)">$${currentPayout.firmShare.toFixed(2)}</span></div>
     <div class="ps-row"><span class="ps-label">Payment Method</span><span class="ps-val">${method}</span></div>
     <div class="ps-row"><span class="ps-label">Destination</span><span class="ps-val">${dest}</span></div>
-    <div class="ps-row"><span class="ps-label">Gross Amount</span><span class="ps-val">$${currentPayout.amount.toFixed(2)}</span></div>
-    <div class="ps-row"><span class="ps-label">Transfer Fee (~)</span><span class="ps-val" style="color:var(--red)">-$${fee}</span></div>
-    <div class="ps-row"><span class="ps-label" style="font-weight:700;color:var(--white);">Trader Receives</span><span class="ps-val" style="color:var(--green); font-size:18px;">$${net}</span></div>
+    <div class="ps-row"><span class="ps-label">Transfer Fee (~)</span><span class="ps-val" style="color:var(--red)">-$${fee.toFixed(2)}</span></div>
+    <div class="ps-row" style="border-top:1px solid var(--gold-border);padding-top:12px;margin-top:4px;">
+      <span class="ps-label" style="font-weight:700;color:var(--white);">Trader Receives</span>
+      <span class="ps-val" style="color:var(--green);font-size:20px;font-weight:800;">$${net}</span>
+    </div>
   `;
 }
 

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit Log — Lazzer Quant</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#060d1a;--navy-mid:#0c1628;--navy-card:#101e35;--navy-border:#1a2d4a;
+  --gold:#c9a84c;--gold-dim:rgba(201,168,76,0.12);--gold-border:rgba(201,168,76,0.25);
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.12);
+  --orange:#f97316;--orange-dim:rgba(249,115,22,0.12);
+  --purple:#a855f7;--purple-dim:rgba(168,85,247,0.12);
+  --white:#ffffff;--text:#cbd5e1;--muted:#64748b;
+  --sidebar-w:220px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--navy);color:var(--white);}
+.shell{display:flex;flex-direction:column;height:100vh;}
+
+.topbar{height:60px;min-height:60px;flex-shrink:0;background:var(--navy-mid);border-bottom:1px solid var(--navy-border);display:flex;align-items:center;padding:0 20px;justify-content:space-between;z-index:100;}
+.tb-left{display:flex;align-items:center;gap:14px;}
+.tb-logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--white);}
+.tb-badge{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:800;font-size:13px;color:var(--navy);}
+.tb-name{font-family:'Outfit',sans-serif;font-weight:700;font-size:16px;}
+.tb-name span{color:var(--gold);}
+.tb-divider{width:1px;height:20px;background:var(--navy-border);}
+.tb-section{font-size:13px;font-weight:600;color:var(--muted);}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.tb-btn{padding:6px 14px;background:transparent;border:1px solid var(--navy-border);border-radius:7px;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center;}
+.tb-btn:hover{border-color:var(--gold-border);color:var(--gold);}
+
+.body-wrap{display:flex;flex:1;overflow:hidden;}
+
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);flex-shrink:0;background:var(--navy-mid);border-right:1px solid var(--navy-border);display:flex;flex-direction:column;padding:16px 10px;overflow-y:auto;}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:0 10px;margin-bottom:6px;margin-top:12px;}
+.sb-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.2s;margin-bottom:2px;border:1px solid transparent;text-decoration:none;}
+.sb-link:hover{color:var(--white);background:rgba(255,255,255,0.04);}
+.sb-link.active{color:var(--white);background:var(--gold-dim);border-color:var(--gold-border);}
+.sb-icon{font-size:15px;width:20px;text-align:center;}
+.sb-bottom{margin-top:auto;padding-top:16px;border-top:1px solid var(--navy-border);}
+
+.main{flex:1;overflow-y:auto;padding:28px;}
+.main::-webkit-scrollbar{width:4px;}
+.main::-webkit-scrollbar-thumb{background:var(--navy-border);border-radius:2px;}
+
+.pg-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:14px;}
+.pg-title{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;}
+.pg-sub{font-size:13px;color:var(--muted);}
+
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.gold::before{background:var(--gold);}
+.stat-card.green::before{background:var(--green);}
+.stat-card.red::before{background:var(--red);}
+.stat-card.blue::before{background:var(--blue);}
+.stat-card.purple::before{background:var(--purple);}
+.sc-lbl{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.sc-val{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;line-height:1;margin-bottom:6px;}
+.sc-sub{font-size:12px;font-weight:600;color:var(--muted);}
+
+/* Controls */
+.controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center;}
+.ctrl-input{padding:9px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--navy-border);border-radius:9px;color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s;width:220px;}
+.ctrl-input:focus{border-color:var(--gold);}
+.ctrl-input::placeholder{color:var(--muted);}
+.ctrl-select{padding:9px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--navy-border);border-radius:9px;color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;outline:none;appearance:none;cursor:pointer;}
+.ctrl-select option{background:var(--navy-mid);}
+
+/* Timeline log */
+.log-wrap{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:16px;overflow:hidden;}
+.log-header{padding:16px 20px;border-bottom:1px solid var(--navy-border);display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.02);}
+.log-title{font-size:14px;font-weight:700;}
+.log-count{font-size:12px;color:var(--muted);}
+
+.log-entry{display:flex;gap:0;border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.15s;}
+.log-entry:hover{background:rgba(255,255,255,0.02);}
+.log-entry:last-child{border-bottom:none;}
+
+.log-time-col{width:160px;min-width:160px;padding:16px 16px 16px 20px;display:flex;flex-direction:column;gap:3px;border-right:1px solid rgba(255,255,255,0.04);}
+.log-time{font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:var(--muted);}
+.log-date-badge{font-size:10px;color:var(--muted);}
+
+.log-icon-col{width:48px;min-width:48px;display:flex;align-items:flex-start;justify-content:center;padding-top:18px;}
+.log-dot{width:10px;height:10px;border-radius:50%;margin-top:2px;}
+
+.log-body-col{flex:1;padding:14px 20px 14px 12px;}
+.log-action{font-size:14px;font-weight:700;margin-bottom:4px;}
+.log-detail{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:6px;}
+.log-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+.log-actor{font-size:11px;font-weight:700;padding:2px 8px;border-radius:100px;}
+.actor-ceo{background:var(--gold-dim);color:var(--gold);}
+.actor-coo{background:var(--blue-dim);color:var(--blue);}
+.actor-system{background:var(--purple-dim);color:var(--purple);}
+.actor-trader{background:var(--green-dim);color:var(--green);}
+.log-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;background:rgba(255,255,255,0.04);color:var(--muted);}
+.log-ip{font-size:11px;color:var(--muted);font-family:'Outfit',sans-serif;}
+
+/* Category colors */
+.dot-finance{background:var(--gold);}
+.dot-trader{background:var(--green);}
+.dot-security{background:var(--red);}
+.dot-ops{background:var(--blue);}
+.dot-system{background:var(--purple);}
+.dot-expense{background:var(--orange);}
+
+/* Day divider */
+.day-divider{padding:10px 20px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--navy-border);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:12px;}
+.day-divider::after{content:'';flex:1;height:1px;background:var(--navy-border);}
+
+.empty-log{padding:60px 20px;text-align:center;color:var(--muted);font-size:14px;}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy-card);border:1px solid var(--navy-border);border-radius:12px;padding:14px 18px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5);transform:translateY(80px);opacity:0;transition:all 0.3s;z-index:999;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:rgba(34,197,94,0.4);}
+
+@media(max-width:960px){.stat-row{grid-template-columns:repeat(3,1fr);} .log-time-col{width:120px;min-width:120px;}}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="toast" id="toast"></div>
+
+<div class="topbar">
+  <div class="tb-left">
+    <a href="index.html" class="tb-logo"><div class="tb-badge">LQ</div><span class="tb-name">Lazzer <span>Quant</span></span></a>
+    <div class="tb-divider"></div>
+    <span class="tb-section">Audit Log</span>
+  </div>
+  <div class="tb-right">
+    <span style="font-size:12px;font-weight:700;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-border);padding:5px 12px;border-radius:100px;">Admin Only</span>
+    <a href="monitor.html" class="tb-btn">← Monitor</a>
+    <a href="analytics.html" class="tb-btn">Analytics</a>
+  </div>
+</div>
+
+<div class="body-wrap">
+  <div class="sidebar">
+    <div class="sb-label">Filter By Actor</div>
+    <div class="sb-link active" id="f-all"    onclick="filterActor('all',this)"><span class="sb-icon">👥</span> All Actions</div>
+    <div class="sb-link"        id="f-ceo"    onclick="filterActor('ceo',this)"><span class="sb-icon">👑</span> CEO (Kelvin)</div>
+    <div class="sb-link"        id="f-coo"    onclick="filterActor('coo',this)"><span class="sb-icon">⚙️</span> COO (Tatenda)</div>
+    <div class="sb-link"        id="f-system" onclick="filterActor('system',this)"><span class="sb-icon">🤖</span> System</div>
+    <div class="sb-link"        id="f-trader" onclick="filterActor('trader',this)"><span class="sb-icon">📊</span> Traders</div>
+
+    <div class="sb-label">Filter By Category</div>
+    <div class="sb-link" id="c-all"     onclick="filterCat('all',this)"><span class="sb-icon">📋</span> All Categories</div>
+    <div class="sb-link" id="c-finance" onclick="filterCat('finance',this)"><span class="sb-icon">💰</span> Finance</div>
+    <div class="sb-link" id="c-trader"  onclick="filterCat('trader',this)"><span class="sb-icon">🏅</span> Trader Actions</div>
+    <div class="sb-link" id="c-security"onclick="filterCat('security',this)"><span class="sb-icon">🔒</span> Security</div>
+    <div class="sb-link" id="c-ops"     onclick="filterCat('ops',this)"><span class="sb-icon">⚙️</span> Operations</div>
+    <div class="sb-link" id="c-expense" onclick="filterCat('expense',this)"><span class="sb-icon">🧾</span> Expenses</div>
+
+    <div class="sb-bottom">
+      <a href="monitor.html" class="sb-link"><span class="sb-icon">📡</span> Live Monitor</a>
+      <a href="analytics.html" class="sb-link"><span class="sb-icon">🔬</span> Analytics</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="pg-header">
+      <div>
+        <div class="pg-title">Audit Log</div>
+        <div class="pg-sub">Complete record of every action taken in the system · Tamper-proof trail</div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="tb-btn" onclick="exportLog()">Export CSV</button>
+        <button class="tb-btn" onclick="clearFilters()">Clear Filters</button>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card gold"><div class="sc-lbl">Total Actions</div><div class="sc-val" style="color:var(--white);" id="stat-total">0</div><div class="sc-sub">All time</div></div>
+      <div class="stat-card green"><div class="sc-lbl">Today</div><div class="sc-val" style="color:var(--green);" id="stat-today">0</div><div class="sc-sub">Actions today</div></div>
+      <div class="stat-card blue"><div class="sc-lbl">By CEO</div><div class="sc-val" style="color:var(--blue);" id="stat-ceo">0</div><div class="sc-sub">Kelvin's actions</div></div>
+      <div class="stat-card purple"><div class="sc-lbl">By COO</div><div class="sc-val" style="color:var(--purple);" id="stat-coo">0</div><div class="sc-sub">Tatenda's actions</div></div>
+      <div class="stat-card red"><div class="sc-lbl">System Events</div><div class="sc-val" style="color:var(--red);" id="stat-sys">0</div><div class="sc-sub">Automated</div></div>
+    </div>
+
+    <div class="controls">
+      <input type="text" class="ctrl-input" id="search-input" placeholder="🔍  Search actions, traders, amounts..." oninput="renderLog()">
+      <select class="ctrl-select" id="cat-select" onchange="renderLog()">
+        <option value="all">All Categories</option>
+        <option value="finance">Finance</option>
+        <option value="trader">Trader Actions</option>
+        <option value="security">Security</option>
+        <option value="ops">Operations</option>
+        <option value="expense">Expenses</option>
+      </select>
+      <select class="ctrl-select" id="date-select" onchange="renderLog()">
+        <option value="all">All Time</option>
+        <option value="today">Today</option>
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+      </select>
+    </div>
+
+    <div class="log-wrap">
+      <div class="log-header">
+        <span class="log-title">Activity Timeline</span>
+        <span class="log-count" id="log-count">— entries</span>
+      </div>
+      <div id="log-list"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ══ AUDIT DATA ══════════════════════════════════════════
+const LOG = [
+  // Today - Mar 15
+  { id:1,  ts:'2026-03-15 23:14', actor:'system',  actorLabel:'System',           cat:'security', dot:'dot-security', action:'Auto-Lock: Account Breach',           detail:'Brian Mutasa (D39017) account auto-locked. Win rate dropped to 78%. All open trades closed. Temporary password generated.', tag:'Auto' },
+  { id:2,  ts:'2026-03-15 22:30', actor:'ceo',     actorLabel:'Kelvin (CEO)',     cat:'finance',  dot:'dot-finance',  action:'Payout Processed: Simba Makoni',      detail:'$368.15 payout processed via Wise Transfer. Gross profit: $524.50. Firm retains: $157.35. Account upgraded to Level 2.', tag:'Finance' },
+  { id:3,  ts:'2026-03-15 21:45', actor:'ceo',     actorLabel:'Kelvin (CEO)',     cat:'expense',  dot:'dot-expense',  action:'Expense Approved: WhatsApp Business API', detail:'$3.00 expense approved. Category: Technology. Submitted by COO. Ref: WA-BIZ-0315.', tag:'Expense' },
+  { id:4,  ts:'2026-03-15 20:12', actor:'coo',     actorLabel:'Tatenda (COO)',    cat:'expense',  dot:'dot-expense',  action:'Expense Submitted for Approval',      detail:'WhatsApp Business API ($3.00) submitted for CEO approval. Category: Technology & Hosting. Status: Pending.', tag:'Expense' },
+  { id:5,  ts:'2026-03-15 18:44', actor:'ceo',     actorLabel:'Kelvin (CEO)',     cat:'ops',      dot:'dot-ops',      action:'Capital Allocated: Nyasha Zvobgo',    detail:'$50 allocated to Nyasha Zvobgo (D55892) on Deriv MT5. Funding from master account. Account now active.', tag:'Ops' },
+  { id:6,  ts:'2026-03-15 17:30', actor:'coo',     actorLabel:'Tatenda (COO)',    cat:'ops',      dot:'dot-ops',      action:'Registration Code Generated: D55892', detail:'Demo code D55892 generated for Nyasha Zvobgo. Broker: Deriv MT5. Saved and activated.', tag:'Ops' },
+  { id:7,  ts:'2026-03-15 16:22', actor:'system',  actorLabel:'System',           cat:'finance',  dot:'dot-finance',  action:'Threshold Alert: Simba Makoni',       detail:'Simba Makoni balance $624.50 exceeded Level 1 threshold of $600. Payout notification sent to trader portal and COO.', tag:'Auto' },
+  { id:8,  ts:'2026-03-15 15:10', actor:'trader',  actorLabel:'Simba Makoni',     cat:'trader',   dot:'dot-trader',   action:'Funded Trader Agreement Signed',      detail:'Simba Makoni signed Funded Trader Agreement v1.0. Ref: LQ-AGR-M8K2P1. Agreement recorded and account activated.', tag:'Contract' },
+  { id:9,  ts:'2026-03-15 14:00', actor:'coo',     actorLabel:'Tatenda (COO)',    cat:'trader',   dot:'dot-trader',   action:'Phase 2 Challenge Issued',            detail:'Phase 2 Confirmation Challenge document issued to Simba Makoni (R18204) on Deriv MT5. 14-day evaluation begins.', tag:'Challenge' },
+  { id:10, ts:'2026-03-15 11:32', actor:'system',  actorLabel:'System',           cat:'security', dot:'dot-security',  action:'Risk Warning: Tariro Gova',          detail:'Tariro Gova daily loss at $4.20 — 84% of $5.00 limit. Warning alert sent to COO. No action taken yet.', tag:'Auto' },
+  // Mar 14
+  { id:11, ts:'2026-03-14 16:00', actor:'coo',     actorLabel:'Tatenda (COO)',    cat:'trader',   dot:'dot-trader',   action:'Phase 1 Pass: Simba Makoni',          detail:'Simba Makoni completed Phase 1. Win rate: 87%, drawdown: 3.2%, zero violations. Passed. Reset week initiated.', tag:'Challenge' },
+  { id:12, ts:'2026-03-14 14:20', actor:'ceo',     actorLabel:'Kelvin (CEO)',     cat:'finance',  dot:'dot-finance',  action:'Payout Processed: Admire Mureza',     detail:'$123.40 payout processed via USDT (TRC20). Gross profit: $176.29. Firm retains: $52.89. Account upgraded to Level 2.', tag:'Finance' },
+  { id:13, ts:'2026-03-14 12:05', actor:'ceo',     actorLabel:'Kelvin (CEO)',     cat:'ops',      dot:'dot-ops',      action:'Capital Allocated: Admire Mureza',    detail:'$100 allocated to Admire Mureza (R92038) on Deriv MT5. Upgraded from Level 1 to Level 2 account.', tag:'Ops' },
+  { id:14, ts:'2026-03-14 09:00', actor:'system',  actorLabel:'System',           cat:'ops',      dot:'dot-ops',      action:'Weekly Report Generated',             detail:'Weekly Performance Report (Mar 9–14, 2026) auto-generated. Emailed to ceo@lazzerquant.com and coo@lazzerquant.com.', tag:'Auto' },
+  // Mar 13
+  { id:15, ts:'2026-03-13 18:45', actor:'trader',  actorLabel:'Nyasha Zvobgo',    cat:'trader',   dot:'dot-trader',   action:'Trader Registration Completed',       detail:'Nyasha Zvobgo completed registration with code D55892. Broker: Deriv MT5. Account created and password set.', tag:'Registration' },
+  { id:16, ts:'2026-03-13 15:30', actor:'coo',     actorLabel:'Tatenda (COO)',    cat:'trader',   dot:'dot-trader',   action:'Interview Completed: Nyasha Zvobgo',  detail:'Screening interview completed. Trader approved for Phase 1 evaluation. Registration code D55892 issued.', tag:'Interview' },
+  { id:17, ts:'2026-03-13 11:00', actor:'ceo',     actorLabel:'Kelvin (CEO)',     cat:'expense',  dot:'dot-expense',  action:'Expense Approved: Google Domain',     detail:'$12.00 Google Domain expense approved. lazzerquant.com annual renewal. Ref: GD-2026-031.', tag:'Expense' },
+  // Mar 12
+  { id:18, ts:'2026-03-12 17:00', actor:'ceo',     actorLabel:'Kelvin (CEO)',     cat:'finance',  dot:'dot-finance',  action:'Add Fund: Rutendo Maposa',            detail:'$100 added to Rutendo Maposa (R67441) Exness MT5 account from master account. Level 1 allocation.', tag:'Finance' },
+  { id:19, ts:'2026-03-12 14:10', actor:'coo',     actorLabel:'Tatenda (COO)',    cat:'trader',   dot:'dot-trader',   action:'Registration Code Generated: R67441', detail:'Real account code R67441 generated for Rutendo Maposa. Broker: Exness MT5. Saved and activated.', tag:'Ops' },
+  { id:20, ts:'2026-03-12 10:00', actor:'system',  actorLabel:'System',           cat:'security', dot:'dot-security', action:'Admin Login: CEO',                    detail:'Successful admin login by Kelvin Chafachaipa (ceo@lazzerquant.com). Session started.', tag:'Auth' },
+  // Mar 10
+  { id:21, ts:'2026-03-10 16:30', actor:'ceo',     actorLabel:'Kelvin (CEO)',     cat:'ops',      dot:'dot-ops',      action:'Challenge Rules Updated',             detail:'Phase 2 profit target updated from $15 to match 15% of $100 account. Effective immediately for all new challenges.', tag:'Config' },
+  { id:22, ts:'2026-03-10 11:00', actor:'coo',     actorLabel:'Tatenda (COO)',    cat:'trader',   dot:'dot-trader',   action:'Phase 1 Challenge Issued: Tafadzwa',  detail:'Phase 1 Challenge document issued to Tafadzwa Moyo (D04821) on Deriv MT5. 7-day evaluation begins.', tag:'Challenge' },
+  // Mar 7
+  { id:23, ts:'2026-03-07 09:00', actor:'ceo',     actorLabel:'Kelvin (CEO)',     cat:'expense',  dot:'dot-expense',  action:'Expense Approved: Facebook Ads',      detail:'$8.00 Facebook Ads expense approved. Trader recruitment campaign in Zimbabwe. Ref: FB-ADS-0307.', tag:'Expense' },
+  // Mar 3
+  { id:24, ts:'2026-03-03 15:00', actor:'ceo',     actorLabel:'Kelvin (CEO)',     cat:'finance',  dot:'dot-finance',  action:'Capital Allocated: Admire Mureza',    detail:'$100 allocated to Admire Mureza (R92038) on Deriv MT5 from master account. Level 1 funded account created.', tag:'Finance' },
+  // Mar 1
+  { id:25, ts:'2026-03-01 10:00', actor:'system',  actorLabel:'System',           cat:'ops',      dot:'dot-ops',      action:'Firm Account Initialized',            detail:'Lazzer Quant Trading Firm master account initialized. Opening balance: $800.00. Owner: Kelvin Chafachaipa (CEO).', tag:'System' },
+];
+
+let actorFilter = 'all';
+let catFilter   = 'all';
+
+// ── STATS ──
+function renderStats() {
+  document.getElementById('stat-total').textContent = LOG.length;
+  document.getElementById('stat-today').textContent = LOG.filter(e => e.ts.startsWith('2026-03-15')).length;
+  document.getElementById('stat-ceo').textContent   = LOG.filter(e => e.actor === 'ceo').length;
+  document.getElementById('stat-coo').textContent   = LOG.filter(e => e.actor === 'coo').length;
+  document.getElementById('stat-sys').textContent   = LOG.filter(e => e.actor === 'system').length;
+}
+
+// ── FILTER ──
+function filterActor(val, el) {
+  actorFilter = val;
+  document.querySelectorAll('[id^="f-"]').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  renderLog();
+}
+
+function filterCat(val, el) {
+  catFilter = val;
+  document.getElementById('cat-select').value = val;
+  document.querySelectorAll('[id^="c-"]').forEach(e => e.classList.remove('active'));
+  el.classList.add('active');
+  renderLog();
+}
+
+function clearFilters() {
+  actorFilter = 'all';
+  catFilter   = 'all';
+  document.getElementById('search-input').value = '';
+  document.getElementById('cat-select').value   = 'all';
+  document.getElementById('date-select').value  = 'all';
+  document.querySelectorAll('[id^="f-"],[id^="c-"]').forEach(e => e.classList.remove('active'));
+  document.getElementById('f-all').classList.add('active');
+  document.getElementById('c-all').classList.add('active');
+  renderLog();
+}
+
+// ── RENDER LOG ──
+function renderLog() {
+  const search   = document.getElementById('search-input').value.toLowerCase();
+  const catSel   = document.getElementById('cat-select').value;
+  const dateSel  = document.getElementById('date-select').value;
+
+  let entries = LOG.filter(e => {
+    if (actorFilter !== 'all' && e.actor !== actorFilter) return false;
+    if (catFilter   !== 'all' && e.cat   !== catFilter)   return false;
+    if (catSel      !== 'all' && e.cat   !== catSel)       return false;
+    if (dateSel === 'today' && !e.ts.startsWith('2026-03-15')) return false;
+    if (dateSel === 'week'  && e.ts < '2026-03-09')            return false;
+    if (dateSel === 'month' && e.ts < '2026-03-01')            return false;
+    if (search && !e.action.toLowerCase().includes(search) && !e.detail.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  document.getElementById('log-count').textContent = `${entries.length} entr${entries.length === 1 ? 'y' : 'ies'}`;
+
+  if (entries.length === 0) {
+    document.getElementById('log-list').innerHTML = '<div class="empty-log">📭 No log entries match your filters.</div>';
+    return;
+  }
+
+  // Group by date
+  const days = {};
+  entries.forEach(e => {
+    const d = e.ts.split(' ')[0];
+    if (!days[d]) days[d] = [];
+    days[d].push(e);
+  });
+
+  const actorClass = { ceo:'actor-ceo', coo:'actor-coo', system:'actor-system', trader:'actor-trader' };
+  const dateLabel = d => {
+    if (d === '2026-03-15') return 'Today — March 15, 2026';
+    if (d === '2026-03-14') return 'Yesterday — March 14, 2026';
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const parts = d.split('-');
+    return `${months[parseInt(parts[1])-1]} ${parseInt(parts[2])}, ${parts[0]}`;
+  };
+
+  document.getElementById('log-list').innerHTML = Object.entries(days).map(([date, items]) => `
+    <div class="day-divider">${dateLabel(date)}</div>
+    ${items.map(e => `
+      <div class="log-entry">
+        <div class="log-time-col">
+          <span class="log-time">${e.ts.split(' ')[1]}</span>
+          <span class="log-date-badge">${e.tag}</span>
+        </div>
+        <div class="log-icon-col">
+          <div class="log-dot ${e.dot}"></div>
+        </div>
+        <div class="log-body-col">
+          <div class="log-action">${e.action}</div>
+          <div class="log-detail">${e.detail}</div>
+          <div class="log-meta">
+            <span class="log-actor ${actorClass[e.actor]}">${e.actorLabel}</span>
+            <span class="log-tag">${e.cat.charAt(0).toUpperCase()+e.cat.slice(1)}</span>
+            <span class="log-ip">ID #${e.id}</span>
+          </div>
+        </div>
+      </div>
+    `).join('')}
+  `).join('');
+}
+
+function exportLog() {
+  showToast('Audit log exported as CSV', 'success');
+}
+
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<span>${type==='success'?'✅':'💡'}</span> ${msg}`;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+renderStats();
+renderLog();
+</script>
+</body>
+</html>

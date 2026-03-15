@@ -49,6 +49,14 @@
     {
       "source": "/analytics",
       "destination": "/analytics.html"
+    },
+    {
+      "source": "/contract",
+      "destination": "/contract.html"
+    },
+    {
+      "source": "/audit",
+      "destination": "/audit.html"
     }
   ]
 }

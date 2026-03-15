@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Funded Trader Agreement — Lazzer Quant</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#060d1a;--navy-mid:#0c1628;--navy-card:#101e35;--navy-border:#1a2d4a;
+  --gold:#c9a84c;--gold-light:#e2bf6e;--gold-dim:rgba(201,168,76,0.12);--gold-border:rgba(201,168,76,0.25);
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
+  --white:#ffffff;--text:#cbd5e1;--muted:#64748b;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(--navy);color:var(--white);}
+
+header{position:sticky;top:0;z-index:100;height:64px;background:rgba(6,13,26,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--navy-border);display:flex;align-items:center;padding:0 5%;justify-content:space-between;}
+.header-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--white);}
+.logo-badge{width:34px;height:34px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:800;font-size:14px;color:var(--navy);}
+.logo-name{font-family:'Outfit',sans-serif;font-weight:700;font-size:17px;}
+.logo-name span{color:var(--gold);}
+
+.wrapper{max-width:860px;margin:0 auto;padding:48px 20px 80px;}
+
+/* Progress steps */
+.steps{display:flex;align-items:center;margin-bottom:48px;}
+.step-item{display:flex;align-items:center;gap:10px;flex:1;}
+.step-item:last-child{flex:none;}
+.step-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:800;font-size:14px;border:2px solid var(--navy-border);color:var(--muted);background:var(--navy-card);transition:all 0.3s;flex-shrink:0;}
+.step-circle.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
+.step-circle.done{border-color:var(--green);color:var(--navy);background:var(--green);}
+.step-label{font-size:13px;font-weight:600;color:var(--muted);transition:color 0.3s;}
+.step-label.active{color:var(--white);}
+.step-line{flex:1;height:1px;background:var(--navy-border);margin:0 12px;}
+.step-line.done{background:var(--green);}
+
+/* Panels */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* Contract */
+.contract-box{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:20px;overflow:hidden;margin-bottom:24px;}
+.contract-header{padding:20px 28px;background:var(--gold-dim);border-bottom:1px solid var(--gold-border);display:flex;justify-content:space-between;align-items:center;}
+.contract-title{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;}
+.contract-badge{font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;background:var(--gold);color:var(--navy);}
+.contract-body{padding:28px;max-height:480px;overflow-y:auto;}
+.contract-body::-webkit-scrollbar{width:4px;}
+.contract-body::-webkit-scrollbar-thumb{background:var(--navy-border);border-radius:2px;}
+.clause{margin-bottom:20px;}
+.clause-num{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.clause-title{font-size:15px;font-weight:700;margin-bottom:8px;}
+.clause-body{font-size:14px;color:var(--text);line-height:1.8;}
+.highlight-box{background:var(--navy);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:14px 18px;margin:12px 0;font-size:13px;color:var(--text);line-height:1.7;}
+.read-progress{padding:14px 28px;background:rgba(255,255,255,0.02);border-top:1px solid var(--navy-border);display:flex;align-items:center;justify-content:space-between;}
+.rp-bar-track{flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin:0 16px;}
+.rp-bar-fill{height:100%;border-radius:3px;background:var(--gold);transition:width 0.3s;}
+.rp-label{font-size:12px;color:var(--muted);white-space:nowrap;}
+
+/* Checklist */
+.checklist{display:flex;flex-direction:column;gap:12px;margin-bottom:28px;}
+.check-row{display:flex;align-items:flex-start;gap:14px;padding:16px;background:var(--navy-card);border:1px solid var(--navy-border);border-radius:12px;cursor:pointer;transition:all 0.2s;}
+.check-row:hover{border-color:var(--gold-border);}
+.check-row.checked{border-color:rgba(34,197,94,0.3);background:var(--green-dim);}
+.check-box{width:22px;height:22px;min-width:22px;border-radius:6px;border:2px solid var(--navy-border);display:flex;align-items:center;justify-content:center;transition:all 0.2s;margin-top:1px;}
+.check-row.checked .check-box{background:var(--green);border-color:var(--green);}
+.check-text{font-size:14px;color:var(--text);line-height:1.6;}
+.check-row.checked .check-text{color:var(--white);}
+
+/* Signature pad */
+.sig-wrap{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:16px;overflow:hidden;margin-bottom:20px;}
+.sig-header{padding:14px 20px;border-bottom:1px solid var(--navy-border);display:flex;justify-content:space-between;align-items:center;}
+.sig-title{font-size:14px;font-weight:700;}
+.sig-clear{font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;padding:6px 14px;border:1px solid var(--navy-border);border-radius:7px;background:transparent;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif;}
+.sig-clear:hover{border-color:var(--red);color:var(--red);}
+canvas#sig-canvas{display:block;width:100%;height:160px;cursor:crosshair;background:rgba(255,255,255,0.02);}
+.sig-hint{padding:10px 20px;font-size:12px;color:var(--muted);border-top:1px solid var(--navy-border);}
+
+/* Info rows */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+.info-box{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:12px;padding:16px;}
+.ib-label{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.ib-val{font-size:15px;font-weight:700;}
+
+/* Buttons */
+.btn-row{display:flex;gap:14px;justify-content:flex-end;margin-top:24px;}
+.btn{padding:13px 28px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif;border:none;}
+.btn-gold{background:var(--gold);color:var(--navy);}
+.btn-gold:hover{background:var(--gold-light);transform:translateY(-2px);}
+.btn-gold:disabled{background:var(--navy-border);color:var(--muted);cursor:not-allowed;transform:none;}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--navy-border);}
+.btn-outline:hover{border-color:var(--gold-border);color:var(--gold);}
+
+/* Success */
+.success-wrap{text-align:center;padding:60px 20px;}
+.success-icon{font-size:72px;margin-bottom:24px;}
+.success-title{font-family:'Outfit',sans-serif;font-size:32px;font-weight:800;margin-bottom:12px;}
+.success-sub{font-size:16px;color:var(--text);line-height:1.7;max-width:520px;margin:0 auto 32px;}
+.cert-box{background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:16px;padding:28px;max-width:480px;margin:0 auto 32px;text-align:left;}
+.cert-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:14px;}
+.cert-row:last-child{border-bottom:none;}
+.cert-label{color:var(--muted);}
+.cert-val{font-weight:700;}
+
+footer{height:56px;background:var(--navy-mid);border-top:1px solid var(--navy-border);display:flex;align-items:center;padding:0 5%;justify-content:space-between;}
+.footer-left{font-size:12px;color:var(--muted);}
+.footer-right{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-family:'Outfit',sans-serif;}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy-card);border:1px solid var(--navy-border);border-radius:12px;padding:14px 18px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5);transform:translateY(80px);opacity:0;transition:all 0.3s;z-index:999;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:rgba(34,197,94,0.4);}
+.toast.error{border-color:rgba(239,68,68,0.4);}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<header>
+  <a href="index.html" class="header-logo">
+    <div class="logo-badge">LQ</div>
+    <span class="logo-name">Lazzer <span>Quant</span></span>
+  </a>
+  <span style="font-size:13px;color:var(--muted);">Funded Trader Agreement</span>
+</header>
+
+<div class="wrapper">
+
+  <!-- PROGRESS STEPS -->
+  <div class="steps">
+    <div class="step-item">
+      <div class="step-circle active" id="sc-1">1</div>
+      <div class="step-label active" id="sl-1">Read Agreement</div>
+    </div>
+    <div class="step-line" id="line-1"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc-2">2</div>
+      <div class="step-label" id="sl-2">Confirm Terms</div>
+    </div>
+    <div class="step-line" id="line-2"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc-3">3</div>
+      <div class="step-label" id="sl-3">Sign & Submit</div>
+    </div>
+    <div class="step-line" id="line-3"></div>
+    <div class="step-item">
+      <div class="step-circle" id="sc-4">4</div>
+      <div class="step-label" id="sl-4">Confirmed</div>
+    </div>
+  </div>
+
+  <!-- STEP 1: READ AGREEMENT -->
+  <div class="panel active" id="panel-1">
+    <div style="margin-bottom:20px;">
+      <div style="font-family:'Outfit',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px;">Funded Trader Agreement</div>
+      <div style="font-size:14px;color:var(--muted);">Please read the full agreement carefully before proceeding. Scroll to the bottom to continue.</div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-box"><div class="ib-label">Trader</div><div class="ib-val" id="contract-trader-name">Demo Trader</div></div>
+      <div class="info-box"><div class="ib-label">Registration Code</div><div class="ib-val" style="font-family:'Outfit',sans-serif;color:var(--gold);letter-spacing:2px;" id="contract-code">R18204</div></div>
+      <div class="info-box"><div class="ib-label">Account Level</div><div class="ib-val">Level 1 — $100 Live Account</div></div>
+      <div class="info-box"><div class="ib-label">Profit Split</div><div class="ib-val" style="color:var(--green);">70% Trader / 30% Firm</div></div>
+    </div>
+
+    <div class="contract-box">
+      <div class="contract-header">
+        <span class="contract-title">Funded Trader Agreement</span>
+        <span class="contract-badge">Legally Binding</span>
+      </div>
+      <div class="contract-body" id="contract-scroll" onscroll="trackScroll()">
+
+        <div class="clause">
+          <div class="clause-num">Clause 1</div>
+          <div class="clause-title">Parties to This Agreement</div>
+          <div class="clause-body">This Funded Trader Agreement ("Agreement") is entered into between Lazzer Quant Trading Firm ("the Firm"), represented by Kelvin Chafachaipa (CEO & Founder), and the trader named above ("the Trader"). By signing this Agreement, both parties agree to be bound by the terms set out herein.</div>
+        </div>
+
+        <div class="clause">
+          <div class="clause-num">Clause 2</div>
+          <div class="clause-title">Grant of Funded Account</div>
+          <div class="clause-body">The Firm hereby grants the Trader access to a funded live trading account. The Trader is authorized to trade on behalf of the Firm using the allocated capital. The Trader does not own the capital and has no claim to it beyond the profit sharing arrangement described in this Agreement.</div>
+        </div>
+
+        <div class="clause">
+          <div class="clause-num">Clause 3</div>
+          <div class="clause-title">Profit Sharing</div>
+          <div class="clause-body">All profits generated by the Trader using the funded account shall be split as follows: the Trader receives 70% of net profits generated, and the Firm retains 30%. Profits are calculated after deducting any applicable broker spreads, commissions, and swap fees. Payouts are processed when the Trader reaches their designated withdrawal threshold.</div>
+          <div class="highlight-box">Withdrawal Threshold (Level 1): $600.00 · Your 70% Share at Threshold: ~$350.00</div>
+        </div>
+
+        <div class="clause">
+          <div class="clause-num">Clause 4</div>
+          <div class="clause-title">Risk Management Obligations</div>
+          <div class="clause-body">The Trader agrees to strictly comply with the following risk management rules at all times. Violation of any single rule may result in immediate account suspension or termination:</div>
+          <div class="highlight-box">
+            • Maximum risk per trade: 3% of account balance<br>
+            • Maximum daily loss: 5% of account balance<br>
+            • Maximum total drawdown: 10% of starting balance<br>
+            • Stop loss is mandatory on every trade, placed at time of entry<br>
+            • Maximum trades per week: 12 · Minimum: 7
+          </div>
+        </div>
+
+        <div class="clause">
+          <div class="clause-num">Clause 5</div>
+          <div class="clause-title">Prohibited Trading Practices</div>
+          <div class="clause-body">The following practices are strictly prohibited and constitute grounds for immediate termination of this Agreement without compensation: use of automated trading systems, expert advisors (EAs), or trading bots; copy trading from external signals or other accounts; account manipulation or coordinated trading across multiple accounts; exploitation of platform loopholes or technical anomalies.</div>
+        </div>
+
+        <div class="clause">
+          <div class="clause-num">Clause 6</div>
+          <div class="clause-title">Account Suspension & Termination</div>
+          <div class="clause-body">The Firm reserves the right to suspend or terminate this Agreement immediately and without notice in the event of: any risk management violation; any prohibited trading practice; fraudulent activity or misrepresentation; failure to maintain minimum performance standards as set by the Firm. Upon termination, all access to the funded account will be revoked and no profit sharing will apply to the period following termination.</div>
+        </div>
+
+        <div class="clause">
+          <div class="clause-num">Clause 7</div>
+          <div class="clause-title">Account Scaling</div>
+          <div class="clause-body">Upon successful completion of each withdrawal threshold, the Trader's account will be upgraded to the next level with increased capital allocation. Each level increase is subject to continued compliance with all risk management rules and performance standards. The Firm retains the right to pause scaling at its discretion based on performance review.</div>
+          <div class="highlight-box">
+            Level 1: $100 account · $600 threshold<br>
+            Level 2: $150 account · $750 threshold (+25%)<br>
+            Level 3: $200 account · $938 threshold (+25%)<br>
+            Each subsequent level: +$50 account · +25% threshold
+          </div>
+        </div>
+
+        <div class="clause">
+          <div class="clause-num">Clause 8</div>
+          <div class="clause-title">Confidentiality</div>
+          <div class="clause-body">The Trader agrees to keep all information relating to Lazzer Quant Trading Firm strictly confidential, including but not limited to: trading strategies, evaluation criteria, financial performance, and operational processes. This obligation continues for three (3) years following termination of this Agreement.</div>
+        </div>
+
+        <div class="clause">
+          <div class="clause-num">Clause 9</div>
+          <div class="clause-title">Governing Law</div>
+          <div class="clause-body">This Agreement shall be governed by and construed in accordance with the laws of Zimbabwe. Any disputes arising from this Agreement shall be subject to the exclusive jurisdiction of the courts of Zimbabwe.</div>
+        </div>
+
+        <div class="clause">
+          <div class="clause-num">Clause 10</div>
+          <div class="clause-title">Entire Agreement</div>
+          <div class="clause-body">This Agreement, together with the Trader's registration records and any challenge documents issued by the Firm, constitutes the entire agreement between the parties. No verbal representations or prior agreements shall override the terms herein. This Agreement may only be amended by written consent of both parties.</div>
+        </div>
+
+      </div>
+      <div class="read-progress">
+        <span class="rp-label" id="rp-label">Scroll to read</span>
+        <div class="rp-bar-track"><div class="rp-bar-fill" id="rp-fill" style="width:0%"></div></div>
+        <span class="rp-label" id="rp-pct">0%</span>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-gold" id="btn-step1" onclick="goStep(2)" disabled>I Have Read the Agreement →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: CONFIRM TERMS -->
+  <div class="panel" id="panel-2">
+    <div style="margin-bottom:24px;">
+      <div style="font-family:'Outfit',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px;">Confirm You Understand</div>
+      <div style="font-size:14px;color:var(--muted);">Tick each item to confirm you have read and understood it. All items must be checked.</div>
+    </div>
+
+    <div class="checklist" id="checklist">
+      <div class="check-row" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">I understand that the capital in my funded account belongs to Lazzer Quant Trading Firm. I am managing it on behalf of the firm and have no ownership of the capital itself.</div>
+      </div>
+      <div class="check-row" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">I understand the 70/30 profit split — I keep 70% of my net profits and the firm retains 30%. Profits are paid when I reach my withdrawal threshold.</div>
+      </div>
+      <div class="check-row" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">I agree to strictly follow all risk management rules: max 3% risk per trade, max 5% daily loss, max 10% total drawdown, and a stop loss on every single trade.</div>
+      </div>
+      <div class="check-row" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">I understand that using bots, EAs, copy trading, or account manipulation will result in immediate termination of my account and forfeiture of any pending profits.</div>
+      </div>
+      <div class="check-row" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">I understand that violating any risk rule — including exceeding the daily loss limit or total drawdown — will result in my account being automatically locked pending review.</div>
+      </div>
+      <div class="check-row" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">I agree to keep all Lazzer Quant information confidential for a period of three (3) years, including trading strategies, evaluation criteria, and financial data.</div>
+      </div>
+      <div class="check-row" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div class="check-text">I confirm that I am entering into this Agreement voluntarily, that all information I have provided is accurate, and that I am legally permitted to enter into contracts in my jurisdiction.</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-gold" id="btn-step2" onclick="goStep(3)" disabled>Continue to Sign →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: SIGN -->
+  <div class="panel" id="panel-3">
+    <div style="margin-bottom:24px;">
+      <div style="font-family:'Outfit',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px;">Sign the Agreement</div>
+      <div style="font-size:14px;color:var(--muted);">Draw your signature below using your mouse or finger. This serves as your digital signature.</div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-box"><div class="ib-label">Full Name</div><div class="ib-val" id="sign-name">Demo Trader</div></div>
+      <div class="info-box"><div class="ib-label">Date</div><div class="ib-val" id="sign-date">—</div></div>
+      <div class="info-box"><div class="ib-label">Agreement Version</div><div class="ib-val">v1.0 — March 2026</div></div>
+      <div class="info-box"><div class="ib-label">IP Reference</div><div class="ib-val" style="font-family:'Outfit',sans-serif;color:var(--muted);font-size:13px;" id="sign-ref">—</div></div>
+    </div>
+
+    <div class="sig-wrap">
+      <div class="sig-header">
+        <span class="sig-title">Your Digital Signature</span>
+        <button class="sig-clear" onclick="clearSig()">Clear</button>
+      </div>
+      <canvas id="sig-canvas"></canvas>
+      <div class="sig-hint">Draw your signature above. Use your mouse (click + drag) or touch screen (tap + drag).</div>
+    </div>
+
+    <div style="padding:16px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:12px;font-size:13px;color:var(--text);line-height:1.7;margin-bottom:24px;">
+      By submitting this signature, I <strong style="color:var(--white);" id="final-name">Demo Trader</strong> confirm that I have read, understood, and agree to be bound by all terms of the Lazzer Quant Funded Trader Agreement dated <strong style="color:var(--gold);" id="final-date">—</strong>.
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-outline" onclick="goStep(2)">← Back</button>
+      <button class="btn btn-gold" id="btn-step3" onclick="submitSignature()">Submit & Activate Account →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: SUCCESS -->
+  <div class="panel" id="panel-4">
+    <div class="success-wrap">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">Agreement Signed!</div>
+      <div class="success-sub">Your Funded Trader Agreement has been submitted and recorded. Your live trading account is now active. Welcome to Lazzer Quant.</div>
+      <div class="cert-box">
+        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;">Agreement Certificate</div>
+        <div class="cert-row"><span class="cert-label">Trader</span><span class="cert-val" id="cert-name">—</span></div>
+        <div class="cert-row"><span class="cert-label">Registration Code</span><span class="cert-val" style="font-family:'Outfit',sans-serif;color:var(--gold);letter-spacing:2px;" id="cert-code">—</span></div>
+        <div class="cert-row"><span class="cert-label">Signed On</span><span class="cert-val" id="cert-date">—</span></div>
+        <div class="cert-row"><span class="cert-label">Agreement Ref</span><span class="cert-val" style="font-family:'Outfit',sans-serif;font-size:13px;" id="cert-ref">—</span></div>
+        <div class="cert-row"><span class="cert-label">Status</span><span class="cert-val" style="color:var(--green);">✅ Active & Binding</span></div>
+      </div>
+      <div style="display:flex;gap:14px;justify-content:center;">
+        <a href="portal.html" class="btn btn-gold" style="text-decoration:none;">Go to Trader Portal →</a>
+        <button class="btn btn-outline" onclick="window.print()">Download PDF</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-left">© 2026 Lazzer Quant Trading Firm · Harare, Zimbabwe</div>
+  <div class="footer-right">Discipline · Precision · Consistency</div>
+</footer>
+
+<script>
+let scrollPercent = 0;
+let sigDrawing = false;
+let sigHasContent = false;
+let currentStep = 1;
+
+// Init
+const today = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+document.getElementById('sign-date').textContent = today;
+document.getElementById('final-date').textContent = today;
+const ref = 'LQ-AGR-' + Date.now().toString(36).toUpperCase();
+document.getElementById('sign-ref').textContent = ref;
+
+// Get trader info from sessionStorage (set by portal on login)
+const stored = sessionStorage.getItem('lq_trader');
+if (stored) {
+  const t = JSON.parse(stored);
+  document.getElementById('contract-trader-name').textContent = t.name || 'Demo Trader';
+  document.getElementById('sign-name').textContent = t.name || 'Demo Trader';
+  document.getElementById('final-name').textContent = t.name || 'Demo Trader';
+  document.getElementById('contract-code').textContent = t.code || 'R18204';
+}
+
+// ── STEPS ──
+function goStep(n) {
+  document.getElementById(`panel-${currentStep}`).classList.remove('active');
+  document.getElementById(`sc-${currentStep}`).className = 'step-circle done';
+  document.getElementById(`sc-${currentStep}`).textContent = '✓';
+  document.getElementById(`sl-${currentStep}`).classList.remove('active');
+  if (currentStep < n) document.getElementById(`line-${currentStep}`).classList.add('done');
+
+  currentStep = n;
+  document.getElementById(`panel-${n}`).classList.add('active');
+  document.getElementById(`sc-${n}`).className = 'step-circle active';
+  document.getElementById(`sl-${n}`).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── SCROLL TRACKING ──
+function trackScroll() {
+  const el = document.getElementById('contract-scroll');
+  const pct = Math.min(100, Math.round((el.scrollTop / (el.scrollHeight - el.clientHeight)) * 100));
+  scrollPercent = pct;
+  document.getElementById('rp-fill').style.width = pct + '%';
+  document.getElementById('rp-pct').textContent = pct + '%';
+  document.getElementById('rp-label').textContent = pct < 100 ? 'Scroll to read' : '✅ Fully read';
+  if (pct >= 95) {
+    document.getElementById('btn-step1').disabled = false;
+    document.getElementById('rp-fill').style.background = 'var(--green)';
+  }
+}
+
+// ── CHECKLIST ──
+function toggleCheck(row) {
+  row.classList.toggle('checked');
+  row.querySelector('.check-box').textContent = row.classList.contains('checked') ? '✓' : '';
+  const all = document.querySelectorAll('.check-row');
+  const allChecked = [...all].every(r => r.classList.contains('checked'));
+  document.getElementById('btn-step2').disabled = !allChecked;
+}
+
+// ── SIGNATURE PAD ──
+const canvas = document.getElementById('sig-canvas');
+const ctx = canvas.getContext('2d');
+
+function resizeCanvas() {
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = canvas.offsetWidth * ratio;
+  canvas.height = canvas.offsetHeight * ratio;
+  ctx.scale(ratio, ratio);
+  ctx.strokeStyle = '#c9a84c';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function getPos(e) {
+  const r = canvas.getBoundingClientRect();
+  const pt = e.touches ? e.touches[0] : e;
+  return { x: pt.clientX - r.left, y: pt.clientY - r.top };
+}
+
+canvas.addEventListener('mousedown',  e => { sigDrawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
+canvas.addEventListener('mousemove',  e => { if(!sigDrawing) return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); sigHasContent=true; });
+canvas.addEventListener('mouseup',    () => sigDrawing=false);
+canvas.addEventListener('mouseleave', () => sigDrawing=false);
+canvas.addEventListener('touchstart', e => { e.preventDefault(); sigDrawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }, {passive:false});
+canvas.addEventListener('touchmove',  e => { e.preventDefault(); if(!sigDrawing) return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); sigHasContent=true; }, {passive:false});
+canvas.addEventListener('touchend',   () => sigDrawing=false);
+
+function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); sigHasContent=false; }
+
+// ── SUBMIT ──
+function submitSignature() {
+  if (!sigHasContent) { showToast('Please draw your signature before submitting','error'); return; }
+
+  const name = document.getElementById('sign-name').textContent;
+  const code = document.getElementById('contract-code').textContent;
+
+  document.getElementById('cert-name').textContent  = name;
+  document.getElementById('cert-code').textContent  = code;
+  document.getElementById('cert-date').textContent  = today;
+  document.getElementById('cert-ref').textContent   = ref;
+
+  goStep(4);
+  showToast('Agreement signed and account activated ✅','success');
+}
+
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<span>${type==='success'?'✅':type==='error'?'❌':'💡'}</span> ${msg}`;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>

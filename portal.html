@@ -289,6 +289,73 @@ html, body {
 .pill-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
 .pill-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
 .pill-blue { background: rgba(59,130,246,0.12); color: var(--blue); border: 1px solid rgba(59,130,246,0.25); }
+
+/* ── NOTIFICATION BELL ── */
+.notif-wrap { position:relative; }
+.notif-bell {
+  width:36px; height:36px; border-radius:9px;
+  background:var(--navy-mid); border:1px solid var(--navy-border);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:16px; transition:border-color 0.2s;
+  position:relative;
+}
+.notif-bell:hover { border-color:var(--gold-border); }
+.notif-badge {
+  position:absolute; top:-5px; right:-5px;
+  width:18px; height:18px; border-radius:50%;
+  background:var(--red); font-size:10px; font-weight:800;
+  display:flex; align-items:center; justify-content:center; color:var(--white);
+}
+.notif-dropdown {
+  position:absolute; top:calc(100% + 10px); right:0;
+  width:360px; background:var(--navy-card);
+  border:1px solid var(--navy-border); border-radius:16px;
+  box-shadow:0 16px 48px rgba(0,0,0,0.6);
+  display:none; z-index:500; overflow:hidden;
+}
+.notif-dropdown.open { display:block; }
+.nd-header {
+  padding:14px 18px; border-bottom:1px solid var(--navy-border);
+  display:flex; justify-content:space-between; align-items:center;
+}
+.nd-title { font-size:14px; font-weight:700; }
+.nd-clear { font-size:12px; color:var(--gold); cursor:pointer; font-weight:600; }
+.nd-item {
+  display:flex; gap:12px; padding:14px 18px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  cursor:pointer; transition:background 0.15s;
+}
+.nd-item:hover { background:rgba(255,255,255,0.03); }
+.nd-item:last-child { border-bottom:none; }
+.nd-item.unread { background:rgba(201,168,76,0.04); }
+.nd-icon { width:34px; height:34px; min-width:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.nd-body { flex:1; }
+.nd-msg { font-size:13px; font-weight:600; margin-bottom:3px; line-height:1.4; }
+.nd-time { font-size:11px; color:var(--text-muted); }
+.nd-unread-dot { width:7px; height:7px; border-radius:50%; background:var(--gold); margin-top:6px; flex-shrink:0; }
+.nd-empty { padding:32px; text-align:center; font-size:13px; color:var(--text-muted); }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { display:none; position:fixed; left:0; top:60px; bottom:0; z-index:200; width:240px; box-shadow:8px 0 32px rgba(0,0,0,0.5); }
+  .sidebar.mobile-open { display:flex; }
+  .mobile-menu-btn { display:flex !important; }
+  .portal-main { padding:20px 16px; }
+  .stat-row { grid-template-columns: 1fr 1fr !important; }
+  .two-col { grid-template-columns: 1fr !important; }
+  .three-col { grid-template-columns: 1fr !important; }
+  .settings-grid { grid-template-columns: 1fr !important; }
+  .topbar-name { display:none; }
+  .state-toggle { display:none !important; }
+  .topbar-right { gap:8px; }
+}
+@media (max-width: 520px) {
+  .stat-row { grid-template-columns: 1fr !important; }
+  .page-title { font-size:20px !important; }
+  .topbar { padding:0 14px; }
+}
+
 </style>
 </head>
 <body>
@@ -359,6 +426,24 @@ html, body {
       <span class="topbar-section" id="topbar-section">Dashboard</span>
     </div>
     <div class="topbar-right">
+      <!-- Mobile menu button -->
+      <button id="mobile-menu-btn" class="mobile-menu-btn" onclick="toggleMobileSidebar()"
+        style="display:none;width:36px;height:36px;border-radius:8px;background:transparent;border:1px solid var(--navy-border);cursor:pointer;font-size:18px;color:var(--text-muted);align-items:center;justify-content:center;">☰</button>
+
+      <!-- Notification Bell -->
+      <div class="notif-wrap" id="notif-wrap">
+        <div class="notif-bell" onclick="toggleNotifDropdown()" title="Notifications">
+          🔔
+          <div class="notif-badge" id="notif-badge">3</div>
+        </div>
+        <div class="notif-dropdown" id="notif-dropdown">
+          <div class="nd-header">
+            <span class="nd-title">Notifications</span>
+            <span class="nd-clear" onclick="clearAllNotifs()">Mark all read</span>
+          </div>
+          <div id="notif-list"></div>
+        </div>
+      </div>
       <!-- State toggle — admin only -->
       <div class="state-toggle" id="state-toggle" style="display:none">
         <button class="state-btn active" onclick="setState('phase1', this)">Phase 1</button>
@@ -401,7 +486,16 @@ html, body {
         <div class="sidebar-link" onclick="showSection('settings', this)" id="sl-settings">
           <span class="sl-icon">⚙️</span> Settings
         </div>
+        <div class="sidebar-link" onclick="window.location.href='contract.html'">
+          <span class="sl-icon">✍️</span> My Agreement
+        </div>
         <!-- Admin only -->
+        <div class="sidebar-link admin-only" onclick="window.location.href='contract.html'" style="display:none" id="sl-contract-link">
+          <span class="sl-icon">✍️</span> Sign Agreement
+        </div>
+        <div class="sidebar-link admin-only" onclick="window.location.href='audit.html'" style="display:none" id="sl-audit-link">
+          <span class="sl-icon">📋</span> Audit Log
+        </div>
         <div class="sidebar-link admin-only" onclick="window.location.href='monitor.html'" style="display:none" id="sl-monitor-link">
           <span class="sl-icon">📡</span> Analytics Monitor
         </div>
@@ -810,17 +904,22 @@ function launchPortal() {
     document.getElementById('state-toggle').style.display = 'flex';
     document.getElementById('sl-traders').style.display = 'flex';
     document.getElementById('sl-monitor-link').style.display = 'flex';
+    document.getElementById('sl-contract-link').style.display = 'flex';
+    document.getElementById('sl-audit-link').style.display = 'flex';
   } else {
     document.getElementById('role-badge').textContent = 'Trader';
     document.getElementById('role-badge').className = 'role-badge trader';
     document.getElementById('state-toggle').style.display = 'none';
     document.getElementById('sl-traders').style.display = 'none';
     document.getElementById('sl-monitor-link').style.display = 'none';
+    document.getElementById('sl-contract-link').style.display = 'none';
+    document.getElementById('sl-audit-link').style.display = 'none';
   }
 
   renderAll();
   renderMessages();
   renderTraders();
+  renderNotifications();
 }
 
 // ══ STATE ══════════════════════════════════════════════
@@ -1197,6 +1296,78 @@ function showSection(id, el) {
   document.getElementById('topbar-section').textContent = names[id] || id;
   if (id === 'messages') document.getElementById('msg-badge').style.display = 'none';
 }
+
+// ══ NOTIFICATIONS ══════════════════════════════════════
+const NOTIFICATIONS = [
+  { id:1, icon:'🎉', bg:'var(--green-dim)',  msg:'Your withdrawal threshold of $600 has been reached. Payout is being processed.', time:'Just now', unread:true },
+  { id:2, icon:'📬', bg:'var(--gold-dim)',   msg:'New message from Kelvin Chafachaipa (CEO): Welcome to Lazzer Quant.', time:'2 hours ago', unread:true },
+  { id:3, icon:'📋', bg:'var(--blue-dim)',   msg:'Your Funded Trader Agreement is ready to sign. Please review and sign to activate your account.', time:'Today, 09:00', unread:true },
+  { id:4, icon:'⚠️', bg:'var(--orange-dim)', msg:'Platform maintenance on Deriv MT5 — Sunday Mar 16, 02:00–04:00 CAT. Avoid open trades.', time:'Yesterday', unread:false },
+  { id:5, icon:'✅', bg:'var(--green-dim)',  msg:'Phase 1 Challenge rules reminder sent by Tatenda Fortune Vambe (COO).', time:'Mar 14', unread:false },
+];
+
+function renderNotifications() {
+  const unread = NOTIFICATIONS.filter(n => n.unread).length;
+  const badge = document.getElementById('notif-badge');
+  badge.textContent = unread;
+  badge.style.display = unread > 0 ? 'flex' : 'none';
+  document.getElementById('notif-badge').textContent = unread;
+
+  const list = document.getElementById('notif-list');
+  if (NOTIFICATIONS.length === 0) {
+    list.innerHTML = '<div class="nd-empty">🎉 You are all caught up!</div>';
+    return;
+  }
+  list.innerHTML = NOTIFICATIONS.map(n => `
+    <div class="nd-item ${n.unread ? 'unread' : ''}" onclick="markNotifRead(${n.id})">
+      <div class="nd-icon" style="background:${n.bg};">${n.icon}</div>
+      <div class="nd-body">
+        <div class="nd-msg">${n.msg}</div>
+        <div class="nd-time">${n.time}</div>
+      </div>
+      ${n.unread ? '<div class="nd-unread-dot"></div>' : ''}
+    </div>
+  `).join('');
+}
+
+function toggleNotifDropdown() {
+  const dd = document.getElementById('notif-dropdown');
+  dd.classList.toggle('open');
+}
+
+function markNotifRead(id) {
+  const n = NOTIFICATIONS.find(x => x.id === id);
+  if (n) { n.unread = false; renderNotifications(); }
+}
+
+function clearAllNotifs() {
+  NOTIFICATIONS.forEach(n => n.unread = false);
+  renderNotifications();
+  document.getElementById('notif-dropdown').classList.remove('open');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('notif-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('notif-dropdown').classList.remove('open');
+  }
+});
+
+// ══ MOBILE SIDEBAR ═════════════════════════════════════
+function toggleMobileSidebar() {
+  document.querySelector('.sidebar').classList.toggle('mobile-open');
+}
+
+// Close sidebar when clicking outside on mobile
+document.addEventListener('click', e => {
+  const sidebar = document.querySelector('.sidebar');
+  const btn = document.getElementById('mobile-menu-btn');
+  if (window.innerWidth <= 900 && sidebar && !sidebar.contains(e.target) && btn && !btn.contains(e.target)) {
+    sidebar.classList.remove('mobile-open');
+  }
+});
+
 </script>
 </body>
 </html>
