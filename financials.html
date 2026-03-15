@@ -214,6 +214,9 @@ html,body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif
     <div class="sb-link active" id="sl-income" onclick="showSection('income',this)"><span class="sb-icon">📈</span> Income Statement</div>
     <div class="sb-link" id="sl-balance" onclick="showSection('balance',this)"><span class="sb-icon">⚖️</span> Balance Sheet</div>
     <div class="sb-link" id="sl-cashflow" onclick="showSection('cashflow',this)"><span class="sb-icon">💧</span> Cash Flow</div>
+    <div class="sb-label">Master Account</div>
+    <div class="sb-link" id="sl-master" onclick="showSection('master',this)"><span class="sb-icon">🏦</span> Firm Account</div>
+    <div class="sb-link" id="sl-founders" onclick="showSection('founders',this)"><span class="sb-icon">👑</span> Founder Payout</div>
     <div class="sb-label">Details</div>
     <div class="sb-link" id="sl-expenses" onclick="showSection('expenses',this)"><span class="sb-icon">🧾</span> Expense Tracker</div>
     <div class="sb-link" id="sl-notes" onclick="showSection('notes',this)"><span class="sb-icon">📋</span> Notes to Financials</div>
@@ -393,7 +396,172 @@ html,body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif
       <div id="notes-list"></div>
     </div>
 
+
+    <!-- ══ MASTER ACCOUNT ═══════════════════════════ -->
+    <div class="section" id="section-master">
+      <div class="pg-header">
+        <div><div class="pg-title">Firm Master Account</div><div class="pg-sub">All firm cash flows pass through this account · CEO &amp; COO view</div></div>
+        <div class="pg-actions">
+          <button class="action-btn outline" onclick="exportStatement('Master Account Statement')">Export Statement</button>
+        </div>
+      </div>
+
+      <!-- Master balance card -->
+      <div style="background:linear-gradient(135deg,var(--navy-card),#0d1e38);border:1px solid var(--gold-border);border-radius:20px;padding:36px;margin-bottom:24px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light),var(--gold));"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:20px;">
+          <div>
+            <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Master Account Balance</div>
+            <div style="font-family:'Outfit',sans-serif;font-size:52px;font-weight:800;color:var(--white);letter-spacing:-2px;line-height:1;" id="master-balance">$0.00</div>
+            <div style="font-size:14px;color:var(--muted);margin-top:8px;" id="master-status-text">Loading...</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px;min-width:220px;">
+            <div style="background:rgba(255,255,255,0.04);border:1px solid var(--navy-border);border-radius:12px;padding:14px 18px;">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:0.5px;">Withdrawal Threshold</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:var(--gold);">$1,000.00</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.04);border:1px solid var(--navy-border);border-radius:12px;padding:14px 18px;">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:0.5px;">Available for Withdrawal</div>
+              <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;" id="master-available">$0.00</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:28px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;color:var(--muted);">
+            <span>Progress to withdrawal threshold</span>
+            <span id="master-pct">0%</span>
+          </div>
+          <div style="height:10px;background:rgba(255,255,255,0.06);border-radius:5px;overflow:hidden;">
+            <div id="master-progress-bar" style="height:100%;border-radius:5px;background:var(--gold);transition:width 0.5s;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recommendation banner -->
+      <div id="withdrawal-recommendation" style="margin-bottom:24px;"></div>
+
+      <div class="stat-row">
+        <div class="stat-card green"><div class="sc-lbl">Total Inflows</div><div class="sc-val" style="color:var(--green)" id="ma-inflows">$0</div><div class="sc-sub neutral">This period</div></div>
+        <div class="stat-card red"><div class="sc-lbl">Total Outflows</div><div class="sc-val" style="color:var(--red)" id="ma-outflows">$0</div><div class="sc-sub neutral">This period</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">Capital Allocated</div><div class="sc-val" style="color:var(--blue)" id="ma-allocated">$0</div><div class="sc-sub neutral">In trader accounts</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">Pending Payouts</div><div class="sc-val" style="color:var(--orange)" id="ma-pending-pay">$0</div><div class="sc-sub neutral">Trader + founder</div></div>
+        <div class="stat-card gold"><div class="sc-lbl">Net Position</div><div class="sc-val" style="color:var(--gold)" id="ma-net">$0</div><div class="sc-sub up">After all obligations</div></div>
+      </div>
+
+      <!-- Transaction ledger -->
+      <div class="fs-card" style="padding:0;overflow:hidden;">
+        <div style="padding:18px 20px;border-bottom:1px solid var(--navy-border);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:14px;font-weight:700;">Master Account Ledger</span>
+          <span style="font-size:12px;color:var(--muted);">Every cash movement in and out of the firm</span>
+        </div>
+        <table class="exp-table" style="width:100%;">
+          <thead><tr><th>#</th><th>Date</th><th>Description</th><th>Type</th><th>Debit</th><th>Credit</th><th>Balance</th></tr></thead>
+          <tbody id="ledger-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ FOUNDER PAYOUT ════════════════════════════ -->
+    <div class="section" id="section-founders">
+      <div class="pg-header">
+        <div><div class="pg-title">Founder Payout</div><div class="pg-sub">CEO only · Withdraw from master account when conditions are met</div></div>
+      </div>
+
+      <!-- Founder split cards -->
+      <div class="grid-2" style="margin-bottom:24px;">
+        <div style="background:var(--navy-card);border:1px solid var(--gold-border);border-radius:20px;padding:32px;text-align:center;">
+          <div style="font-size:48px;margin-bottom:12px;">👑</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px;">Kelvin Chafachaipa</div>
+          <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;">CEO & Founder · 60%</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:40px;font-weight:800;color:var(--gold);margin-bottom:8px;" id="ceo-share">$0.00</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">60% of available withdrawal amount</div>
+          <button class="action-btn gold" id="ceo-withdraw-btn" onclick="openFounderWithdrawal('ceo')" style="width:100%;padding:12px;">Request Withdrawal</button>
+        </div>
+        <div style="background:var(--navy-card);border:1px solid var(--navy-border);border-radius:20px;padding:32px;text-align:center;">
+          <div style="font-size:48px;margin-bottom:12px;">⚙️</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px;">Tatenda Fortune Vambe</div>
+          <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;">COO & Co-Founder · 40%</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:40px;font-weight:800;color:var(--text);margin-bottom:8px;" id="coo-share">$0.00</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">40% of available withdrawal amount</div>
+          <button class="action-btn outline" id="coo-withdraw-btn" onclick="openFounderWithdrawal('coo')" style="width:100%;padding:12px;">Request Withdrawal</button>
+        </div>
+      </div>
+
+      <!-- Conditions panel -->
+      <div class="fs-card" style="margin-bottom:20px;">
+        <div class="fs-header"><span class="fs-title">Withdrawal Conditions</span><span class="fs-period" id="founder-conditions-status">Checking...</span></div>
+        <div id="founder-conditions" style="padding:20px 24px;"></div>
+      </div>
+
+      <!-- Withdrawal history -->
+      <div class="fs-card" style="padding:0;overflow:hidden;">
+        <div style="padding:18px 20px;border-bottom:1px solid var(--navy-border);">
+          <span style="font-size:14px;font-weight:700;">Founder Withdrawal History</span>
+        </div>
+        <table class="exp-table" style="width:100%;">
+          <thead><tr><th>Date</th><th>Founder</th><th>Amount</th><th>Method</th><th>Status</th></tr></thead>
+          <tbody id="founder-history-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div><!-- end main -->
+
+<!-- FOUNDER WITHDRAWAL MODAL -->
+<div class="modal-overlay" id="founder-modal">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-header">
+      <span class="modal-title" id="founder-modal-title">Founder Withdrawal</span>
+      <button class="modal-close" onclick="document.getElementById('founder-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="payout-summary" id="founder-modal-summary"></div>
+      <div class="f-group">
+        <label class="f-label">Withdrawal Amount (USD) <span style="color:var(--red)">*</span></label>
+        <input type="number" class="f-input" id="founder-amount" placeholder="0.00" step="0.01" min="1">
+        <div style="font-size:11px;color:var(--muted);margin-top:6px;" id="founder-max-hint">Maximum available: $0.00</div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Payment Method</label>
+        <select class="f-select" id="founder-method">
+          <option>Wise Transfer</option>
+          <option>USDT (Tether)</option>
+          <option>Cash</option>
+          <option>Bank Transfer</option>
+        </select>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Notes</label>
+        <textarea class="f-textarea" id="founder-notes" placeholder="Reason for withdrawal..." style="min-height:60px;"></textarea>
+      </div>
+      <div style="padding:12px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:8px;font-size:12px;color:var(--text);line-height:1.6;">
+        ⚠️ This withdrawal will be deducted from the master account. Ensure sufficient reserves remain for operations and trader capital.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn outline" onclick="document.getElementById('founder-modal').classList.remove('open')">Cancel</button>
+      <button class="action-btn gold" onclick="processFounderWithdrawal()">Confirm Withdrawal →</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPENSE APPROVAL MODAL (CEO) -->
+<div class="modal-overlay" id="approve-modal">
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-header">
+      <span class="modal-title">Review Expense</span>
+      <button class="modal-close" onclick="document.getElementById('approve-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="approve-expense-detail"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn red" onclick="rejectExpense()">✗ Reject</button>
+      <button class="action-btn gold" onclick="approveExpense()">✓ Approve</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- end body-wrap -->
 </div><!-- end shell -->
 
@@ -412,7 +580,7 @@ html,body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif
         </div>
         <div class="f-group">
           <label class="f-label">Amount (USD) <span>*</span></label>
-          <input type="number" class="f-input" id="exp-amount" placeholder="0.00" step="0.01" min="0">
+          <input type="number" class="f-input" id="exp-amount" placeholder="0.00" step="0.01" min="0" oninput="checkApproverRule(this.value)">
         </div>
       </div>
       <div class="f-group">
@@ -1101,6 +1269,413 @@ function showToast(msg, type='info') {
 // ══ INIT ═══════════════════════════════════════════════
 renderNotes();
 renderAll();
+
+// ══ MASTER ACCOUNT DATA ════════════════════════════════
+// In Phase 2B this syncs with Django backend
+const MASTER = {
+  openingBalance: 800.00,
+  transactions: [
+    { id:1, date:'2026-02-28', desc:'Owner Capital Contribution — Kelvin Chafachaipa', type:'Credit', amount:800.00 },
+    { id:2, date:'2026-03-01', desc:'Trading Profit (30% firm share) — Week 1', type:'Credit', amount:128.40 },
+    { id:3, date:'2026-03-01', desc:'Vercel Pro Hosting', type:'Debit', amount:20.00 },
+    { id:4, date:'2026-03-03', desc:'Trader Payout — Simba Makoni (L1)', type:'Debit', amount:175.00 },
+    { id:5, date:'2026-03-05', desc:'Capital Allocated — Deriv Accounts (4)', type:'Debit', amount:200.00 },
+    { id:6, date:'2026-03-05', desc:'Deriv MT5 Account Maintenance', type:'Debit', amount:5.00 },
+    { id:7, date:'2026-03-07', desc:'Facebook Ads — Trader Recruitment', type:'Debit', amount:8.00 },
+    { id:8, date:'2026-03-08', desc:'Trading Profit (30% firm share) — Week 2', type:'Credit', amount:96.30 },
+    { id:9, date:'2026-03-10', desc:'Google Domain Registration', type:'Debit', amount:12.00 },
+    { id:10, date:'2026-03-12', desc:'Trader Payout — Admire Mureza (L1)', type:'Debit', amount:123.40 },
+    { id:11, date:'2026-03-14', desc:'Trading Profit (30% firm share) — Week 3', type:'Credit', amount:102.60 },
+    { id:14, date:'2026-03-14', desc:'Office Stationery & Supplies', type:'Debit', amount:5.00 },
+    { id:15, date:'2026-03-15', desc:'Exness Spread Costs', type:'Debit', amount:7.50 },
+    { id:16, date:'2026-03-15', desc:'WhatsApp Business API', type:'Debit', amount:3.00 },
+    { id:17, date:'2026-03-15', desc:'Miscellaneous Admin Costs', type:'Debit', amount:3.20 },
+  ],
+  capitalAllocated: 200.00,
+  pendingTraderPayouts: 123.40,
+};
+
+const FOUNDER_HISTORY = [
+  { date:'2026-02-15', founder:'Kelvin Chafachaipa', amount:120.00, method:'Wise Transfer', status:'Completed' },
+  { date:'2026-02-15', founder:'Tatenda Fortune Vambe', amount:80.00, method:'USDT (Tether)', status:'Completed' },
+];
+
+let currentFounderWithdrawal = null;
+let currentApprovalExpense = null;
+
+// ── Compute master balance ──
+function getMasterBalance() {
+  let bal = 0;
+  MASTER.transactions.forEach(t => {
+    bal += t.type === 'Credit' ? t.amount : -t.amount;
+  });
+  return bal;
+}
+
+function getMasterAvailable() {
+  const bal = getMasterBalance();
+  const threshold = 1000;
+  return Math.max(bal - threshold, 0);
+}
+
+// ── Render master account ──
+function renderMasterAccount() {
+  const bal = getMasterBalance();
+  const available = getMasterAvailable();
+  const threshold = 1000;
+  const pct = Math.min((bal / threshold) * 100, 100).toFixed(0);
+
+  const totalCredits = MASTER.transactions.filter(t=>t.type==='Credit').reduce((s,t)=>s+t.amount,0);
+  const totalDebits  = MASTER.transactions.filter(t=>t.type==='Debit').reduce((s,t)=>s+t.amount,0);
+
+  document.getElementById('master-balance').textContent = fmt(bal);
+  document.getElementById('master-balance').style.color = bal >= threshold ? 'var(--gold)' : 'var(--white)';
+  document.getElementById('master-available').textContent = fmt(available);
+  document.getElementById('master-available').style.color = available > 0 ? 'var(--green)' : 'var(--muted)';
+  document.getElementById('master-pct').textContent = pct + '%';
+  document.getElementById('master-progress-bar').style.width = pct + '%';
+  document.getElementById('master-progress-bar').style.background = bal >= threshold ? 'var(--green)' : 'var(--gold)';
+
+  // Status text
+  if (bal >= threshold) {
+    document.getElementById('master-status-text').innerHTML = '<span style="color:var(--green);font-weight:700;">✅ Above threshold — Founders may withdraw</span>';
+  } else {
+    document.getElementById('master-status-text').innerHTML = `<span style="color:var(--muted);">$${(threshold - bal).toFixed(2)} more needed to reach withdrawal threshold</span>`;
+  }
+
+  // Recommendation banner
+  const recEl = document.getElementById('withdrawal-recommendation');
+  if (bal >= threshold) {
+    recEl.innerHTML = `<div style="background:var(--green-dim);border:1px solid rgba(34,197,94,0.3);border-radius:14px;padding:18px 22px;display:flex;align-items:center;gap:16px;">
+      <span style="font-size:28px;">✅</span>
+      <div>
+        <div style="font-weight:700;color:var(--green);margin-bottom:4px;">Good time to withdraw</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;">Master account balance of ${fmt(bal)} exceeds the $1,000 threshold. Available for withdrawal: <strong style="color:var(--green);">${fmt(available)}</strong>. All operational expenses and trader obligations are covered.</div>
+      </div>
+    </div>`;
+  } else if (bal >= threshold * 0.7) {
+    recEl.innerHTML = `<div style="background:var(--orange-dim);border:1px solid rgba(249,115,22,0.3);border-radius:14px;padding:18px 22px;display:flex;align-items:center;gap:16px;">
+      <span style="font-size:28px;">⚠️</span>
+      <div>
+        <div style="font-weight:700;color:var(--orange);margin-bottom:4px;">Not yet — approaching threshold</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;">Balance is ${pct}% of the $1,000 withdrawal threshold. Wait until balance exceeds $1,000 before withdrawing to maintain healthy reserves.</div>
+      </div>
+    </div>`;
+  } else {
+    recEl.innerHTML = `<div style="background:var(--red-dim);border:1px solid rgba(239,68,68,0.3);border-radius:14px;padding:18px 22px;display:flex;align-items:center;gap:16px;">
+      <span style="font-size:28px;">🚫</span>
+      <div>
+        <div style="font-weight:700;color:var(--red);margin-bottom:4px;">Not recommended — insufficient reserves</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;">Balance is below 70% of the withdrawal threshold. Focus on generating more trading profit before considering a founder withdrawal.</div>
+      </div>
+    </div>`;
+  }
+
+  // Stats
+  document.getElementById('ma-inflows').textContent = fmt(totalCredits);
+  document.getElementById('ma-outflows').textContent = fmt(totalDebits);
+  document.getElementById('ma-allocated').textContent = fmt(MASTER.capitalAllocated);
+  document.getElementById('ma-pending-pay').textContent = fmt(MASTER.pendingTraderPayouts);
+  document.getElementById('ma-net').textContent = fmt(bal - MASTER.capitalAllocated - MASTER.pendingTraderPayouts);
+
+  // Ledger
+  let running = 0;
+  const rows = MASTER.transactions.map((t, i) => {
+    running += t.type === 'Credit' ? t.amount : -t.amount;
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px;">${i+1}</td>
+      <td style="font-size:12px;color:var(--muted);">${t.date}</td>
+      <td style="font-weight:600;">${t.desc}</td>
+      <td><span style="padding:3px 8px;border-radius:100px;font-size:11px;font-weight:700;background:${t.type==='Credit'?'var(--green-dim)':'var(--red-dim)'};color:${t.type==='Credit'?'var(--green)':'var(--red)'};border:1px solid ${t.type==='Credit'?'rgba(34,197,94,0.25)':'rgba(239,68,68,0.25)'};">${t.type}</span></td>
+      <td style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--red);">${t.type==='Debit'?fmt(t.amount):'—'}</td>
+      <td style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--green);">${t.type==='Credit'?fmt(t.amount):'—'}</td>
+      <td style="font-family:'Outfit',sans-serif;font-weight:700;color:${running>=0?'var(--white)':'var(--red)'};">${fmt(running)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('ledger-tbody').innerHTML = rows;
+}
+
+// ── Render founder payout ──
+function renderFounderPayout() {
+  const available = getMasterAvailable();
+  const bal = getMasterBalance();
+  const ceoShare = available * 0.60;
+  const cooShare = available * 0.40;
+  const canWithdraw = bal >= 1000;
+
+  document.getElementById('ceo-share').textContent = fmt(ceoShare);
+  document.getElementById('coo-share').textContent = fmt(cooShare);
+  document.getElementById('ceo-share').style.color = canWithdraw ? 'var(--gold)' : 'var(--muted)';
+  document.getElementById('coo-share').style.color = canWithdraw ? 'var(--text)' : 'var(--muted)';
+
+  const ceoBtn = document.getElementById('ceo-withdraw-btn');
+  const cooBtn = document.getElementById('coo-withdraw-btn');
+  ceoBtn.disabled = !canWithdraw;
+  cooBtn.disabled = !canWithdraw;
+  if (!canWithdraw) {
+    ceoBtn.style.opacity = '0.4'; ceoBtn.style.cursor = 'not-allowed';
+    cooBtn.style.opacity = '0.4'; cooBtn.style.cursor = 'not-allowed';
+  } else {
+    ceoBtn.style.opacity = '1'; ceoBtn.style.cursor = 'pointer';
+    cooBtn.style.opacity = '1'; cooBtn.style.cursor = 'pointer';
+  }
+
+  // Conditions
+  const conditions = [
+    { label:'Master account balance ≥ $1,000', met: bal >= 1000, detail: `Current: ${fmt(bal)}` },
+    { label:'No pending trader payouts blocking reserves', met: MASTER.pendingTraderPayouts < bal * 0.3, detail:`Pending: ${fmt(MASTER.pendingTraderPayouts)}` },
+    { label:'All approved expenses are settled', met: EXPENSES.filter(e=>e.status==='Pending').length === 0, detail:`${EXPENSES.filter(e=>e.status==='Pending').length} pending expenses` },
+    { label:'Available after reserves ($1,000 minimum kept)', met: available > 0, detail:`Available: ${fmt(available)}` },
+  ];
+
+  const allMet = conditions.every(c => c.met);
+  document.getElementById('founder-conditions-status').textContent = allMet ? '✅ Conditions Met' : '⚠️ Not Ready';
+  document.getElementById('founder-conditions-status').style.color = allMet ? 'var(--green)' : 'var(--orange)';
+
+  document.getElementById('founder-conditions').innerHTML = conditions.map(c => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">${c.met ? '✅' : '❌'}</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:${c.met?'var(--white)':'var(--muted)'};">${c.label}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">${c.detail}</div>
+        </div>
+      </div>
+      <span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px;background:${c.met?'var(--green-dim)':'var(--red-dim)'};color:${c.met?'var(--green)':'var(--red)'};">${c.met?'Met':'Not met'}</span>
+    </div>
+  `).join('') + '<div style="height:8px;"></div>';
+
+  // History
+  document.getElementById('founder-history-tbody').innerHTML = FOUNDER_HISTORY.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted);">No withdrawals yet.</td></tr>'
+    : FOUNDER_HISTORY.map(h => `<tr>
+        <td style="font-size:12px;color:var(--muted);">${h.date}</td>
+        <td style="font-weight:600;">${h.founder}</td>
+        <td style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--gold);">${fmt(h.amount)}</td>
+        <td style="font-size:12px;color:var(--muted);">${h.method}</td>
+        <td><span style="padding:3px 8px;border-radius:100px;font-size:11px;font-weight:700;background:var(--green-dim);color:var(--green);">${h.status}</span></td>
+      </tr>`).join('');
+}
+
+// ── Founder withdrawal modal ──
+function openFounderWithdrawal(who) {
+  const available = getMasterAvailable();
+  const share = who === 'ceo' ? available * 0.60 : available * 0.40;
+  const name = who === 'ceo' ? 'Kelvin Chafachaipa (CEO · 60%)' : 'Tatenda Fortune Vambe (COO · 40%)';
+  currentFounderWithdrawal = { who, share };
+
+  document.getElementById('founder-modal-title').textContent = `Withdrawal — ${who.toUpperCase()}`;
+  document.getElementById('founder-amount').value = share.toFixed(2);
+  document.getElementById('founder-amount').max = share;
+  document.getElementById('founder-max-hint').textContent = `Maximum available: ${fmt(share)}`;
+  document.getElementById('founder-modal-summary').innerHTML = `
+    <div class="ps-row"><span class="ps-label">Founder</span><span class="ps-val">${name}</span></div>
+    <div class="ps-row"><span class="ps-label">Ownership Share</span><span class="ps-val" style="color:var(--gold);">${who==='ceo'?'60%':'40%'}</span></div>
+    <div class="ps-row"><span class="ps-label">Available Amount</span><span class="ps-val" style="color:var(--green);">${fmt(share)}</span></div>
+    <div class="ps-row"><span class="ps-label">Master Balance After</span><span class="ps-val">${fmt(getMasterBalance() - share)}</span></div>
+  `;
+  document.getElementById('founder-modal').classList.add('open');
+}
+
+function processFounderWithdrawal() {
+  const amount = parseFloat(document.getElementById('founder-amount').value);
+  const method = document.getElementById('founder-method').value;
+  const notes  = document.getElementById('founder-notes').value;
+  if (!amount || amount <= 0) { showToast('Please enter a valid amount', 'error'); return; }
+  if (amount > currentFounderWithdrawal.share) { showToast('Amount exceeds your available share', 'error'); return; }
+
+  const name = currentFounderWithdrawal.who === 'ceo' ? 'Kelvin Chafachaipa' : 'Tatenda Fortune Vambe';
+  MASTER.transactions.push({
+    id: MASTER.transactions.length + 1,
+    date: new Date().toISOString().split('T')[0],
+    desc: `Founder Withdrawal — ${name}`,
+    type: 'Debit',
+    amount
+  });
+  FOUNDER_HISTORY.unshift({ date: new Date().toISOString().split('T')[0], founder: name, amount, method, status:'Completed' });
+
+  document.getElementById('founder-modal').classList.remove('open');
+  renderMasterAccount();
+  renderFounderPayout();
+  showToast(`Withdrawal of ${fmt(amount)} processed for ${name}`, 'success');
+  currentFounderWithdrawal = null;
+}
+
+// ══ APPROVAL SYSTEM ════════════════════════════════════
+function checkApproverRule(val) {
+  const amount = parseFloat(val) || 0;
+  const select = document.getElementById('exp-approver');
+  const hint   = document.getElementById('approver-hint');
+
+  if (amount >= 100) {
+    // Lock to CEO only
+    select.innerHTML = '<option value="ceo">Kelvin Chafachaipa (CEO) — Required for $100+</option>';
+    hint.textContent = '⚠️ Expenses $100 or more require CEO approval only.';
+    hint.style.color = 'var(--orange)';
+  } else if (amount > 0) {
+    select.innerHTML = `<option value="ceo">Kelvin Chafachaipa (CEO)</option><option value="coo">Tatenda Fortune Vambe (COO)</option>`;
+    hint.textContent = 'Under $100 — either the CEO or COO can approve.';
+    hint.style.color = 'var(--muted)';
+  } else {
+    select.innerHTML = `<option value="ceo">Kelvin Chafachaipa (CEO)</option><option value="coo">Tatenda Fortune Vambe (COO)</option>`;
+    hint.textContent = 'Enter an amount to see approval rules.';
+    hint.style.color = 'var(--muted)';
+  }
+}
+
+// Override submitExpense to use new approval logic
+const _origSubmit = submitExpense;
+submitExpense = function() {
+  const amount   = parseFloat(document.getElementById('exp-amount').value);
+  const desc     = document.getElementById('exp-desc').value.trim();
+  const cat      = document.getElementById('exp-cat').value;
+  const date     = document.getElementById('exp-date').value;
+  const method   = document.getElementById('exp-method').value;
+  const vendor   = document.getElementById('exp-vendor').value.trim();
+  const ref      = document.getElementById('exp-ref').value.trim();
+  const notes    = document.getElementById('exp-notes').value.trim();
+  const approverVal = document.getElementById('exp-approver').value;
+
+  if (!date || !amount || !desc || !cat) { showToast('Please fill in all required fields', 'error'); return; }
+  if (amount <= 0) { showToast('Amount must be greater than zero', 'error'); return; }
+
+  // Simulate logged-in role — in Phase 2B this comes from session
+  const loggedInRole = 'coo'; // Change to 'ceo' to test CEO path
+
+  let status, approverName, emailSent = false;
+
+  if (loggedInRole === 'ceo') {
+    // CEO adding expense — auto-approved
+    status = 'Approved';
+    approverName = 'Kelvin Chafachaipa (CEO) — Auto-approved';
+  } else {
+    // COO adding expense
+    if (amount >= 100) {
+      // Must wait for CEO
+      status = 'Pending CEO Approval';
+      approverName = 'Pending — Kelvin Chafachaipa (CEO)';
+      emailSent = true;
+    } else {
+      if (approverVal === 'ceo') {
+        status = 'Pending CEO Approval';
+        approverName = 'Pending — Kelvin Chafachaipa (CEO)';
+        emailSent = true;
+      } else {
+        status = 'Approved';
+        approverName = 'Tatenda Fortune Vambe (COO)';
+      }
+    }
+  }
+
+  const newExp = { id: nextId++, date, desc, cat, amount, vendor:vendor||'—', ref:ref||'—', method:method||'—', notes, approver:approverName, status };
+  EXPENSES.unshift(newExp);
+
+  const catKey = { 'Trader Payouts':'traderPayouts','Platform/Broker Fees':'brokerFees','Staff Salaries':'salaries','Technology & Hosting':'techHosting','Legal & Compliance':'legal','Marketing':'marketing','Office & Operations':'office','Miscellaneous':'misc' };
+  const key = catKey[cat];
+  if (key && status === 'Approved') { DATA.monthly[key] += amount; DATA.quarterly[key] += amount; }
+
+  closeExpenseModal();
+  renderAll();
+
+  if (emailSent) {
+    showToast(`Expense submitted — CEO email notification sent for approval`, 'info');
+    // Simulate CEO notification appearing
+    setTimeout(() => {
+      showPendingApprovalBanner();
+    }, 1000);
+  } else {
+    showToast(`Expense of ${fmt(amount)} added and approved`, 'success');
+  }
+
+  // Clear form
+  ['exp-amount','exp-desc','exp-vendor','exp-ref','exp-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('exp-cat').value = '';
+  document.getElementById('exp-method').value = '';
+  checkApproverRule(0);
+};
+
+function showPendingApprovalBanner() {
+  const pending = EXPENSES.filter(e => e.status === 'Pending CEO Approval');
+  if (pending.length === 0) return;
+  const banner = document.getElementById('pending-approval-banner');
+  if (banner) banner.remove();
+
+  const div = document.createElement('div');
+  div.id = 'pending-approval-banner';
+  div.style.cssText = 'position:fixed;top:70px;right:20px;background:var(--navy-card);border:1px solid var(--gold-border);border-radius:14px;padding:16px 20px;max-width:360px;z-index:800;box-shadow:0 8px 32px rgba(0,0,0,0.5);';
+  div.innerHTML = `
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">📧 CEO Approval Required</div>
+    <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:14px;">${pending.length} expense(s) pending your approval. An email has been sent to ceo@lazzerquant.com.</div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="openApprovalQueue()" style="flex:1;padding:8px;background:var(--gold);color:var(--navy);border:none;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;">Review Now</button>
+      <button onclick="this.parentElement.parentElement.remove()" style="padding:8px 12px;background:transparent;border:1px solid var(--navy-border);border-radius:7px;color:var(--muted);font-size:12px;cursor:pointer;">Later</button>
+    </div>
+  `;
+  document.body.appendChild(div);
+}
+
+function openApprovalQueue() {
+  const pending = EXPENSES.filter(e => e.status === 'Pending CEO Approval');
+  if (pending.length === 0) { showToast('No expenses pending approval', 'info'); return; }
+  const e = pending[0];
+  currentApprovalExpense = e;
+  document.getElementById('approve-expense-detail').innerHTML = `
+    <div style="background:var(--navy);border:1px solid var(--navy-border);border-radius:12px;padding:18px;margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;"><span style="color:var(--muted);">Description</span><span style="font-weight:600;">${e.desc}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;"><span style="color:var(--muted);">Category</span><span>${e.cat}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;"><span style="color:var(--muted);">Amount</span><span style="font-family:'Outfit',sans-serif;font-weight:800;font-size:18px;color:var(--red);">${fmt(e.amount)}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;"><span style="color:var(--muted);">Vendor</span><span>${e.vendor}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:14px;"><span style="color:var(--muted);">Date</span><span>${e.date}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px;"><span style="color:var(--muted);">Submitted by</span><span style="color:var(--gold);">Tatenda Fortune Vambe (COO)</span></div>
+    </div>
+    ${e.notes ? `<div style="font-size:13px;color:var(--muted);font-style:italic;padding:12px;background:rgba(255,255,255,0.02);border-radius:8px;">Notes: ${e.notes}</div>` : ''}
+    ${e.amount >= 100 ? '<div style="margin-top:12px;padding:10px 14px;background:var(--orange-dim);border:1px solid rgba(249,115,22,0.3);border-radius:8px;font-size:12px;color:var(--orange);">⚠️ This expense is $100 or more — CEO approval is mandatory.</div>' : ''}
+  `;
+  document.getElementById('approve-modal').classList.add('open');
+  const banner = document.getElementById('pending-approval-banner');
+  if (banner) banner.remove();
+}
+
+function approveExpense() {
+  if (!currentApprovalExpense) return;
+  currentApprovalExpense.status = 'Approved';
+  currentApprovalExpense.approver = 'Kelvin Chafachaipa (CEO)';
+  // Update financial totals
+  const catKey = { 'Trader Payouts':'traderPayouts','Platform/Broker Fees':'brokerFees','Staff Salaries':'salaries','Technology & Hosting':'techHosting','Legal & Compliance':'legal','Marketing':'marketing','Office & Operations':'office','Miscellaneous':'misc' };
+  const key = catKey[currentApprovalExpense.cat];
+  if (key) { DATA.monthly[key] += currentApprovalExpense.amount; DATA.quarterly[key] += currentApprovalExpense.amount; }
+  // Add to master account ledger
+  MASTER.transactions.push({ id: MASTER.transactions.length+1, date: currentApprovalExpense.date, desc: currentApprovalExpense.desc, type:'Debit', amount: currentApprovalExpense.amount });
+  document.getElementById('approve-modal').classList.remove('open');
+  renderAll();
+  showToast(`Expense approved: ${currentApprovalExpense.desc}`, 'success');
+  currentApprovalExpense = null;
+  // Check if more pending
+  setTimeout(() => showPendingApprovalBanner(), 500);
+}
+
+function rejectExpense() {
+  if (!currentApprovalExpense) return;
+  currentApprovalExpense.status = 'Rejected';
+  currentApprovalExpense.approver = 'Rejected — Kelvin Chafachaipa (CEO)';
+  document.getElementById('approve-modal').classList.remove('open');
+  renderAll();
+  showToast(`Expense rejected: ${currentApprovalExpense.desc}`, 'error');
+  currentApprovalExpense = null;
+}
+
+// ── Override renderAll to include new sections ──
+const _origRenderAll = renderAll;
+renderAll = function() {
+  _origRenderAll();
+  renderMasterAccount();
+  renderFounderPayout();
+  showPendingApprovalBanner();
+};
+
+// Show pending on load
+setTimeout(showPendingApprovalBanner, 1500);
+
 </script>
 </body>
 </html>
