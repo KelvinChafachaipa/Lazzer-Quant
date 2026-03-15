@@ -744,6 +744,7 @@ footer {
                   <th>Type</th>
                   <th>Trader</th>
                   <th>Broker</th>
+                  <th>Account Amt</th>
                   <th>Registered</th>
                   <th>Status</th>
                   <th>Actions</th>
@@ -774,14 +775,14 @@ footer {
 let DB = {
   // Pre-seeded demo codes (as if COO already generated these)
   codes: [
-    { code: 'D04821', type: 'demo', traderName: 'Tafadzwa Moyo',    broker: 'Deriv MT5',    date: 'Mar 10, 2026', status: 'registered', email: 'tafadzwa@email.com' },
-    { code: 'D71234', type: 'demo', traderName: 'Chiedza Mhene',    broker: 'Exness MT5',   date: 'Mar 11, 2026', status: 'registered', email: 'chiedza@email.com' },
-    { code: 'D39017', type: 'demo', traderName: 'Brian Mutasa',     broker: 'Weltrade MT5', date: 'Mar 12, 2026', status: 'registered', email: 'brian@email.com' },
-    { code: 'D55892', type: 'demo', traderName: 'Nyasha Zvobgo',    broker: 'Deriv MT5',    date: 'Mar 13, 2026', status: 'registered', email: 'nyasha@email.com' },
-    { code: 'R18204', type: 'real', traderName: 'Simba Makoni',     broker: 'Deriv MT5',    date: 'Feb 28, 2026', status: 'registered', email: 'simba@email.com' },
-    { code: 'R67441', type: 'real', traderName: 'Plaxedes Ncube',   broker: 'Exness MT5',   date: 'Mar 01, 2026', status: 'registered', email: 'plaxedes@email.com' },
-    { code: 'R92038', type: 'real', traderName: 'Admire Mureza',    broker: 'Deriv MT5',    date: 'Mar 03, 2026', status: 'registered', email: 'admire@email.com' },
-    { code: 'D22761', type: 'demo', traderName: '',                 broker: '',             date: 'Mar 15, 2026', status: 'pending',    email: '' }, // unused code
+    { code: 'D04821', type: 'demo', traderName: 'Tafadzwa Moyo',    broker: 'Deriv MT5',    date: 'Mar 10, 2026', status: 'registered', email: 'tafadzwa@email.com',  accountAmount: 50  },
+    { code: 'D71234', type: 'demo', traderName: 'Chiedza Mhene',    broker: 'Exness MT5',   date: 'Mar 11, 2026', status: 'registered', email: 'chiedza@email.com',  accountAmount: 50  },
+    { code: 'D39017', type: 'demo', traderName: 'Brian Mutasa',     broker: 'Weltrade MT5', date: 'Mar 12, 2026', status: 'registered', email: 'brian@email.com',    accountAmount: 50  },
+    { code: 'D55892', type: 'demo', traderName: 'Nyasha Zvobgo',    broker: 'Deriv MT5',    date: 'Mar 13, 2026', status: 'registered', email: 'nyasha@email.com',   accountAmount: 50  },
+    { code: 'R18204', type: 'real', traderName: 'Simba Makoni',     broker: 'Deriv MT5',    date: 'Feb 28, 2026', status: 'registered', email: 'simba@email.com',    accountAmount: 100 },
+    { code: 'R67441', type: 'real', traderName: 'Plaxedes Ncube',   broker: 'Exness MT5',   date: 'Mar 01, 2026', status: 'registered', email: 'plaxedes@email.com', accountAmount: 100 },
+    { code: 'R92038', type: 'real', traderName: 'Admire Mureza',    broker: 'Deriv MT5',    date: 'Mar 03, 2026', status: 'registered', email: 'admire@email.com',   accountAmount: 100 },
+    { code: 'D22761', type: 'demo', traderName: '',                 broker: '',             date: 'Mar 15, 2026', status: 'pending',    email: '',   accountAmount: 0   }, // unused code
   ],
   currentGenCode: null,
   genType: 'demo',
@@ -1025,13 +1026,14 @@ function saveCode() {
   }
 
   DB.codes.push({
-    code:        DB.currentGenCode,
-    type:        genType,
-    traderName:  name || '—',
-    broker:      broker || '—',
-    date:        new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }),
-    status:      'pending',
-    email:       '',
+    code:         DB.currentGenCode,
+    type:         genType,
+    traderName:   name || '—',
+    broker:       broker || '—',
+    date:         new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }),
+    status:       'pending',
+    email:        '',
+    accountAmount: 0,
   });
 
   showToast(`Code ${DB.currentGenCode} saved and activated`, 'success');
@@ -1083,29 +1085,32 @@ function renderTable() {
   }
 
   document.getElementById('empty-state').style.display = 'none';
-  tbody.innerHTML = filtered.map(c => `
-    <tr>
-      <td>
-        <span class="td-code ${c.type}">${c.code}</span>
-      </td>
-      <td>
-        <span class="badge badge-${c.type}">${c.type === 'demo' ? 'Demo' : 'Real'}</span>
-      </td>
+  const isCEO = loggedInAdmin && loggedInAdmin.email === 'ceo@lazzerquant.com';
+  tbody.innerHTML = filtered.map(c => {
+    const amtDisplay = c.accountAmount > 0
+      ? `<span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;color:${c.type==='real'?'var(--green)':'var(--gold)'};">$${c.accountAmount}</span>`
+      : `<span style="color:var(--text-muted);font-size:12px;">Not set</span>`;
+    const fundBtn = isCEO && c.status === 'registered'
+      ? `<button class="copy-btn" style="background:var(--green-dim);color:var(--green);border-color:rgba(34,197,94,0.3);" onclick="openFundModal('${c.code}','${c.traderName}',${c.accountAmount})">Add Fund</button>`
+      : '';
+    return `<tr>
+      <td><span class="td-code ${c.type}">${c.code}</span></td>
+      <td><span class="badge badge-${c.type}">${c.type === 'demo' ? 'Demo' : 'Real'}</span></td>
       <td>
         <div class="td-name">${c.traderName || '—'}</div>
         <div class="td-email">${c.email || 'Not yet registered'}</div>
       </td>
-      <td style="font-size:13px; color:var(--text-muted);">${c.broker || '—'}</td>
-      <td style="font-size:12px; color:var(--text-muted);">${c.date}</td>
-      <td>
-        <span class="badge badge-${c.status}">${c.status === 'registered' ? 'Registered' : 'Pending'}</span>
-      </td>
-      <td>
+      <td style="font-size:13px;color:var(--text-muted);">${c.broker || '—'}</td>
+      <td>${amtDisplay}</td>
+      <td style="font-size:12px;color:var(--text-muted);">${c.date}</td>
+      <td><span class="badge badge-${c.status}">${c.status === 'registered' ? 'Registered' : 'Pending'}</span></td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap;">
         <button class="copy-btn" onclick="copyCode('${c.code}')">Copy</button>
+        ${fundBtn}
         <button class="del-btn" onclick="askDelete('${c.code}')">Delete</button>
       </td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 function filterTable(val) {
@@ -1177,6 +1182,30 @@ window.addEventListener('hashchange', () => {
     <div class="cb-btns">
       <button class="cb-cancel" onclick="document.getElementById('cap-modal').classList.remove('open')">Cancel</button>
       <button style="padding:11px 24px;background:var(--gold);border:none;border-radius:8px;color:var(--navy);font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;" onclick="confirmAllocation()">Allocate Capital →</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ADD FUND MODAL (CEO ONLY) -->
+<div class="overlay" id="fund-overlay" style="display:none;">
+  <div class="confirm-box">
+    <div class="cb-icon">💰</div>
+    <div class="cb-title" id="fund-modal-title">Add Fund</div>
+    <div class="cb-body" id="fund-modal-body">Allocate capital to this trader's account from the master account.</div>
+    <div style="margin-bottom:18px;text-align:left;">
+      <label style="display:block;font-size:12px;font-weight:700;color:#cbd5e1;margin-bottom:7px;letter-spacing:0.3px;">Amount to Allocate (USD) <span style="color:#ef4444;">*</span></label>
+      <input type="number" id="fund-amount" placeholder="e.g. 100" min="1" step="0.01"
+        style="width:100%;padding:12px 16px;background:rgba(255,255,255,0.04);border:1.5px solid #1a2d4a;border-radius:9px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;outline:none;transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='#1a2d4a'">
+      <div style="font-size:11px;color:#64748b;margin-top:6px;" id="fund-current-hint"></div>
+    </div>
+    <div style="padding:12px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:8px;font-size:12px;color:#cbd5e1;line-height:1.6;margin-bottom:18px;">
+      ⚠️ This amount will be deducted from the firm's master account and credited to the trader's live account.
+    </div>
+    <div class="cb-btns">
+      <button class="cb-cancel" onclick="closeFundModal()">Cancel</button>
+      <button style="padding:11px 24px;background:var(--gold);border:none;border-radius:8px;color:#060d1a;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;" onclick="confirmFund()">Confirm Fund →</button>
     </div>
   </div>
 </div>

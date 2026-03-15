@@ -178,6 +178,13 @@ html,body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif
 .toast.info{border-color:var(--gold-border);}
 
 @media(max-width:1100px){.stat-row{grid-template-columns:repeat(3,1fr);} .grid-2,.grid-3{grid-template-columns:1fr;}}
+
+/* Payout summary box (used in founder withdrawal modal) */
+.payout-summary { background:var(--navy);border:1px solid var(--navy-border);border-radius:12px;padding:18px;margin-bottom:20px; }
+.ps-row { display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:14px; }
+.ps-row:last-child { border-bottom:none;padding-top:12px; }
+.ps-label { color:var(--muted); }
+.ps-val { font-family:'Outfit',sans-serif;font-weight:700; }
 </style>
 </head>
 <body>
