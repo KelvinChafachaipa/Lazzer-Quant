@@ -380,7 +380,7 @@ html, body {
           <span class="sl-icon">⚙️</span> Settings
         </div>
         <!-- Admin only -->
-        <div class="sidebar-link admin-only" onclick="window.location.href='monitor.html'" style="display:none">
+        <div class="sidebar-link admin-only" onclick="window.location.href='monitor.html'" style="display:none" id="sl-monitor-link">
           <span class="sl-icon">📡</span> Analytics Monitor
         </div>
         <div class="sidebar-link admin-only" onclick="showSection('traders', this)" id="sl-traders" style="display:none">
@@ -746,11 +746,13 @@ function launchPortal() {
     document.getElementById('role-badge').className = 'role-badge admin';
     document.getElementById('state-toggle').style.display = 'flex';
     document.getElementById('sl-traders').style.display = 'flex';
+    document.getElementById('sl-monitor-link').style.display = 'flex';
   } else {
     document.getElementById('role-badge').textContent = 'Trader';
     document.getElementById('role-badge').className = 'role-badge trader';
     document.getElementById('state-toggle').style.display = 'none';
     document.getElementById('sl-traders').style.display = 'none';
+    document.getElementById('sl-monitor-link').style.display = 'none';
   }
 
   renderAll();
