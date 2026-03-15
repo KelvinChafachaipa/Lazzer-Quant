@@ -1090,8 +1090,8 @@ function renderTable() {
     const amtDisplay = c.accountAmount > 0
       ? `<span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;color:${c.type==='real'?'var(--green)':'var(--gold)'};">$${c.accountAmount}</span>`
       : `<span style="color:var(--text-muted);font-size:12px;">Not set</span>`;
-    const fundBtn = isCEO && c.status === 'registered'
-      ? `<button class="copy-btn" style="background:var(--green-dim);color:var(--green);border-color:rgba(34,197,94,0.3);" onclick="openFundModal('${c.code}','${c.traderName}',${c.accountAmount})">Add Fund</button>`
+    const fundBtn = (isCEO && c.status === 'registered' && c.traderName)
+      ? `<button class="copy-btn" style="background:var(--green-dim);color:var(--green);border-color:rgba(34,197,94,0.3);font-weight:700;" onclick="openFundModal('${c.code}','${c.traderName}',${c.accountAmount || 0})">Add Fund</button>`
       : '';
     return `<tr>
       <td><span class="td-code ${c.type}">${c.code}</span></td>
@@ -1166,6 +1166,79 @@ window.addEventListener('hashchange', () => {
   if (window.location.hash === '#admin') showAdminPage();
   else showRegisterPage();
 });
+
+// ══ ADD FUND MODAL (CEO ONLY) ══════════════════════════
+let fundTarget = null;
+
+function openFundModal(code, traderName, currentAmount) {
+  fundTarget = code;
+
+  // Set title and subtitle
+  document.getElementById('fund-modal-title').textContent = 'Add Fund — ' + traderName;
+  document.getElementById('fund-modal-sub').textContent = 'Allocate capital from the firm\'s master account to this trader\'s live account.';
+
+  // Trader summary box
+  const c = DB.codes.find(x => x.code === code);
+  document.getElementById('fund-trader-summary').innerHTML = [
+    ['Trader', traderName],
+    ['Registration Code', `<span style="font-family:'Outfit',sans-serif;font-weight:700;color:#c9a84c;letter-spacing:2px;">${code}</span>`],
+    ['Broker', c ? (c.broker || '—') : '—'],
+    ['Account Type', c ? (c.type === 'real' ? 'Real Account' : 'Demo Account') : '—'],
+    ['Current Allocation', currentAmount > 0 ? `<span style="color:#22c55e;font-weight:700;">$${parseFloat(currentAmount).toFixed(2)}</span>` : '<span style="color:#64748b;">None yet</span>'],
+  ].map(([label, val]) =>
+    `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);font-size:13px;">
+      <span style="color:#64748b;">${label}</span><span>${val}</span>
+    </div>`
+  ).join('').replace(/<div[^>]+>(.+?)<\/div>(?=<div[^>]+>(.+?)<\/div>|$)/, (match) => {
+    // Remove border from last item
+    return match;
+  }) + '';
+
+  // Hint
+  document.getElementById('fund-current-hint').textContent =
+    currentAmount > 0 ? `Current allocation: $${parseFloat(currentAmount).toFixed(2)} — new amount will be added on top` : 'First allocation for this trader';
+
+  // Clear amount
+  document.getElementById('fund-amount').value = '';
+
+  // Show modal
+  document.getElementById('fund-overlay').style.display = 'flex';
+
+  // Focus amount input
+  setTimeout(() => document.getElementById('fund-amount').focus(), 100);
+}
+
+function closeFundModal() {
+  document.getElementById('fund-overlay').style.display = 'none';
+  fundTarget = null;
+}
+
+function confirmFund() {
+  const amount = parseFloat(document.getElementById('fund-amount').value);
+  if (!amount || amount <= 0 || isNaN(amount)) {
+    showToast('Please enter a valid amount', 'error');
+    document.getElementById('fund-amount').style.borderColor = '#ef4444';
+    setTimeout(() => document.getElementById('fund-amount').style.borderColor = '#1a2d4a', 2000);
+    return;
+  }
+
+  const c = DB.codes.find(x => x.code === fundTarget);
+  if (!c) { showToast('Trader not found', 'error'); return; }
+
+  const prev = c.accountAmount || 0;
+  c.accountAmount = prev + amount;
+
+  closeFundModal();
+  renderStats();
+  renderTable();
+  showToast(`$${amount.toFixed(2)} successfully added to ${c.traderName}\'s account`, 'success');
+}
+
+// Close fund modal when clicking outside
+document.getElementById('fund-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeFundModal();
+});
+
 </script>
 
 <!-- CAPITAL ALLOCATION MODAL -->
@@ -1188,24 +1261,37 @@ window.addEventListener('hashchange', () => {
 
 
 <!-- ADD FUND MODAL (CEO ONLY) -->
-<div class="overlay" id="fund-overlay" style="display:none;">
-  <div class="confirm-box">
-    <div class="cb-icon">💰</div>
-    <div class="cb-title" id="fund-modal-title">Add Fund</div>
-    <div class="cb-body" id="fund-modal-body">Allocate capital to this trader's account from the master account.</div>
-    <div style="margin-bottom:18px;text-align:left;">
-      <label style="display:block;font-size:12px;font-weight:700;color:#cbd5e1;margin-bottom:7px;letter-spacing:0.3px;">Amount to Allocate (USD) <span style="color:#ef4444;">*</span></label>
-      <input type="number" id="fund-amount" placeholder="e.g. 100" min="1" step="0.01"
-        style="width:100%;padding:12px 16px;background:rgba(255,255,255,0.04);border:1.5px solid #1a2d4a;border-radius:9px;color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;outline:none;transition:border-color 0.2s;"
-        onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='#1a2d4a'">
-      <div style="font-size:11px;color:#64748b;margin-top:6px;" id="fund-current-hint"></div>
+<div id="fund-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.75);display:none;align-items:center;justify-content:center;z-index:600;padding:20px;">
+  <div style="background:#101e35;border:1px solid rgba(201,168,76,0.3);border-radius:20px;width:100%;max-width:420px;padding:36px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-size:44px;margin-bottom:12px;">💰</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px;" id="fund-modal-title">Add Fund</div>
+      <div style="font-size:13px;color:#64748b;line-height:1.6;" id="fund-modal-sub">—</div>
     </div>
-    <div style="padding:12px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:8px;font-size:12px;color:#cbd5e1;line-height:1.6;margin-bottom:18px;">
-      ⚠️ This amount will be deducted from the firm's master account and credited to the trader's live account.
+
+    <!-- Trader summary -->
+    <div style="background:#060d1a;border:1px solid #1a2d4a;border-radius:12px;padding:16px;margin-bottom:20px;" id="fund-trader-summary"></div>
+
+    <!-- Amount input -->
+    <div style="margin-bottom:20px;">
+      <label style="display:block;font-size:12px;font-weight:700;color:#cbd5e1;margin-bottom:8px;letter-spacing:0.3px;">
+        Amount to Add (USD) <span style="color:#ef4444;">*</span>
+      </label>
+      <input type="number" id="fund-amount" placeholder="e.g. 100.00" min="1" step="0.01"
+        style="width:100%;padding:14px 16px;background:rgba(255,255,255,0.04);border:1.5px solid #1a2d4a;border-radius:10px;color:#fff;font-family:'Outfit',sans-serif;font-size:22px;font-weight:700;outline:none;transition:border-color 0.2s;text-align:center;"
+        onfocus="this.style.borderColor='#c9a84c'" onblur="this.style.borderColor='#1a2d4a'">
+      <div style="font-size:11px;color:#64748b;margin-top:6px;text-align:center;" id="fund-current-hint"></div>
     </div>
-    <div class="cb-btns">
-      <button class="cb-cancel" onclick="closeFundModal()">Cancel</button>
-      <button style="padding:11px 24px;background:var(--gold);border:none;border-radius:8px;color:#060d1a;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:pointer;" onclick="confirmFund()">Confirm Fund →</button>
+
+    <!-- Warning note -->
+    <div style="padding:12px 14px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);border-radius:8px;font-size:12px;color:#cbd5e1;line-height:1.6;margin-bottom:24px;">
+      ⚠️ This amount will be deducted from the firm's master account and allocated to this trader's live account.
+    </div>
+
+    <!-- Buttons -->
+    <div style="display:flex;gap:12px;">
+      <button onclick="closeFundModal()" style="flex:1;padding:12px;background:transparent;border:1.5px solid #1a2d4a;border-radius:9px;color:#64748b;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;font-size:14px;cursor:pointer;">Cancel</button>
+      <button onclick="confirmFund()" style="flex:2;padding:12px;background:#c9a84c;border:none;border-radius:9px;color:#060d1a;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;cursor:pointer;">Confirm Fund →</button>
     </div>
   </div>
 </div>
