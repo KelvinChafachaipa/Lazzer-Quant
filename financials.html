@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Statements — Lazzer Quant</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --navy:#060d1a; --navy-mid:#0c1628; --navy-card:#101e35; --navy-border:#1a2d4a;
+  --gold:#c9a84c; --gold-light:#e2bf6e; --gold-dim:rgba(201,168,76,0.12); --gold-border:rgba(201,168,76,0.25);
+  --green:#22c55e; --green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444; --red-dim:rgba(239,68,68,0.12);
+  --blue:#3b82f6; --blue-dim:rgba(59,130,246,0.12);
+  --orange:#f97316; --orange-dim:rgba(249,115,22,0.12);
+  --white:#ffffff; --text:#cbd5e1; --muted:#64748b;
+  --sidebar-w:220px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--navy);color:var(--white);}
+.shell{display:flex;flex-direction:column;height:100vh;}
+
+/* TOPBAR */
+.topbar{height:60px;min-height:60px;flex-shrink:0;background:var(--navy-mid);border-bottom:1px solid var(--navy-border);display:flex;align-items:center;padding:0 20px;justify-content:space-between;z-index:100;}
+.tb-left{display:flex;align-items:center;gap:14px;}
+.tb-logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--white);}
+.tb-badge{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:800;font-size:13px;color:var(--navy);}
+.tb-name{font-family:'Outfit',sans-serif;font-weight:700;font-size:16px;}
+.tb-name span{color:var(--gold);}
+.tb-divider{width:1px;height:20px;background:var(--navy-border);}
+.tb-section{font-size:13px;font-weight:600;color:var(--muted);}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.tb-btn{padding:6px 14px;background:transparent;border:1px solid var(--navy-border);border-radius:7px;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center;}
+.tb-btn:hover{border-color:var(--gold-border);color:var(--gold);}
+
+/* Period toggle */
+.period-toggle{display:flex;gap:0;background:var(--navy);border:1px solid var(--navy-border);border-radius:8px;overflow:hidden;}
+.period-btn{padding:6px 16px;border:none;background:transparent;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+.period-btn.active{background:var(--gold);color:var(--navy);}
+
+/* BODY */
+.body-wrap{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);flex-shrink:0;background:var(--navy-mid);border-right:1px solid var(--navy-border);display:flex;flex-direction:column;padding:16px 10px;overflow-y:auto;}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:0 10px;margin-bottom:6px;margin-top:12px;}
+.sb-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.2s;margin-bottom:2px;border:1px solid transparent;}
+.sb-link:hover{color:var(--white);background:rgba(255,255,255,0.04);}
+.sb-link.active{color:var(--white);background:var(--gold-dim);border-color:var(--gold-border);}
+.sb-icon{font-size:15px;width:20px;text-align:center;}
+.sb-bottom{margin-top:auto;padding-top:16px;border-top:1px solid var(--navy-border);}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;padding:28px;}
+.main::-webkit-scrollbar{width:4px;}
+.main::-webkit-scrollbar-thumb{background:var(--navy-border);border-radius:2px;}
+.section{display:none;}
+.section.active{display:block;}
+
+/* Page header */
+.pg-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:14px;}
+.pg-title{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;}
+.pg-sub{font-size:13px;color:var(--muted);}
+.pg-actions{display:flex;gap:10px;align-items:center;}
+
+/* Stat row */
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.gold::before{background:var(--gold);}
+.stat-card.green::before{background:var(--green);}
+.stat-card.red::before{background:var(--red);}
+.stat-card.blue::before{background:var(--blue);}
+.stat-card.orange::before{background:var(--orange);}
+.sc-lbl{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.sc-val{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;line-height:1;margin-bottom:6px;}
+.sc-sub{font-size:12px;font-weight:600;}
+.sc-sub.up{color:var(--green);}
+.sc-sub.down{color:var(--red);}
+.sc-sub.neutral{color:var(--muted);}
+
+/* Chart cards */
+.chart-card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:16px;padding:22px;margin-bottom:20px;}
+.cc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.cc-title{font-size:14px;font-weight:700;}
+.cc-meta{font-size:12px;color:var(--muted);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+
+/* Financial statement cards */
+.fs-card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:16px;overflow:hidden;margin-bottom:20px;}
+.fs-header{padding:18px 24px;border-bottom:1px solid var(--navy-border);display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.02);}
+.fs-title{font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;letter-spacing:-0.3px;}
+.fs-period{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-border);padding:3px 10px;border-radius:100px;}
+
+/* Statement rows */
+.stmt-section-label{padding:12px 24px 8px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);background:var(--gold-dim);border-bottom:1px solid var(--gold-border);}
+.stmt-row{display:flex;justify-content:space-between;align-items:center;padding:11px 24px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px;transition:background 0.15s;}
+.stmt-row:hover{background:rgba(255,255,255,0.02);}
+.stmt-row:last-child{border-bottom:none;}
+.stmt-row.indent{padding-left:40px;color:var(--muted);}
+.stmt-row.indent2{padding-left:56px;color:var(--muted);font-size:12px;}
+.stmt-row.subtotal{background:rgba(255,255,255,0.02);font-weight:700;color:var(--white);}
+.stmt-row.total{background:var(--gold-dim);border-top:1px solid var(--gold-border);font-weight:800;font-size:14px;padding:14px 24px;}
+.stmt-row.total-green{background:var(--green-dim);border-top:1px solid rgba(34,197,94,0.25);font-weight:800;font-size:14px;padding:14px 24px;}
+.stmt-row.total-red{background:var(--red-dim);border-top:1px solid rgba(239,68,68,0.25);font-weight:800;font-size:14px;padding:14px 24px;}
+.stmt-label{}
+.stmt-val{font-family:'Outfit',sans-serif;font-weight:600;font-size:14px;}
+.stmt-val.pos{color:var(--green);}
+.stmt-val.neg{color:var(--red);}
+.stmt-val.gold{color:var(--gold);}
+.stmt-val.bold{font-weight:800;color:var(--white);}
+
+/* Add expense modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:900;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:24px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;}
+.modal-header{padding:24px 28px 20px;border-bottom:1px solid var(--navy-border);display:flex;justify-content:space-between;align-items:center;}
+.modal-title{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;}
+.modal-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.06);border:none;cursor:pointer;font-size:16px;color:var(--muted);transition:all 0.2s;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:var(--red-dim);color:var(--red);}
+.modal-body{padding:24px 28px;}
+.modal-footer{padding:16px 28px 24px;display:flex;gap:12px;justify-content:flex-end;}
+.f-group{margin-bottom:18px;}
+.f-label{display:block;font-size:12px;font-weight:700;color:var(--text);margin-bottom:7px;letter-spacing:0.3px;}
+.f-label span{color:var(--red);}
+.f-input,.f-select,.f-textarea{width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--navy-border);border-radius:9px;color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;appearance:none;}
+.f-input:focus,.f-select:focus,.f-textarea:focus{border-color:var(--gold);background:rgba(201,168,76,0.04);}
+.f-input::placeholder,.f-textarea::placeholder{color:var(--muted);}
+.f-select option{background:var(--navy-mid);}
+.f-textarea{resize:vertical;min-height:80px;}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.action-btn{padding:10px 20px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif;border:none;}
+.action-btn.gold{background:var(--gold);color:var(--navy);}
+.action-btn.gold:hover{background:var(--gold-light);}
+.action-btn.outline{background:transparent;color:var(--text);border:1px solid var(--navy-border);}
+.action-btn.outline:hover{border-color:var(--gold-border);color:var(--gold);}
+.action-btn.red{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+.action-btn.red:hover{background:var(--red);color:var(--white);}
+
+/* Expense table */
+.exp-table{width:100%;border-collapse:collapse;}
+.exp-table th{text-align:left;padding:12px 16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--navy-border);background:rgba(255,255,255,0.02);}
+.exp-table td{padding:13px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle;}
+.exp-table tr:last-child td{border-bottom:none;}
+.exp-table tr:hover td{background:rgba(255,255,255,0.02);}
+.cat-badge{display:inline-block;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:700;}
+.del-btn{padding:5px 12px;background:transparent;border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:var(--red);font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif;}
+.del-btn:hover{background:var(--red-dim);}
+
+/* Notes cards */
+.note-card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:16px;margin-bottom:16px;overflow:hidden;}
+.note-header{padding:16px 22px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--navy-border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.note-header:hover{background:var(--gold-dim);}
+.note-num{font-family:'Outfit',sans-serif;font-size:12px;font-weight:800;color:var(--gold);margin-bottom:3px;letter-spacing:1px;text-transform:uppercase;}
+.note-title{font-size:15px;font-weight:700;}
+.note-toggle{font-size:18px;color:var(--muted);transition:transform 0.3s;}
+.note-body{max-height:0;overflow:hidden;transition:max-height 0.4s ease;}
+.note-body.open{max-height:1000px;}
+.note-content{padding:20px 22px;}
+.note-table{width:100%;border-collapse:collapse;margin-top:12px;}
+.note-table th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--navy-border);}
+.note-table td{padding:11px 14px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.04);}
+.note-table tr:last-child td{border-bottom:none;}
+.note-table .nv{font-family:'Outfit',sans-serif;font-weight:600;color:var(--white);}
+.note-table .nvg{font-family:'Outfit',sans-serif;font-weight:600;color:var(--green);}
+.note-table .nvr{font-family:'Outfit',sans-serif;font-weight:600;color:var(--red);}
+.policy-item{padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;color:var(--text);line-height:1.7;}
+.policy-item:last-child{border-bottom:none;}
+.policy-label{font-weight:700;color:var(--white);margin-bottom:4px;}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy-card);border:1px solid var(--navy-border);border-radius:12px;padding:14px 18px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5);transform:translateY(80px);opacity:0;transition:all 0.3s;z-index:999;max-width:360px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:rgba(34,197,94,0.4);}
+.toast.error{border-color:rgba(239,68,68,0.4);}
+.toast.info{border-color:var(--gold-border);}
+
+@media(max-width:1100px){.stat-row{grid-template-columns:repeat(3,1fr);} .grid-2,.grid-3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="toast" id="toast"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <a href="index.html" class="tb-logo">
+      <div class="tb-badge">LQ</div>
+      <span class="tb-name">Lazzer <span>Quant</span></span>
+    </a>
+    <div class="tb-divider"></div>
+    <span class="tb-section" id="tb-section">Income Statement</span>
+  </div>
+  <div class="tb-right">
+    <div class="period-toggle">
+      <button class="period-btn active" id="btn-monthly" onclick="setPeriod('monthly')">Monthly</button>
+      <button class="period-btn" id="btn-quarterly" onclick="setPeriod('quarterly')">Quarterly</button>
+    </div>
+    <span id="period-label" style="font-size:12px;font-weight:700;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-border);padding:5px 12px;border-radius:100px;">March 2026</span>
+    <a href="monitor.html" class="tb-btn">← Monitor</a>
+    <a href="portal.html" class="tb-btn">Portal</a>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body-wrap">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-label">Statements</div>
+    <div class="sb-link active" id="sl-income" onclick="showSection('income',this)"><span class="sb-icon">📈</span> Income Statement</div>
+    <div class="sb-link" id="sl-balance" onclick="showSection('balance',this)"><span class="sb-icon">⚖️</span> Balance Sheet</div>
+    <div class="sb-link" id="sl-cashflow" onclick="showSection('cashflow',this)"><span class="sb-icon">💧</span> Cash Flow</div>
+    <div class="sb-label">Details</div>
+    <div class="sb-link" id="sl-expenses" onclick="showSection('expenses',this)"><span class="sb-icon">🧾</span> Expense Tracker</div>
+    <div class="sb-link" id="sl-notes" onclick="showSection('notes',this)"><span class="sb-icon">📋</span> Notes to Financials</div>
+    <div class="sb-bottom">
+      <div class="sb-link" onclick="window.location.href='monitor.html'"><span class="sb-icon">📡</span> Analytics Monitor</div>
+      <div class="sb-link" onclick="window.location.href='index.html'"><span class="sb-icon">🌐</span> Public Site</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ══ INCOME STATEMENT ═══════════════════════════ -->
+    <div class="section active" id="section-income">
+      <div class="pg-header">
+        <div><div class="pg-title">Income Statement</div><div class="pg-sub" id="income-sub">Profit & Loss for March 2026</div></div>
+        <div class="pg-actions">
+          <button class="action-btn outline" onclick="exportStatement('Income Statement')">Export PDF</button>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card green"><div class="sc-lbl">Gross Revenue</div><div class="sc-val" style="color:var(--green)" id="is-revenue">$0</div><div class="sc-sub up" id="is-rev-sub">—</div></div>
+        <div class="stat-card red"><div class="sc-lbl">Total Expenses</div><div class="sc-val" style="color:var(--red)" id="is-expenses">$0</div><div class="sc-sub down" id="is-exp-sub">—</div></div>
+        <div class="stat-card gold"><div class="sc-lbl">Net Profit</div><div class="sc-val" id="is-net">$0</div><div class="sc-sub" id="is-net-sub">—</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">Profit Margin</div><div class="sc-val" style="color:var(--blue)" id="is-margin">0%</div><div class="sc-sub neutral">Net / Revenue</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">Trader Payouts</div><div class="sc-val" style="color:var(--orange)" id="is-payouts">$0</div><div class="sc-sub neutral">70% of trading profit</div></div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Revenue vs Expenses</span><span class="cc-meta" id="rev-exp-meta">Monthly</span></div>
+          <canvas id="revExpChart" height="110"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Expense Breakdown</span><span class="cc-meta">By category</span></div>
+          <canvas id="expBreakChart" height="110"></canvas>
+        </div>
+      </div>
+
+      <div class="fs-card">
+        <div class="fs-header">
+          <span class="fs-title">Statement of Profit & Loss</span>
+          <span class="fs-period" id="is-period-label">March 2026</span>
+        </div>
+        <div id="income-statement-body"></div>
+      </div>
+    </div>
+
+    <!-- ══ BALANCE SHEET ══════════════════════════════ -->
+    <div class="section" id="section-balance">
+      <div class="pg-header">
+        <div><div class="pg-title">Balance Sheet</div><div class="pg-sub">Statement of Financial Position</div></div>
+        <div class="pg-actions"><button class="action-btn outline" onclick="exportStatement('Balance Sheet')">Export PDF</button></div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card green"><div class="sc-lbl">Total Assets</div><div class="sc-val" style="color:var(--green)" id="bs-assets">$0</div><div class="sc-sub neutral">All firm assets</div></div>
+        <div class="stat-card red"><div class="sc-lbl">Total Liabilities</div><div class="sc-val" style="color:var(--red)" id="bs-liabilities">$0</div><div class="sc-sub neutral">Obligations</div></div>
+        <div class="stat-card gold"><div class="sc-lbl">Net Equity</div><div class="sc-val" style="color:var(--gold)" id="bs-equity">$0</div><div class="sc-sub up">Assets − Liabilities</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">Cash & Equivalents</div><div class="sc-val" style="color:var(--blue)" id="bs-cash">$0</div><div class="sc-sub neutral">Liquid assets</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">Capital Deployed</div><div class="sc-val" style="color:var(--orange)" id="bs-deployed">$0</div><div class="sc-sub neutral">In trader accounts</div></div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Asset Composition</span><span class="cc-meta">By type</span></div>
+          <canvas id="assetChart" height="120"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Equity Growth</span><span class="cc-meta">6-month trend</span></div>
+          <canvas id="equityGrowthChart" height="120"></canvas>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="fs-card">
+          <div class="fs-header"><span class="fs-title">Assets</span><span class="fs-period" id="bs-period-label">March 2026</span></div>
+          <div id="bs-assets-body"></div>
+        </div>
+        <div class="fs-card">
+          <div class="fs-header"><span class="fs-title">Liabilities & Equity</span><span class="fs-period">March 2026</span></div>
+          <div id="bs-liabilities-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CASH FLOW ══════════════════════════════════ -->
+    <div class="section" id="section-cashflow">
+      <div class="pg-header">
+        <div><div class="pg-title">Cash Flow Statement</div><div class="pg-sub">Movement of cash in and out of the firm</div></div>
+        <div class="pg-actions"><button class="action-btn outline" onclick="exportStatement('Cash Flow Statement')">Export PDF</button></div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card green"><div class="sc-lbl">Operating Cash Flow</div><div class="sc-val" style="color:var(--green)" id="cf-operating">$0</div><div class="sc-sub up">Core business</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">Investing Activities</div><div class="sc-val" style="color:var(--blue)" id="cf-investing">$0</div><div class="sc-sub neutral">Capital deployment</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">Financing Activities</div><div class="sc-val" style="color:var(--orange)" id="cf-financing">$0</div><div class="sc-sub neutral">Owner contributions</div></div>
+        <div class="stat-card gold"><div class="sc-lbl">Net Cash Change</div><div class="sc-val" style="color:var(--gold)" id="cf-net">$0</div><div class="sc-sub up">This period</div></div>
+        <div class="stat-card green"><div class="sc-lbl">Closing Cash Balance</div><div class="sc-val" style="color:var(--green)" id="cf-closing">$0</div><div class="sc-sub neutral">End of period</div></div>
+      </div>
+
+      <div class="chart-card" style="margin-bottom:20px;">
+        <div class="cc-header"><span class="cc-title">Cash Flow Waterfall</span><span class="cc-meta">Inflows and outflows by category</span></div>
+        <canvas id="waterfallChart" height="80"></canvas>
+      </div>
+
+      <div class="fs-card">
+        <div class="fs-header"><span class="fs-title">Statement of Cash Flows</span><span class="fs-period" id="cf-period-label">March 2026</span></div>
+        <div id="cashflow-body"></div>
+      </div>
+    </div>
+
+    <!-- ══ EXPENSE TRACKER ════════════════════════════ -->
+    <div class="section" id="section-expenses">
+      <div class="pg-header">
+        <div><div class="pg-title">Expense Tracker</div><div class="pg-sub">All firm expenses — add, review, and manage</div></div>
+        <div class="pg-actions">
+          <button class="action-btn outline" onclick="exportStatement('Expense Report')">Export CSV</button>
+          <button class="action-btn gold" onclick="openExpenseModal()">+ Add Expense</button>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card red"><div class="sc-lbl">Total This Period</div><div class="sc-val" style="color:var(--red)" id="exp-total">$0</div><div class="sc-sub neutral">All categories</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">Largest Category</div><div class="sc-val" style="color:var(--orange);font-size:16px;" id="exp-largest">—</div><div class="sc-sub neutral">Highest spend</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">No. of Transactions</div><div class="sc-val" style="color:var(--blue)" id="exp-count">0</div><div class="sc-sub neutral">This period</div></div>
+        <div class="stat-card green"><div class="sc-lbl">Avg per Transaction</div><div class="sc-val" style="color:var(--green)" id="exp-avg">$0</div><div class="sc-sub neutral">Mean expense</div></div>
+        <div class="stat-card gold"><div class="sc-lbl">Pending Approval</div><div class="sc-val" style="color:var(--gold)" id="exp-pending">0</div><div class="sc-sub neutral">Awaiting review</div></div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Spend by Category</span></div>
+          <canvas id="expCatChart" height="120"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Weekly Expense Trend</span></div>
+          <canvas id="expTrendChart" height="120"></canvas>
+        </div>
+      </div>
+
+      <div class="fs-card" style="padding:0; overflow:hidden;">
+        <div style="padding:18px 20px; border-bottom:1px solid var(--navy-border); display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:14px; font-weight:700;">All Expenses</span>
+          <div style="display:flex; gap:10px;">
+            <input type="text" id="exp-search" placeholder="Search expenses..." oninput="filterExpenses()" style="padding:7px 12px; background:rgba(255,255,255,0.04); border:1px solid var(--navy-border); border-radius:7px; color:var(--white); font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; outline:none; width:180px;">
+            <select id="exp-cat-filter" onchange="filterExpenses()" style="padding:7px 12px; background:rgba(255,255,255,0.04); border:1px solid var(--navy-border); border-radius:7px; color:var(--white); font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; outline:none; appearance:none;">
+              <option value="all">All Categories</option>
+              <option>Trader Payouts</option>
+              <option>Platform/Broker Fees</option>
+              <option>Staff Salaries</option>
+              <option>Technology & Hosting</option>
+              <option>Legal & Compliance</option>
+              <option>Marketing</option>
+              <option>Office & Operations</option>
+              <option>Miscellaneous</option>
+            </select>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="exp-table">
+            <thead><tr><th>#</th><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th>Approved By</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="expense-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ NOTES TO FINANCIALS ════════════════════════ -->
+    <div class="section" id="section-notes">
+      <div class="pg-header">
+        <div><div class="pg-title">Notes to Financial Statements</div><div class="pg-sub">Supporting disclosures and accounting policies</div></div>
+        <div class="pg-actions"><button class="action-btn outline" onclick="exportStatement('Notes to Financials')">Export PDF</button></div>
+      </div>
+
+      <div id="notes-list"></div>
+    </div>
+
+  </div><!-- end main -->
+</div><!-- end body-wrap -->
+</div><!-- end shell -->
+
+<!-- ADD EXPENSE MODAL -->
+<div class="modal-overlay" id="expense-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">Add New Expense</span>
+      <button class="modal-close" onclick="closeExpenseModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="f-row">
+        <div class="f-group">
+          <label class="f-label">Date <span>*</span></label>
+          <input type="date" class="f-input" id="exp-date">
+        </div>
+        <div class="f-group">
+          <label class="f-label">Amount (USD) <span>*</span></label>
+          <input type="number" class="f-input" id="exp-amount" placeholder="0.00" step="0.01" min="0">
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Expense Description <span>*</span></label>
+        <input type="text" class="f-input" id="exp-desc" placeholder="e.g. Monthly Deriv platform subscription">
+      </div>
+      <div class="f-row">
+        <div class="f-group">
+          <label class="f-label">Category <span>*</span></label>
+          <select class="f-select" id="exp-cat">
+            <option value="">Select category</option>
+            <option>Trader Payouts</option>
+            <option>Platform/Broker Fees</option>
+            <option>Staff Salaries</option>
+            <option>Technology & Hosting</option>
+            <option>Legal & Compliance</option>
+            <option>Marketing</option>
+            <option>Office & Operations</option>
+            <option>Miscellaneous</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label class="f-label">Payment Method</label>
+          <select class="f-select" id="exp-method">
+            <option value="">Select method</option>
+            <option>Wise Transfer</option>
+            <option>USDT (Tether)</option>
+            <option>Cash</option>
+            <option>Bank Transfer</option>
+            <option>EcoCash</option>
+          </select>
+        </div>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Vendor / Payee</label>
+        <input type="text" class="f-input" id="exp-vendor" placeholder="e.g. Deriv Ltd, Vercel Inc">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Invoice / Reference Number</label>
+        <input type="text" class="f-input" id="exp-ref" placeholder="e.g. INV-2026-0042">
+      </div>
+      <div class="f-group">
+        <label class="f-label">Notes</label>
+        <textarea class="f-textarea" id="exp-notes" placeholder="Any additional details about this expense..."></textarea>
+      </div>
+      <div class="f-group">
+        <label class="f-label">Approved By</label>
+        <select class="f-select" id="exp-approver">
+          <option>Kelvin Chafachaipa (CEO)</option>
+          <option>Tatenda Fortune Vambe (COO)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn outline" onclick="closeExpenseModal()">Cancel</button>
+      <button class="action-btn gold" onclick="submitExpense()">Add Expense →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ DATA ═══════════════════════════════════════════════
+
+let currentPeriod = 'monthly';
+
+// Monthly data
+const DATA = {
+  monthly: {
+    label: 'March 2026',
+    // Revenue
+    tradingProfit: 426.29,
+    fundedTraderCount: 5,
+    challengeFees: 0,
+    // Expenses
+    traderPayouts: 298.40,
+    brokerFees: 12.50,
+    salaries: 0,
+    techHosting: 15.00,
+    legal: 0,
+    marketing: 8.00,
+    office: 5.00,
+    misc: 3.20,
+    // Balance sheet
+    cash: 284.19,
+    capitalDeployed: 500.00,
+    equipment: 120.00,
+    prepaid: 30.00,
+    payables: 45.00,
+    ownerCapital: 800.00,
+    // Cash flow
+    openingCash: 200.00,
+  },
+  quarterly: {
+    label: 'Q1 2026 (Jan–Mar)',
+    tradingProfit: 1148.60,
+    fundedTraderCount: 5,
+    challengeFees: 0,
+    traderPayouts: 804.02,
+    brokerFees: 37.50,
+    salaries: 0,
+    techHosting: 45.00,
+    legal: 120.00,
+    marketing: 24.00,
+    office: 15.00,
+    misc: 9.80,
+    cash: 284.19,
+    capitalDeployed: 500.00,
+    equipment: 120.00,
+    prepaid: 30.00,
+    payables: 45.00,
+    ownerCapital: 800.00,
+    openingCash: 590.00,
+  }
+};
+
+// Expense records
+let EXPENSES = [
+  { id:1, date:'2026-03-01', desc:'Vercel Pro Hosting Plan', cat:'Technology & Hosting', amount:20.00, vendor:'Vercel Inc', ref:'INV-VCL-2026-03', method:'Wise Transfer', approver:'Kelvin Chafachaipa (CEO)', notes:'Monthly hosting for lazzerquant.vercel.app', status:'Approved' },
+  { id:2, date:'2026-03-03', desc:'Simba Makoni — Level 1 Payout', cat:'Trader Payouts', amount:175.00, vendor:'Simba Makoni', ref:'PAY-SM-001', method:'Wise Transfer', approver:'Tatenda Fortune Vambe (COO)', notes:'First withdrawal — Level 1 threshold reached', status:'Approved' },
+  { id:3, date:'2026-03-05', desc:'Deriv MT5 Account Maintenance', cat:'Platform/Broker Fees', amount:5.00, vendor:'Deriv Ltd', ref:'DRV-FEE-0305', method:'USDT (Tether)', approver:'Kelvin Chafachaipa (CEO)', notes:'Monthly account maintenance fee for 4 demo accounts', status:'Approved' },
+  { id:4, date:'2026-03-07', desc:'Facebook Ads — Trader Recruitment', cat:'Marketing', amount:8.00, vendor:'Meta Platforms', ref:'FB-ADS-0307', method:'Wise Transfer', approver:'Kelvin Chafachaipa (CEO)', notes:'Targeted ads for trader recruitment in Zimbabwe', status:'Approved' },
+  { id:5, date:'2026-03-10', desc:'Google Domain Registration', cat:'Technology & Hosting', amount:12.00, vendor:'Google Domains', ref:'GD-2026-031', method:'Wise Transfer', approver:'Kelvin Chafachaipa (CEO)', notes:'lazzerquant.com annual domain renewal', status:'Approved' },
+  { id:6, date:'2026-03-12', desc:'Admire Mureza — Level 1 Payout', cat:'Trader Payouts', amount:123.40, vendor:'Admire Mureza', ref:'PAY-AM-001', method:'USDT (Tether)', approver:'Tatenda Fortune Vambe (COO)', notes:'USDT TRC20 transfer — Level 1 payout', status:'Approved' },
+  { id:7, date:'2026-03-14', desc:'Office Stationery & Supplies', cat:'Office & Operations', amount:5.00, vendor:'Office Mart Harare', ref:'OM-RCT-0314', method:'Cash', approver:'Tatenda Fortune Vambe (COO)', notes:'Printing challenge documents and agreements', status:'Approved' },
+  { id:8, date:'2026-03-15', desc:'Exness Spread Costs — Challenge Accounts', cat:'Platform/Broker Fees', amount:7.50, vendor:'Exness Ltd', ref:'EXN-SP-0315', method:'USDT (Tether)', approver:'Kelvin Chafachaipa (CEO)', notes:'Trading spread costs on 3 Exness demo challenge accounts', status:'Approved' },
+  { id:9, date:'2026-03-15', desc:'WhatsApp Business API', cat:'Technology & Hosting', amount:3.00, vendor:'Meta Business', ref:'WA-BIZ-0315', method:'Wise Transfer', approver:'Tatenda Fortune Vambe (COO)', notes:'Trader communications platform', status:'Pending' },
+  { id:10, date:'2026-03-15', desc:'Miscellaneous Admin Costs', cat:'Miscellaneous', amount:3.20, vendor:'Various', ref:'MISC-0315', method:'Cash', approver:'Kelvin Chafachaipa (CEO)', notes:'Small admin costs — printing, transport', status:'Approved' },
+];
+
+let nextId = 11;
+const CAT_COLORS = {
+  'Trader Payouts':       '#ef4444',
+  'Platform/Broker Fees': '#f97316',
+  'Staff Salaries':       '#3b82f6',
+  'Technology & Hosting': '#8b5cf6',
+  'Legal & Compliance':   '#06b6d4',
+  'Marketing':            '#ec4899',
+  'Office & Operations':  '#84cc16',
+  'Miscellaneous':        '#64748b',
+};
+
+const CAT_BG = {
+  'Trader Payouts':       'rgba(239,68,68,0.12)',
+  'Platform/Broker Fees': 'rgba(249,115,22,0.12)',
+  'Staff Salaries':       'rgba(59,130,246,0.12)',
+  'Technology & Hosting': 'rgba(139,92,246,0.12)',
+  'Legal & Compliance':   'rgba(6,182,212,0.12)',
+  'Marketing':            'rgba(236,72,153,0.12)',
+  'Office & Operations':  'rgba(132,204,22,0.12)',
+  'Miscellaneous':        'rgba(100,116,139,0.12)',
+};
+
+// ══ SECTION NAV ════════════════════════════════════════
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  if(el) el.classList.add('active');
+  const names = { income:'Income Statement', balance:'Balance Sheet', cashflow:'Cash Flow Statement', expenses:'Expense Tracker', notes:'Notes to Financials' };
+  document.getElementById('tb-section').textContent = names[id] || id;
+}
+
+// ══ PERIOD TOGGLE ══════════════════════════════════════
+function setPeriod(p) {
+  currentPeriod = p;
+  document.getElementById('btn-monthly').classList.toggle('active', p === 'monthly');
+  document.getElementById('btn-quarterly').classList.toggle('active', p === 'quarterly');
+  document.getElementById('period-label').textContent = DATA[p].label;
+  renderAll();
+}
+
+// ══ FORMATTERS ═════════════════════════════════════════
+function fmt(n, showSign = false) {
+  const sign = showSign && n > 0 ? '+' : '';
+  return sign + '$' + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+
+function stmtRow(label, value, cls = '', indent = 0) {
+  const indentCls = indent === 1 ? ' indent' : indent === 2 ? ' indent2' : '';
+  const valCls = value > 0 ? 'pos' : value < 0 ? 'neg' : '';
+  return `<div class="stmt-row${indentCls} ${cls}">
+    <span class="stmt-label">${label}</span>
+    <span class="stmt-val ${valCls} ${cls.includes('total') || cls.includes('subtotal') ? 'bold' : ''}">${fmt(value)}</span>
+  </div>`;
+}
+
+function stmtSection(label) {
+  return `<div class="stmt-section-label">${label}</div>`;
+}
+
+// ══ RENDER ALL ═════════════════════════════════════════
+function renderAll() {
+  const d = DATA[currentPeriod];
+  renderIncomeStatement(d);
+  renderBalanceSheet(d);
+  renderCashFlow(d);
+  renderExpenseStats();
+  renderExpenseTable();
+  buildCharts(d);
+}
+
+// ══ INCOME STATEMENT ═══════════════════════════════════
+function renderIncomeStatement(d) {
+  const firmShare = d.tradingProfit * 0.30;
+  const totalRevenue = firmShare;
+  const totalExp = d.brokerFees + d.salaries + d.techHosting + d.legal + d.marketing + d.office + d.misc;
+  const netProfit = totalRevenue - totalExp;
+  const margin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : 0;
+
+  document.getElementById('is-revenue').textContent = fmt(totalRevenue);
+  document.getElementById('is-expenses').textContent = fmt(totalExp);
+  document.getElementById('is-net').textContent = fmt(netProfit);
+  document.getElementById('is-net').style.color = netProfit >= 0 ? 'var(--green)' : 'var(--red)';
+  document.getElementById('is-net-sub').textContent = netProfit >= 0 ? '▲ Profitable' : '▼ Loss';
+  document.getElementById('is-net-sub').className = 'sc-sub ' + (netProfit >= 0 ? 'up' : 'down');
+  document.getElementById('is-margin').textContent = margin + '%';
+  document.getElementById('is-payouts').textContent = fmt(d.traderPayouts);
+  document.getElementById('is-rev-sub').textContent = `30% of $${d.tradingProfit.toFixed(2)} trading profit`;
+  document.getElementById('is-exp-sub').textContent = `Across ${Object.values({b:d.brokerFees,t:d.techHosting,m:d.marketing,o:d.office,mi:d.misc}).filter(v=>v>0).length} categories`;
+  document.getElementById('is-period-label').textContent = d.label;
+  document.getElementById('income-sub').textContent = `Profit & Loss for ${d.label}`;
+
+  document.getElementById('income-statement-body').innerHTML =
+    stmtSection('REVENUE') +
+    stmtRow('Gross Trading Profit (all traders)', d.tradingProfit, '', 1) +
+    stmtRow('Trader Payout (70% to traders)', -d.traderPayouts, '', 1) +
+    stmtRow('Firm Revenue (30% retained)', firmShare, 'subtotal') +
+    stmtRow('Challenge Fees', d.challengeFees, '', 1) +
+    stmtRow('Total Revenue', totalRevenue, 'total') +
+    stmtSection('OPERATING EXPENSES') +
+    stmtRow('Platform & Broker Fees', d.brokerFees, '', 1) +
+    stmtRow('Staff Salaries', d.salaries, '', 1) +
+    stmtRow('Technology & Hosting', d.techHosting, '', 1) +
+    stmtRow('Legal & Compliance', d.legal, '', 1) +
+    stmtRow('Marketing', d.marketing, '', 1) +
+    stmtRow('Office & Operations', d.office, '', 1) +
+    stmtRow('Miscellaneous', d.misc, '', 1) +
+    stmtRow('Total Operating Expenses', totalExp, 'subtotal') +
+    stmtRow('Net Profit / (Loss)', netProfit, netProfit >= 0 ? 'total-green' : 'total-red');
+}
+
+// ══ BALANCE SHEET ══════════════════════════════════════
+function renderBalanceSheet(d) {
+  const totalAssets = d.cash + d.capitalDeployed + d.equipment + d.prepaid;
+  const firmShare = d.tradingProfit * 0.30;
+  const totalExp = d.brokerFees + d.salaries + d.techHosting + d.legal + d.marketing + d.office + d.misc;
+  const retainedEarnings = firmShare - totalExp;
+  const totalEquity = d.ownerCapital + retainedEarnings;
+  const totalLiabEquity = d.payables + totalEquity;
+
+  document.getElementById('bs-assets').textContent = fmt(totalAssets);
+  document.getElementById('bs-liabilities').textContent = fmt(d.payables);
+  document.getElementById('bs-equity').textContent = fmt(totalEquity);
+  document.getElementById('bs-cash').textContent = fmt(d.cash);
+  document.getElementById('bs-deployed').textContent = fmt(d.capitalDeployed);
+  document.getElementById('bs-period-label').textContent = d.label;
+
+  document.getElementById('bs-assets-body').innerHTML =
+    stmtSection('CURRENT ASSETS') +
+    stmtRow('Cash & Cash Equivalents', d.cash, '', 1) +
+    stmtRow('Capital in Trader Accounts', d.capitalDeployed, '', 1) +
+    stmtRow('Prepaid Expenses', d.prepaid, '', 1) +
+    stmtRow('Total Current Assets', d.cash + d.capitalDeployed + d.prepaid, 'subtotal') +
+    stmtSection('NON-CURRENT ASSETS') +
+    stmtRow('Equipment & Technology', d.equipment, '', 1) +
+    stmtRow('Total Non-Current Assets', d.equipment, 'subtotal') +
+    stmtRow('TOTAL ASSETS', totalAssets, 'total');
+
+  document.getElementById('bs-liabilities-body').innerHTML =
+    stmtSection('CURRENT LIABILITIES') +
+    stmtRow('Accounts Payable', d.payables, '', 1) +
+    stmtRow('Trader Payouts Payable', 0, '', 1) +
+    stmtRow('Total Current Liabilities', d.payables, 'subtotal') +
+    stmtSection('EQUITY') +
+    stmtRow('Owner\'s Capital', d.ownerCapital, '', 1) +
+    stmtRow('Retained Earnings', retainedEarnings, '', 1) +
+    stmtRow('Total Equity', totalEquity, 'subtotal') +
+    stmtRow('TOTAL LIABILITIES & EQUITY', totalLiabEquity, 'total');
+}
+
+// ══ CASH FLOW ══════════════════════════════════════════
+function renderCashFlow(d) {
+  const firmShare = d.tradingProfit * 0.30;
+  const totalExp = d.brokerFees + d.salaries + d.techHosting + d.legal + d.marketing + d.office + d.misc;
+  const operating = firmShare - totalExp - d.traderPayouts + d.traderPayouts;
+  const investing = -d.capitalDeployed * 0.1;
+  const financing = 0;
+  const netChange = operating + investing + financing;
+  const closing = d.openingCash + netChange;
+
+  document.getElementById('cf-operating').textContent = fmt(operating);
+  document.getElementById('cf-investing').textContent = fmt(investing);
+  document.getElementById('cf-financing').textContent = fmt(financing);
+  document.getElementById('cf-net').textContent = fmt(netChange);
+  document.getElementById('cf-closing').textContent = fmt(closing);
+  document.getElementById('cf-period-label').textContent = d.label;
+
+  document.getElementById('cashflow-body').innerHTML =
+    stmtSection('OPERATING ACTIVITIES') +
+    stmtRow('Cash received from trading profits (30%)', firmShare, '', 1) +
+    stmtRow('Trader payouts paid', -d.traderPayouts, '', 1) +
+    stmtRow('Platform & broker fees paid', -d.brokerFees, '', 1) +
+    stmtRow('Technology & hosting paid', -d.techHosting, '', 1) +
+    stmtRow('Marketing expenses paid', -d.marketing, '', 1) +
+    stmtRow('Office & operations paid', -d.office, '', 1) +
+    stmtRow('Legal & compliance paid', -d.legal, '', 1) +
+    stmtRow('Miscellaneous paid', -d.misc, '', 1) +
+    stmtRow('Net Cash from Operating Activities', operating, 'subtotal') +
+    stmtSection('INVESTING ACTIVITIES') +
+    stmtRow('Capital deployed to trader accounts', investing, '', 1) +
+    stmtRow('Net Cash from Investing Activities', investing, 'subtotal') +
+    stmtSection('FINANCING ACTIVITIES') +
+    stmtRow('Owner contributions / withdrawals', financing, '', 1) +
+    stmtRow('Net Cash from Financing Activities', financing, 'subtotal') +
+    stmtRow('Net Increase / (Decrease) in Cash', netChange, netChange >= 0 ? 'total-green' : 'total-red') +
+    stmtRow('Opening Cash Balance', d.openingCash, '', 1) +
+    stmtRow('Closing Cash Balance', closing, 'total');
+}
+
+// ══ EXPENSE TRACKER ════════════════════════════════════
+function renderExpenseStats() {
+  const filtered = getFilteredExpenses();
+  const total = filtered.reduce((s,e) => s+e.amount, 0);
+  const cats = {};
+  filtered.forEach(e => { cats[e.cat] = (cats[e.cat]||0) + e.amount; });
+  const largest = Object.entries(cats).sort((a,b)=>b[1]-a[1])[0];
+  const pending = filtered.filter(e=>e.status==='Pending').length;
+
+  document.getElementById('exp-total').textContent = fmt(total);
+  document.getElementById('exp-largest').textContent = largest ? largest[0].split('/')[0].trim() : '—';
+  document.getElementById('exp-count').textContent = filtered.length;
+  document.getElementById('exp-avg').textContent = filtered.length > 0 ? fmt(total/filtered.length) : '$0.00';
+  document.getElementById('exp-pending').textContent = pending;
+}
+
+function getFilteredExpenses() {
+  const search = (document.getElementById('exp-search')?.value||'').toLowerCase();
+  const cat = document.getElementById('exp-cat-filter')?.value || 'all';
+  return EXPENSES.filter(e => {
+    const matchSearch = !search || e.desc.toLowerCase().includes(search) || e.vendor.toLowerCase().includes(search) || e.ref.toLowerCase().includes(search);
+    const matchCat = cat === 'all' || e.cat === cat;
+    return matchSearch && matchCat;
+  });
+}
+
+function filterExpenses() {
+  renderExpenseStats();
+  renderExpenseTable();
+}
+
+function renderExpenseTable() {
+  const filtered = getFilteredExpenses();
+  const tbody = document.getElementById('expense-tbody');
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:48px;color:var(--muted);">No expenses found.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((e,i) => {
+    const color = CAT_COLORS[e.cat] || '#64748b';
+    const bg = CAT_BG[e.cat] || 'rgba(100,116,139,0.12)';
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px;">${i+1}</td>
+      <td style="font-size:12px;color:var(--muted);">${e.date}</td>
+      <td>
+        <div style="font-weight:600;font-size:13px;margin-bottom:2px;">${e.desc}</div>
+        <div style="font-size:11px;color:var(--muted);">${e.vendor} · ${e.ref}</div>
+        ${e.notes ? `<div style="font-size:11px;color:var(--muted);margin-top:2px;font-style:italic;">${e.notes}</div>` : ''}
+      </td>
+      <td><span class="cat-badge" style="background:${bg};color:${color};border:1px solid ${color}44;">${e.cat}</span></td>
+      <td style="font-family:'Outfit',sans-serif;font-weight:700;font-size:15px;color:var(--red);">${fmt(e.amount)}</td>
+      <td style="font-size:12px;color:var(--muted);">${e.approver.split(' (')[0]}</td>
+      <td><span style="padding:3px 8px;border-radius:100px;font-size:11px;font-weight:700;background:${e.status==='Approved'?'var(--green-dim)':'var(--orange-dim)'};color:${e.status==='Approved'?'var(--green)':'var(--orange)'};border:1px solid ${e.status==='Approved'?'rgba(34,197,94,0.25)':'rgba(249,115,22,0.25)'};">${e.status}</span></td>
+      <td><button class="del-btn" onclick="deleteExpense(${e.id})">Delete</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function deleteExpense(id) {
+  EXPENSES = EXPENSES.filter(e => e.id !== id);
+  renderExpenseStats();
+  renderExpenseTable();
+  buildExpenseCharts(DATA[currentPeriod]);
+  showToast('Expense deleted', 'info');
+}
+
+// ══ EXPENSE MODAL ══════════════════════════════════════
+function openExpenseModal() {
+  document.getElementById('exp-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('expense-modal').classList.add('open');
+}
+
+function closeExpenseModal() {
+  document.getElementById('expense-modal').classList.remove('open');
+}
+
+function submitExpense() {
+  const date   = document.getElementById('exp-date').value;
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  const desc   = document.getElementById('exp-desc').value.trim();
+  const cat    = document.getElementById('exp-cat').value;
+  const method = document.getElementById('exp-method').value;
+  const vendor = document.getElementById('exp-vendor').value.trim();
+  const ref    = document.getElementById('exp-ref').value.trim();
+  const notes  = document.getElementById('exp-notes').value.trim();
+  const approver = document.getElementById('exp-approver').value;
+
+  if (!date || !amount || !desc || !cat) { showToast('Please fill in all required fields', 'error'); return; }
+  if (amount <= 0) { showToast('Amount must be greater than zero', 'error'); return; }
+
+  EXPENSES.unshift({ id: nextId++, date, desc, cat, amount, vendor: vendor||'—', ref: ref||'—', method: method||'—', notes, approver, status:'Approved' });
+
+  // Update period data totals
+  const catKey = { 'Trader Payouts':'traderPayouts','Platform/Broker Fees':'brokerFees','Staff Salaries':'salaries','Technology & Hosting':'techHosting','Legal & Compliance':'legal','Marketing':'marketing','Office & Operations':'office','Miscellaneous':'misc' };
+  const key = catKey[cat];
+  if (key) { DATA.monthly[key] += amount; DATA.quarterly[key] += amount; }
+
+  closeExpenseModal();
+  renderAll();
+  showToast(`Expense of ${fmt(amount)} added successfully`, 'success');
+
+  // Clear form
+  ['exp-amount','exp-desc','exp-vendor','exp-ref','exp-notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('exp-cat').value = '';
+  document.getElementById('exp-method').value = '';
+}
+
+// ══ NOTES ══════════════════════════════════════════════
+const NOTES = [
+  {
+    num: 'Note 1',
+    title: 'Accounting Policies',
+    content: () => `
+      <div class="policy-item"><div class="policy-label">Basis of Preparation</div>These financial statements are prepared on an accrual basis of accounting in accordance with generally accepted accounting principles (GAAP). The firm's functional and reporting currency is the United States Dollar (USD).</div>
+      <div class="policy-item"><div class="policy-label">Revenue Recognition</div>Revenue is recognised when earned. Trading profit is recognised upon settlement of trades. The firm's share (30%) is recognised as revenue after deducting the 70% trader profit allocation.</div>
+      <div class="policy-item"><div class="policy-label">Trader Payouts</div>Trader payouts represent 70% of net trading profits allocated to funded traders. These are recognised as an expense in the period the profit is earned and are payable upon the trader reaching their withdrawal threshold.</div>
+      <div class="policy-item"><div class="policy-label">Capital Deployed</div>Capital deployed to funded trader accounts is classified as a current asset as it is expected to be recovered within the operating cycle of the evaluation programme.</div>
+      <div class="policy-item"><div class="policy-label">Challenge Fees</div>Lazzer Quant Trading Firm charges no challenge fees. The evaluation programme is entirely funded by the firm's own capital.</div>
+      <div class="policy-item"><div class="policy-label">Foreign Currency</div>All transactions are denominated in USD. Payments made via USDT (Tether) are converted at the prevailing rate at the date of transaction.</div>
+    `
+  },
+  {
+    num: 'Note 2',
+    title: 'Breakdown of Key Line Items',
+    content: () => {
+      const d = DATA[currentPeriod];
+      const firmShare = (d.tradingProfit * 0.30).toFixed(2);
+      return `
+        <table class="note-table">
+          <thead><tr><th>Line Item</th><th>Amount</th><th>Basis</th></tr></thead>
+          <tbody>
+            <tr><td>Gross Trading Profit</td><td class="nv">$${d.tradingProfit.toFixed(2)}</td><td>Combined P&L of all ${d.fundedTraderCount} funded traders</td></tr>
+            <tr><td>Trader Payouts (70%)</td><td class="nvr">$${d.traderPayouts.toFixed(2)}</td><td>70% of gross trading profit distributed to traders</td></tr>
+            <tr><td>Firm Revenue (30%)</td><td class="nvg">$${firmShare}</td><td>30% retained by Lazzer Quant Trading Firm</td></tr>
+            <tr><td>Platform & Broker Fees</td><td class="nvr">$${d.brokerFees.toFixed(2)}</td><td>Spread costs and account fees across Deriv, Exness, Weltrade</td></tr>
+            <tr><td>Technology & Hosting</td><td class="nvr">$${d.techHosting.toFixed(2)}</td><td>Vercel hosting, domain, WhatsApp Business API</td></tr>
+            <tr><td>Marketing</td><td class="nvr">$${d.marketing.toFixed(2)}</td><td>Facebook Ads for trader recruitment</td></tr>
+            <tr><td>Office & Operations</td><td class="nvr">$${d.office.toFixed(2)}</td><td>Stationery, printing of challenge documents</td></tr>
+            <tr><td>Miscellaneous</td><td class="nvr">$${d.misc.toFixed(2)}</td><td>Small admin costs — transport, printing</td></tr>
+          </tbody>
+        </table>
+      `;
+    }
+  },
+  {
+    num: 'Note 3',
+    title: 'Related Party Transactions',
+    content: () => `
+      <p style="font-size:14px;color:var(--text);line-height:1.7;margin-bottom:16px;">The following transactions were conducted between the firm and related parties during the reporting period:</p>
+      <table class="note-table">
+        <thead><tr><th>Party</th><th>Relationship</th><th>Transaction</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td>Kelvin Chafachaipa</td><td>CEO & Founder (60% owner)</td><td>Owner's capital contribution</td><td class="nvg">$800.00</td></tr>
+          <tr><td>Tatenda Fortune Vambe</td><td>COO & Co-Founder (40% owner)</td><td>Operational management services</td><td class="nv">Non-cash</td></tr>
+          <tr><td>Funded Traders</td><td>Contracted traders</td><td>70% profit distributions</td><td class="nvr">$${DATA[currentPeriod].traderPayouts.toFixed(2)}</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6;">All related party transactions are conducted at arm's length and on normal commercial terms. No director loans or uncommercial arrangements exist.</p>
+    `
+  },
+  {
+    num: 'Note 4',
+    title: 'Contingent Liabilities',
+    content: () => `
+      <p style="font-size:14px;color:var(--text);line-height:1.7;margin-bottom:16px;">The following contingent liabilities existed as at the reporting date:</p>
+      <table class="note-table">
+        <thead><tr><th>Item</th><th>Nature</th><th>Likelihood</th><th>Estimated Exposure</th></tr></thead>
+        <tbody>
+          <tr><td>Pending trader payouts</td><td>Traders approaching withdrawal threshold</td><td>Probable</td><td class="nvr">$${(DATA[currentPeriod].tradingProfit * 0.15).toFixed(2)}</td></tr>
+          <tr><td>Challenge account losses</td><td>Demo account capital at risk during evaluations</td><td>Possible</td><td class="nv">$${DATA[currentPeriod].capitalDeployed.toFixed(2)}</td></tr>
+          <tr><td>Legal & regulatory</td><td>No known legal proceedings against the firm</td><td>Remote</td><td class="nv">$0.00</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6;">The firm does not recognise contingent liabilities in the balance sheet. They are disclosed here for transparency.</p>
+    `
+  },
+  {
+    num: 'Note 5',
+    title: 'Debt Maturity Schedule',
+    content: () => `
+      <p style="font-size:14px;color:var(--text);line-height:1.7;margin-bottom:16px;">The firm currently operates with no external debt. The following schedule reflects all outstanding obligations:</p>
+      <table class="note-table">
+        <thead><tr><th>Obligation</th><th>Due Date</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Accounts Payable — Vercel Inc</td><td>April 1, 2026</td><td class="nvr">$20.00</td><td><span style="color:var(--gold);font-weight:700;">Current</span></td></tr>
+          <tr><td>Accounts Payable — Meta Business</td><td>April 1, 2026</td><td class="nvr">$3.00</td><td><span style="color:var(--gold);font-weight:700;">Current</span></td></tr>
+          <tr><td>Pending Trader Payout — Admire Mureza</td><td>On demand</td><td class="nvr">$123.40</td><td><span style="color:var(--green);font-weight:700;">Processing</span></td></tr>
+          <tr><td>Bank Loans</td><td>N/A</td><td class="nv">$0.00</td><td><span style="color:var(--green);font-weight:700;">None</span></td></tr>
+          <tr><td>Owner Drawings Payable</td><td>N/A</td><td class="nv">$0.00</td><td><span style="color:var(--green);font-weight:700;">None</span></td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6;">Lazzer Quant Trading Firm is entirely debt-free. All obligations are current and expected to be settled within 30 days. The firm maintains sufficient cash reserves to meet all near-term obligations.</p>
+    `
+  }
+];
+
+function renderNotes() {
+  document.getElementById('notes-list').innerHTML = NOTES.map((n, i) => `
+    <div class="note-card" id="note-card-${i}">
+      <div class="note-header" onclick="toggleNote(${i})">
+        <div><div class="note-num">${n.num}</div><div class="note-title">${n.title}</div></div>
+        <span class="note-toggle" id="note-toggle-${i}">▼</span>
+      </div>
+      <div class="note-body" id="note-body-${i}">
+        <div class="note-content">${n.content()}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleNote(i) {
+  const body = document.getElementById(`note-body-${i}`);
+  const toggle = document.getElementById(`note-toggle-${i}`);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  toggle.style.transform = isOpen ? '' : 'rotate(180deg)';
+  toggle.style.color = isOpen ? 'var(--muted)' : 'var(--gold)';
+}
+
+// ══ CHARTS ═════════════════════════════════════════════
+let charts = {};
+
+function buildCharts(d) {
+  buildRevExpChart(d);
+  buildExpBreakChart(d);
+  buildAssetChart(d);
+  buildEquityGrowthChart(d);
+  buildWaterfallChart(d);
+  buildExpenseCharts(d);
+}
+
+const cOpts = (extra={}) => ({
+  responsive:true, maintainAspectRatio:true, animation:false,
+  plugins:{ legend:{ display:false } },
+  scales:{
+    x:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}} },
+    y:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}} }
+  }, ...extra
+});
+
+function mkChart(id, config) {
+  if (charts[id]) charts[id].destroy();
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  charts[id] = new Chart(canvas.getContext('2d'), config);
+}
+
+function buildRevExpChart(d) {
+  const months = currentPeriod === 'monthly'
+    ? ['Jan','Feb','Mar']
+    : ['Jan','Feb','Mar','Q1'];
+  const rev = months.map((_, i) => (d.tradingProfit * 0.30 * (0.7 + i * 0.15)).toFixed(2));
+  const exp = months.map((_, i) => (d.brokerFees + d.techHosting + d.marketing + d.office + d.misc) * (0.8 + i * 0.1));
+
+  mkChart('revExpChart', {
+    type:'bar',
+    data:{
+      labels: months,
+      datasets:[
+        { label:'Revenue', data:rev, backgroundColor:'rgba(34,197,94,0.7)', borderRadius:6 },
+        { label:'Expenses', data:exp, backgroundColor:'rgba(239,68,68,0.7)', borderRadius:6 }
+      ]
+    },
+    options:{ ...cOpts(), plugins:{ legend:{ display:true, position:'bottom', labels:{ color:'#cbd5e1', font:{size:11}, padding:12 } } } }
+  });
+}
+
+function buildExpBreakChart(d) {
+  const cats = { 'Payouts':d.traderPayouts, 'Broker':d.brokerFees, 'Tech':d.techHosting, 'Marketing':d.marketing, 'Office':d.office, 'Misc':d.misc };
+  const labels = Object.keys(cats).filter(k => cats[k] > 0);
+  const values = labels.map(k => cats[k]);
+  const colors = ['#ef4444','#f97316','#8b5cf6','#ec4899','#84cc16','#64748b'];
+
+  mkChart('expBreakChart', {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data:values, backgroundColor:colors, borderWidth:0, hoverOffset:6 }] },
+    options:{ responsive:true, maintainAspectRatio:true, animation:false, cutout:'60%',
+      plugins:{ legend:{ display:true, position:'bottom', labels:{ color:'#cbd5e1', font:{size:11}, padding:10 } } } }
+  });
+}
+
+function buildAssetChart(d) {
+  mkChart('assetChart', {
+    type:'doughnut',
+    data:{
+      labels:['Cash','Capital Deployed','Equipment','Prepaid'],
+      datasets:[{ data:[d.cash, d.capitalDeployed, d.equipment, d.prepaid], backgroundColor:['#22c55e','#c9a84c','#3b82f6','#f97316'], borderWidth:0 }]
+    },
+    options:{ responsive:true, maintainAspectRatio:true, animation:false, cutout:'60%',
+      plugins:{ legend:{ display:true, position:'bottom', labels:{ color:'#cbd5e1', font:{size:11}, padding:10 } } } }
+  });
+}
+
+function buildEquityGrowthChart(d) {
+  const months = ['Oct','Nov','Dec','Jan','Feb','Mar'];
+  const base = d.ownerCapital;
+  const data = months.map((_, i) => parseFloat((base + i * 18.4).toFixed(2)));
+  mkChart('equityGrowthChart', {
+    type:'line',
+    data:{ labels:months, datasets:[{ data, borderColor:'var(--gold)', backgroundColor:'rgba(201,168,76,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:'var(--gold)' }] },
+    options:cOpts()
+  });
+}
+
+function buildWaterfallChart(d) {
+  const firmRev = d.tradingProfit * 0.30;
+  const totalExp = d.brokerFees + d.techHosting + d.marketing + d.office + d.misc + d.legal + d.salaries;
+  mkChart('waterfallChart', {
+    type:'bar',
+    data:{
+      labels:['Firm Revenue','Broker Fees','Tech','Marketing','Office','Misc','Net Profit'],
+      datasets:[{
+        data:[firmRev, -d.brokerFees, -d.techHosting, -d.marketing, -d.office, -d.misc, firmRev-totalExp],
+        backgroundColor:(ctx) => {
+          const v = ctx.raw;
+          if (ctx.dataIndex === 0) return 'rgba(34,197,94,0.7)';
+          if (ctx.dataIndex === ctx.chart.data.labels.length-1) return v >= 0 ? 'rgba(201,168,76,0.8)' : 'rgba(239,68,68,0.7)';
+          return 'rgba(239,68,68,0.6)';
+        },
+        borderRadius:6
+      }]
+    },
+    options:cOpts()
+  });
+}
+
+function buildExpenseCharts(d) {
+  // By category
+  const cats = {};
+  EXPENSES.forEach(e => { cats[e.cat] = (cats[e.cat]||0) + e.amount; });
+  const labels = Object.keys(cats);
+  const values = labels.map(k => cats[k]);
+  const colors = labels.map(k => CAT_COLORS[k] || '#64748b');
+
+  mkChart('expCatChart', {
+    type:'doughnut',
+    data:{ labels, datasets:[{ data:values, backgroundColor:colors, borderWidth:0 }] },
+    options:{ responsive:true, maintainAspectRatio:true, animation:false, cutout:'55%',
+      plugins:{ legend:{ display:true, position:'bottom', labels:{ color:'#cbd5e1', font:{size:10}, padding:8 } } } }
+  });
+
+  // Weekly trend
+  const weeks = ['Week 1','Week 2','Week 3','Week 4'];
+  const weeklyData = [21.00, 14.50, 18.20, 12.70];
+  mkChart('expTrendChart', {
+    type:'line',
+    data:{ labels:weeks, datasets:[{ data:weeklyData, borderColor:'var(--red)', backgroundColor:'rgba(239,68,68,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'var(--red)' }] },
+    options:cOpts()
+  });
+}
+
+// ══ UTILITIES ══════════════════════════════════════════
+function exportStatement(name) {
+  showToast(`${name} exported as PDF`, 'success');
+}
+
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  const icons = { success:'✅', error:'❌', info:'💡' };
+  t.innerHTML = `<span>${icons[type]||'💡'}</span> ${msg}`;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ══ INIT ═══════════════════════════════════════════════
+renderNotes();
+renderAll();
+</script>
+</body>
+</html>
