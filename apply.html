@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apply — Lazzer Quant Trading Firm</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.apply-layout { display: grid; grid-template-columns: 1fr 1.5fr; gap: 60px; align-items: start; }
+.step-list { display: flex; flex-direction: column; gap: 14px; margin-top: 32px; }
+.apply-step { display: flex; gap: 16px; align-items: flex-start; padding: 20px; background: var(--navy-card); border: 1px solid var(--navy-border); border-radius: 14px; }
+.as-num { width: 34px; height: 34px; min-width: 34px; background: var(--gold-dim); border: 1.5px solid var(--gold-border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px; color: var(--gold); }
+.as-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.as-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.range-wrap { display: flex; align-items: center; gap: 16px; }
+.form-range { flex: 1; accent-color: var(--gold); height: 4px; }
+.range-val { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; color: var(--gold); min-width: 28px; }
+.check-group { display: flex; flex-wrap: wrap; gap: 10px; }
+.check-item { display: flex; align-items: center; gap: 8px; }
+.check-item input { accent-color: var(--gold); width: 15px; height: 15px; cursor: pointer; }
+.check-item label { font-size: 13px; color: var(--text); cursor: pointer; }
+.form-submit { width: 100%; padding: 15px; margin-top: 6px; background: var(--gold); color: var(--navy); font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px; border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+.form-submit:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(201,168,76,0.25); }
+.success-box { text-align: center; padding: 60px 20px; display: none; }
+.success-icon { font-size: 56px; margin-bottom: 20px; }
+.success-title { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 700; margin-bottom: 12px; }
+.success-desc { font-size: 15px; color: var(--text); line-height: 1.7; max-width: 420px; margin: 0 auto; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <a href="index.html" class="header-logo"><div class="logo-badge">LQ</div><span class="logo-name">Lazzer <span>Quant</span></span></a>
+    <nav>
+      <a href="index.html">Home</a><a href="about.html">About</a><a href="how-it-works.html">How It Works</a>
+      <a href="rules.html">Trader Rules</a><a href="faq.html">FAQ</a><a href="contact.html">Contact</a>
+      <a href="apply.html" class="nav-apply active">Apply Now</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="page-hero">
+      <span class="label">Apply Now</span>
+      <h1>Ready to prove<br>your edge?</h1>
+      <p class="lead">Applications are reviewed personally by our COO. Zero fees. Zero shortcuts. Just your skill and discipline.</p>
+    </div>
+
+    <section class="section">
+      <div class="apply-layout">
+        <div>
+          <h2 style="font-size: clamp(24px, 2.5vw, 36px);">What happens<br>after you apply.</h2>
+          <p class="body">Every application is read personally — not filtered by a bot. Be specific and honest. We prefer quality over volume.</p>
+          <div class="step-list">
+            <div class="apply-step">
+              <div class="as-num">1</div>
+              <div><div class="as-title">Submit Your Application</div><div class="as-desc">Fill out the form with genuine details about your trading experience and goals.</div></div>
+            </div>
+            <div class="apply-step">
+              <div class="as-num">2</div>
+              <div><div class="as-title">COO Reviews Within 48 Hours</div><div class="as-desc">Our COO reviews every application personally and responds within 2 business days.</div></div>
+            </div>
+            <div class="apply-step">
+              <div class="as-num">3</div>
+              <div><div class="as-title">Interview Scheduled</div><div class="as-desc">Shortlisted applicants receive an interview invitation to discuss approach, mindset, and strategy.</div></div>
+            </div>
+            <div class="apply-step">
+              <div class="as-num">4</div>
+              <div><div class="as-title">Phase 1 Challenge Begins</div><div class="as-desc">Approved candidates receive their demo account and Phase 1 challenge document.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <div id="form-main">
+            <h3 style="margin-bottom: 6px;">Trader Application</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 28px;">All fields required. Vague responses are not shortlisted.</p>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-input" id="f-name" placeholder="Your full name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Country</label>
+                <input type="text" class="form-input" id="f-country" placeholder="Your country">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-input" id="f-email" placeholder="your@email.com">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Trading Experience — <span style="color: var(--text-muted); font-weight: 400;">1 = Beginner · 10 = Expert</span></label>
+              <div class="range-wrap">
+                <input type="range" class="form-range" min="1" max="10" value="5" id="f-exp" oninput="document.getElementById('exp-val').textContent = this.value">
+                <span class="range-val" id="exp-val">5</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Preferred Markets</label>
+              <div class="check-group">
+                <div class="check-item"><input type="checkbox" id="m1"><label for="m1">Forex</label></div>
+                <div class="check-item"><input type="checkbox" id="m2"><label for="m2">Indices</label></div>
+                <div class="check-item"><input type="checkbox" id="m3"><label for="m3">Crypto</label></div>
+                <div class="check-item"><input type="checkbox" id="m4"><label for="m4">Commodities</label></div>
+                <div class="check-item"><input type="checkbox" id="m5"><label for="m5">Synthetics</label></div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Strategy Type</label>
+                <select class="form-select" id="f-strat">
+                  <option value="">Select strategy</option>
+                  <option>Scalping</option>
+                  <option>Day Trading</option>
+                  <option>Swing Trading</option>
+                  <option>Price Action</option>
+                  <option>Technical Analysis</option>
+                  <option>Mixed / Hybrid</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">MT5 Experience</label>
+                <select class="form-select" id="f-mt5">
+                  <option value="">Select level</option>
+                  <option>None — Never used MT5</option>
+                  <option>Beginner — Used a few times</option>
+                  <option>Intermediate — Use regularly</option>
+                  <option>Advanced — MT5 is my primary platform</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Preferred Broker</label>
+              <select class="form-select" id="f-broker">
+                <option value="">Select broker</option>
+                <option>Deriv (MT5)</option>
+                <option>Exness (MT5)</option>
+                <option>Weltrade (MT4 & MT5)</option>
+                <option>No preference</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Why do you want to join Lazzer Quant?</label>
+              <textarea class="form-textarea" id="f-why" placeholder="Tell us about your trading goals, what draws you to Lazzer Quant, and why you believe you are ready for funded trading..."></textarea>
+            </div>
+
+            <button class="form-submit" onclick="submitApp()">Submit Application →</button>
+          </div>
+
+          <div class="success-box" id="form-success">
+            <div class="success-icon">✅</div>
+            <div class="success-title">Application Submitted</div>
+            <div class="success-desc">Thank you for applying to Lazzer Quant Trading Firm. Our COO will review your application within 48 hours. If shortlisted, you will receive an email with interview details.<br><br><strong style="color: var(--gold);">Good luck.</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-left">© 2026 Lazzer Quant Trading Firm · Harare, Zimbabwe</div>
+    <div class="footer-center"><a href="about.html">About</a><a href="how-it-works.html">How It Works</a><a href="rules.html">Rules</a><a href="apply.html">Apply</a><a href="contact.html">Contact</a></div>
+    <div class="footer-right">Discipline · Precision · Consistency</div>
+  </footer>
+</div>
+<script>
+function submitApp() {
+  const name = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const why = document.getElementById('f-why').value.trim();
+  if (!name || !email || !why) { alert('Please fill in all required fields.'); return; }
+  document.getElementById('form-main').style.display = 'none';
+  document.getElementById('form-success').style.display = 'block';
+}
+</script>
+</body>
+</html>
