@@ -45,6 +45,10 @@
     {
       "source": "/financials",
       "destination": "/financials.html"
+    },
+    {
+      "source": "/analytics",
+      "destination": "/analytics.html"
     }
   ]
 }

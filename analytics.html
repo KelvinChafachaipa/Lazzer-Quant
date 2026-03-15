@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — Lazzer Quant</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#060d1a;--navy-mid:#0c1628;--navy-card:#101e35;--navy-border:#1a2d4a;
+  --gold:#c9a84c;--gold-light:#e2bf6e;--gold-dim:rgba(201,168,76,0.12);--gold-border:rgba(201,168,76,0.25);
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
+  --blue:#3b82f6;--blue-dim:rgba(59,130,246,0.12);
+  --orange:#f97316;--orange-dim:rgba(249,115,22,0.12);
+  --purple:#a855f7;--purple-dim:rgba(168,85,247,0.12);
+  --white:#ffffff;--text:#cbd5e1;--muted:#64748b;
+  --sidebar-w:220px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;background:var(--navy);color:var(--white);}
+.shell{display:flex;flex-direction:column;height:100vh;}
+
+/* TOPBAR */
+.topbar{height:60px;min-height:60px;flex-shrink:0;background:var(--navy-mid);border-bottom:1px solid var(--navy-border);display:flex;align-items:center;padding:0 20px;justify-content:space-between;z-index:100;}
+.tb-left{display:flex;align-items:center;gap:14px;}
+.tb-logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--white);}
+.tb-badge{width:30px;height:30px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:800;font-size:13px;color:var(--navy);}
+.tb-name{font-family:'Outfit',sans-serif;font-weight:700;font-size:16px;}
+.tb-name span{color:var(--gold);}
+.tb-divider{width:1px;height:20px;background:var(--navy-border);}
+.tb-section{font-size:13px;font-weight:600;color:var(--muted);}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.tb-btn{padding:6px 14px;background:transparent;border:1px solid var(--navy-border);border-radius:7px;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center;}
+.tb-btn:hover{border-color:var(--gold-border);color:var(--gold);}
+
+/* BODY */
+.body-wrap{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);flex-shrink:0;background:var(--navy-mid);border-right:1px solid var(--navy-border);display:flex;flex-direction:column;padding:16px 10px;overflow-y:auto;}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);padding:0 10px;margin-bottom:6px;margin-top:12px;}
+.sb-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.2s;margin-bottom:2px;border:1px solid transparent;}
+.sb-link:hover{color:var(--white);background:rgba(255,255,255,0.04);}
+.sb-link.active{color:var(--white);background:var(--gold-dim);border-color:var(--gold-border);}
+.sb-icon{font-size:15px;width:20px;text-align:center;}
+.sb-bottom{margin-top:auto;padding-top:16px;border-top:1px solid var(--navy-border);}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;padding:28px;}
+.main::-webkit-scrollbar{width:4px;}
+.main::-webkit-scrollbar-thumb{background:var(--navy-border);border-radius:2px;}
+.section{display:none;}
+.section.active{display:block;}
+
+/* Page header */
+.pg-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;flex-wrap:wrap;gap:14px;}
+.pg-title{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;}
+.pg-sub{font-size:13px;color:var(--muted);}
+.pg-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+
+/* Stat cards */
+.stat-row{display:grid;gap:14px;margin-bottom:24px;}
+.stat-row-5{grid-template-columns:repeat(5,1fr);}
+.stat-row-4{grid-template-columns:repeat(4,1fr);}
+.stat-row-3{grid-template-columns:repeat(3,1fr);}
+.stat-card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.gold::before{background:var(--gold);}
+.stat-card.green::before{background:var(--green);}
+.stat-card.red::before{background:var(--red);}
+.stat-card.blue::before{background:var(--blue);}
+.stat-card.orange::before{background:var(--orange);}
+.stat-card.purple::before{background:var(--purple);}
+.sc-lbl{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.sc-val{font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;line-height:1;margin-bottom:6px;}
+.sc-sub{font-size:12px;font-weight:600;}
+.sc-sub.up{color:var(--green);}
+.sc-sub.down{color:var(--red);}
+.sc-sub.neutral{color:var(--muted);}
+
+/* Chart cards */
+.chart-card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:16px;padding:22px;margin-bottom:20px;}
+.cc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.cc-title{font-size:14px;font-weight:700;}
+.cc-meta{font-size:12px;color:var(--muted);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+
+/* Health score ring */
+.health-ring-wrap{display:flex;align-items:center;gap:32px;padding:28px;background:var(--navy-card);border:1px solid var(--navy-border);border-radius:20px;margin-bottom:24px;}
+.health-ring{position:relative;width:140px;height:140px;flex-shrink:0;}
+.health-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+.health-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.health-score{font-family:'Outfit',sans-serif;font-size:36px;font-weight:800;line-height:1;}
+.health-label{font-size:11px;color:var(--muted);margin-top:3px;}
+.health-info{flex:1;}
+.health-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px;}
+.health-desc{font-size:14px;color:var(--text);line-height:1.7;margin-bottom:16px;}
+.health-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.hm-item{background:rgba(255,255,255,0.03);border:1px solid var(--navy-border);border-radius:10px;padding:12px;}
+.hm-val{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;margin-bottom:3px;}
+.hm-lbl{font-size:11px;color:var(--muted);}
+
+/* Scorecard */
+.scorecard-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+.scorecard{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:16px;overflow:hidden;transition:all 0.25s;}
+.scorecard:hover{border-color:var(--gold-border);transform:translateY(-3px);}
+.sc-top{padding:20px;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--navy-border);}
+.sc-trader{display:flex;align-items:center;gap:12px;}
+.sc-avatar{width:38px;height:38px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--gold);}
+.sc-tname{font-size:14px;font-weight:700;margin-bottom:3px;}
+.sc-detail{font-size:11px;color:var(--muted);}
+.grade-badge{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;}
+.grade-A{background:rgba(34,197,94,0.15);color:var(--green);border:1.5px solid rgba(34,197,94,0.3);}
+.grade-B{background:rgba(201,168,76,0.15);color:var(--gold);border:1.5px solid rgba(201,168,76,0.3);}
+.grade-C{background:rgba(249,115,22,0.15);color:var(--orange);border:1.5px solid rgba(249,115,22,0.3);}
+.grade-D{background:rgba(239,68,68,0.15);color:var(--red);border:1.5px solid rgba(239,68,68,0.3);}
+.sc-metrics{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sc-metric{display:flex;flex-direction:column;gap:3px;}
+.sc-m-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+.sc-m-val{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;}
+.sc-bar-wrap{padding:0 20px 16px;}
+.sc-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px;}
+.sc-bar-track{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.sc-bar-fill{height:100%;border-radius:3px;}
+
+/* Alert rules */
+.alert-rule{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.04);gap:16px;}
+.alert-rule:last-child{border-bottom:none;}
+.ar-left{display:flex;align-items:center;gap:14px;flex:1;}
+.ar-icon{width:38px;height:38px;min-width:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.ar-title{font-size:14px;font-weight:600;margin-bottom:3px;}
+.ar-desc{font-size:12px;color:var(--muted);}
+.ar-right{display:flex;align-items:center;gap:10px;}
+.toggle-wrap{position:relative;width:44px;height:24px;cursor:pointer;}
+.toggle-track{width:100%;height:100%;border-radius:12px;background:var(--navy-border);transition:background 0.2s;}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:all 0.2s;}
+.toggle-wrap.on .toggle-track{background:var(--green);}
+.toggle-wrap.on .toggle-thumb{left:23px;background:var(--white);}
+.ar-status{font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px;}
+.ar-status.active{background:var(--green-dim);color:var(--green);}
+.ar-status.inactive{background:rgba(255,255,255,0.04);color:var(--muted);}
+
+/* Cohort table */
+.cohort-row{display:grid;grid-template-columns:140px 80px 80px 80px 80px 80px 1fr;gap:12px;align-items:center;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px;}
+.cohort-row.header{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:rgba(255,255,255,0.02);border-bottom:1px solid var(--navy-border);}
+.cohort-row:hover{background:rgba(255,255,255,0.02);}
+.cohort-name{font-weight:700;}
+.cohort-bar-wrap{height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;}
+.cohort-bar-fill{height:100%;border-radius:4px;background:var(--gold);}
+
+/* Report card */
+.report-block{margin-bottom:28px;}
+.rb-title{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--navy-border);}
+.report-metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.rm-card{background:var(--navy);border:1px solid var(--navy-border);border-radius:12px;padding:16px;}
+.rm-lbl{font-size:11px;color:var(--muted);margin-bottom:6px;}
+.rm-val{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;}
+.rec-item{display:flex;gap:14px;align-items:flex-start;padding:14px;background:var(--navy);border:1px solid var(--navy-border);border-radius:12px;margin-bottom:10px;}
+.rec-icon{font-size:20px;flex-shrink:0;}
+.rec-text{font-size:14px;color:var(--text);line-height:1.7;}
+
+/* Export cards */
+.export-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.export-card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:16px;padding:24px;transition:all 0.25s;cursor:pointer;}
+.export-card:hover{border-color:var(--gold-border);transform:translateY(-3px);}
+.export-icon{font-size:36px;margin-bottom:14px;}
+.export-title{font-size:15px;font-weight:700;margin-bottom:6px;}
+.export-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px;}
+.export-meta{display:flex;justify-content:space-between;align-items:center;}
+.export-format{font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px;}
+.fmt-pdf{background:var(--red-dim);color:var(--red);}
+.fmt-csv{background:var(--green-dim);color:var(--green);}
+.fmt-both{background:var(--blue-dim);color:var(--blue);}
+.export-btn{padding:8px 18px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif;}
+.export-btn:hover{background:var(--gold);color:var(--navy);}
+
+/* Report preview */
+.report-preview{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:16px;overflow:hidden;}
+.rp-toolbar{padding:14px 20px;border-bottom:1px solid var(--navy-border);display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.02);}
+.rp-title{font-size:14px;font-weight:700;}
+.rp-actions{display:flex;gap:8px;}
+.rp-btn{padding:7px 16px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif;border:none;}
+.rp-btn.gold{background:var(--gold);color:var(--navy);}
+.rp-btn.outline{background:transparent;color:var(--text);border:1px solid var(--navy-border);}
+.rp-btn.outline:hover{border-color:var(--gold-border);color:var(--gold);}
+.rp-body{padding:24px;}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy-card);border:1px solid var(--navy-border);border-radius:12px;padding:14px 18px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5);transform:translateY(80px);opacity:0;transition:all 0.3s;z-index:999;max-width:360px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:rgba(34,197,94,0.4);}
+.toast.error{border-color:rgba(239,68,68,0.4);}
+.toast.info{border-color:var(--gold-border);}
+
+@media(max-width:1200px){
+  .stat-row-5{grid-template-columns:repeat(3,1fr);}
+  .scorecard-grid{grid-template-columns:1fr 1fr;}
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  .export-grid{grid-template-columns:1fr 1fr;}
+  .health-metrics{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="toast" id="toast"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <a href="index.html" class="tb-logo">
+      <div class="tb-badge">LQ</div>
+      <span class="tb-name">Lazzer <span>Quant</span></span>
+    </a>
+    <div class="tb-divider"></div>
+    <span class="tb-section" id="tb-section">Firm Health</span>
+  </div>
+  <div class="tb-right">
+    <span style="font-size:12px;font-weight:700;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-border);padding:5px 12px;border-radius:100px;">Admin Only</span>
+    <span style="font-size:12px;color:var(--muted);" id="report-date">Week of Mar 9–15, 2026</span>
+    <a href="monitor.html" class="tb-btn">← Monitor</a>
+    <a href="financials.html" class="tb-btn">Financials</a>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body-wrap">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-label">Analytics</div>
+    <div class="sb-link active" id="sl-health"      onclick="showSection('health',this)"><span class="sb-icon">🏥</span> Firm Health</div>
+    <div class="sb-link"        id="sl-scorecards"  onclick="showSection('scorecards',this)"><span class="sb-icon">🏅</span> Trader Scorecards</div>
+    <div class="sb-link"        id="sl-cohorts"     onclick="showSection('cohorts',this)"><span class="sb-icon">🔬</span> Cohort Analysis</div>
+
+    <div class="sb-label">Automation</div>
+    <div class="sb-link"        id="sl-alerts"      onclick="showSection('alerts',this)"><span class="sb-icon">🔔</span> Alert Rules</div>
+    <div class="sb-link"        id="sl-report"      onclick="showSection('report',this)"><span class="sb-icon">📰</span> Weekly Report</div>
+
+    <div class="sb-label">Export</div>
+    <div class="sb-link"        id="sl-exports"     onclick="showSection('exports',this)"><span class="sb-icon">📤</span> Export Center</div>
+
+    <div class="sb-bottom">
+      <div class="sb-link" onclick="location.href='monitor.html'"><span class="sb-icon">📡</span> Live Monitor</div>
+      <div class="sb-link" onclick="location.href='financials.html'"><span class="sb-icon">💰</span> Financials</div>
+      <div class="sb-link" onclick="location.href='index.html'"><span class="sb-icon">🌐</span> Public Site</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ══ FIRM HEALTH ══════════════════════════════════ -->
+    <div class="section active" id="section-health">
+      <div class="pg-header">
+        <div><div class="pg-title">Firm Health Dashboard</div><div class="pg-sub">Executive overview — is Lazzer Quant healthy right now?</div></div>
+        <div class="pg-actions">
+          <button class="tb-btn" onclick="exportSection('Firm Health Report')">Export PDF</button>
+        </div>
+      </div>
+
+      <!-- Health ring -->
+      <div class="health-ring-wrap">
+        <div class="health-ring">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+            <circle cx="50" cy="50" r="42" fill="none" stroke="var(--green)" stroke-width="12"
+              stroke-dasharray="221 264" stroke-linecap="round" id="health-arc"/>
+          </svg>
+          <div class="health-center">
+            <div class="health-score" id="health-score-val" style="color:var(--green);">84</div>
+            <div class="health-label">/ 100</div>
+          </div>
+        </div>
+        <div class="health-info">
+          <div class="health-title" id="health-verdict">Firm is <span style="color:var(--green);">Healthy</span></div>
+          <div class="health-desc" id="health-desc">All core metrics are within acceptable ranges. One trader is under watch for a declining win rate. Capital is efficiently deployed. Master account is building toward the founder withdrawal threshold.</div>
+          <div class="health-metrics">
+            <div class="hm-item"><div class="hm-val" style="color:var(--green);">83%</div><div class="hm-lbl">Avg Win Rate</div></div>
+            <div class="hm-item"><div class="hm-val" style="color:var(--gold);">$565</div><div class="hm-lbl">Master Balance</div></div>
+            <div class="hm-item"><div class="hm-val" style="color:var(--blue);">$500</div><div class="hm-lbl">Capital Deployed</div></div>
+            <div class="hm-item"><div class="hm-val" style="color:var(--green);">12</div><div class="hm-lbl">Active Traders</div></div>
+            <div class="hm-item"><div class="hm-val" style="color:var(--orange);">1</div><div class="hm-lbl">Under Watch</div></div>
+            <div class="hm-item"><div class="hm-val" style="color:var(--green);">0</div><div class="hm-lbl">Violations</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI stat row -->
+      <div class="stat-row stat-row-5">
+        <div class="stat-card green"><div class="sc-lbl">Capital Efficiency</div><div class="sc-val" style="color:var(--green);">85%</div><div class="sc-sub up">Capital generating returns</div></div>
+        <div class="stat-card gold"><div class="sc-lbl">Trader Retention</div><div class="sc-val" style="color:var(--gold);">91%</div><div class="sc-sub up">Funded traders staying active</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">Avg Payout Cycle</div><div class="sc-val" style="color:var(--blue);">18d</div><div class="sc-sub neutral">Days to threshold</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">Challenge Pass Rate</div><div class="sc-val" style="color:var(--orange);">42%</div><div class="sc-sub neutral">Phase 1 + Phase 2</div></div>
+        <div class="stat-card purple"><div class="sc-lbl">Firm ROI</div><div class="sc-val" style="color:var(--purple);">+34%</div><div class="sc-sub up">Return on deployed capital</div></div>
+      </div>
+
+      <!-- 6-month trend charts -->
+      <div class="grid-2">
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">6-Month Firm Revenue Trend</span><span class="cc-meta">Firm's 30% share</span></div>
+          <canvas id="revTrendChart" height="100"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Trader Count Growth</span><span class="cc-meta">Active funded traders</span></div>
+          <canvas id="traderGrowthChart" height="100"></canvas>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Average Win Rate Trend</span><span class="cc-meta">All traders combined</span></div>
+          <canvas id="wrTrendChart" height="100"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Master Account Balance</span><span class="cc-meta">6-month trajectory</span></div>
+          <canvas id="balanceTrendChart" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TRADER SCORECARDS ════════════════════════════ -->
+    <div class="section" id="section-scorecards">
+      <div class="pg-header">
+        <div><div class="pg-title">Trader Scorecards</div><div class="pg-sub">Performance grade calculated from win rate, consistency, drawdown, and rule compliance</div></div>
+        <div class="pg-actions">
+          <div style="display:flex;gap:4px;background:var(--navy);border:1px solid var(--navy-border);border-radius:8px;padding:3px;">
+            <button class="tb-btn" style="border:none;" id="filter-all"    onclick="filterScorecards('all',this)">All</button>
+            <button class="tb-btn" style="border:none;" id="filter-funded" onclick="filterScorecards('funded',this)">Funded</button>
+            <button class="tb-btn" style="border:none;" id="filter-eval"   onclick="filterScorecards('eval',this)">Evaluation</button>
+          </div>
+          <button class="tb-btn" onclick="exportSection('Trader Scorecards')">Export PDF</button>
+        </div>
+      </div>
+
+      <div class="stat-row stat-row-4">
+        <div class="stat-card green"><div class="sc-lbl">Grade A Traders</div><div class="sc-val" style="color:var(--green);" id="grade-a-count">0</div><div class="sc-sub up">Excellent performance</div></div>
+        <div class="stat-card gold"><div class="sc-lbl">Grade B Traders</div><div class="sc-val" style="color:var(--gold);" id="grade-b-count">0</div><div class="sc-sub neutral">Good performance</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">Grade C Traders</div><div class="sc-val" style="color:var(--orange);" id="grade-c-count">0</div><div class="sc-sub neutral">Needs improvement</div></div>
+        <div class="stat-card red"><div class="sc-lbl">Grade D Traders</div><div class="sc-val" style="color:var(--red);" id="grade-d-count">0</div><div class="sc-sub down">At risk</div></div>
+      </div>
+
+      <div class="scorecard-grid" id="scorecard-grid"></div>
+    </div>
+
+    <!-- ══ COHORT ANALYSIS ══════════════════════════════ -->
+    <div class="section" id="section-cohorts">
+      <div class="pg-header">
+        <div><div class="pg-title">Cohort Analysis</div><div class="pg-sub">Performance by broker, market, join date, and phase</div></div>
+        <div class="pg-actions"><button class="tb-btn" onclick="exportSection('Cohort Analysis')">Export CSV</button></div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:20px;">
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Win Rate by Broker</span></div>
+          <canvas id="brokerWrChart" height="120"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Pass Rate by Market</span></div>
+          <canvas id="marketPassChart" height="120"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card" style="padding:0;overflow:hidden;margin-bottom:20px;">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--navy-border);"><span style="font-size:14px;font-weight:700;">Performance by Trader Cohort</span></div>
+        <div class="cohort-row header">
+          <div>Cohort</div><div>Traders</div><div>Pass Rate</div><div>Avg Win %</div><div>Avg PnL</div><div>Retention</div><div>Score Trend</div>
+        </div>
+        <div id="cohort-rows"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Avg Profit by Phase</span></div>
+          <canvas id="phaseProfitChart" height="120"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="cc-header"><span class="cc-title">Trader Joins by Month</span></div>
+          <canvas id="joinsChart" height="120"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ALERT RULES ══════════════════════════════════ -->
+    <div class="section" id="section-alerts">
+      <div class="pg-header">
+        <div><div class="pg-title">Automated Alert Rules</div><div class="pg-sub">Set once — fires automatically whenever conditions are met</div></div>
+        <div class="pg-actions">
+          <button class="tb-btn" style="background:var(--gold);color:var(--navy);border-color:var(--gold);" onclick="addAlertRule()">+ Add Rule</button>
+        </div>
+      </div>
+
+      <div class="stat-row stat-row-4">
+        <div class="stat-card green"><div class="sc-lbl">Active Rules</div><div class="sc-val" style="color:var(--green);" id="rules-active">0</div><div class="sc-sub up">Running now</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">Fired This Week</div><div class="sc-val" style="color:var(--orange);">7</div><div class="sc-sub neutral">Triggered alerts</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">Email Alerts Sent</div><div class="sc-val" style="color:var(--blue);">12</div><div class="sc-sub neutral">This month</div></div>
+        <div class="stat-card gold"><div class="sc-lbl">Rules Paused</div><div class="sc-val" style="color:var(--gold);" id="rules-paused">0</div><div class="sc-sub neutral">Inactive</div></div>
+      </div>
+
+      <div class="chart-card" style="padding:0;overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--navy-border);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:14px;font-weight:700;">Alert Rules</span>
+          <span style="font-size:12px;color:var(--muted);">Toggle to enable/disable each rule</span>
+        </div>
+        <div id="alert-rules-list"></div>
+      </div>
+    </div>
+
+    <!-- ══ WEEKLY REPORT ════════════════════════════════ -->
+    <div class="section" id="section-report">
+      <div class="pg-header">
+        <div><div class="pg-title">Weekly Report</div><div class="pg-sub">Auto-generated every Monday · Week of Mar 9–15, 2026</div></div>
+        <div class="pg-actions">
+          <button class="tb-btn" onclick="exportSection('Weekly Report PDF')">Download PDF</button>
+          <button style="padding:8px 18px;background:var(--gold);color:var(--navy);border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;" onclick="emailReport()">📧 Email to CEO & COO</button>
+        </div>
+      </div>
+
+      <div class="report-preview">
+        <div class="rp-toolbar">
+          <div class="rp-title">📊 Lazzer Quant Weekly Performance Report — Week of 9–15 March 2026</div>
+          <div class="rp-actions">
+            <button class="rp-btn outline" onclick="exportSection('Weekly Report')">Print</button>
+            <button class="rp-btn gold" onclick="emailReport()">Email Report</button>
+          </div>
+        </div>
+        <div class="rp-body" id="report-body"></div>
+      </div>
+    </div>
+
+    <!-- ══ EXPORT CENTER ════════════════════════════════ -->
+    <div class="section" id="section-exports">
+      <div class="pg-header">
+        <div><div class="pg-title">Export Center</div><div class="pg-sub">Download any report, statement, or dataset</div></div>
+      </div>
+
+      <div class="stat-row stat-row-3">
+        <div class="stat-card green"><div class="sc-lbl">Exports This Month</div><div class="sc-val" style="color:var(--green);">14</div><div class="sc-sub up">All formats</div></div>
+        <div class="stat-card gold"><div class="sc-lbl">Last Export</div><div class="sc-val" style="color:var(--gold);font-size:16px;">Mar 15</div><div class="sc-sub neutral">Income Statement PDF</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">Available Reports</div><div class="sc-val" style="color:var(--blue);">12</div><div class="sc-sub neutral">Ready to download</div></div>
+      </div>
+
+      <div class="export-grid" id="export-grid"></div>
+    </div>
+
+  </div><!-- end main -->
+</div><!-- end body-wrap -->
+</div><!-- end shell -->
+
+<script>
+// ══ DATA ═══════════════════════════════════════════════
+const TRADERS = [
+  { initials:'SM', name:'Simba Makoni',     detail:'Deriv MT5',    phase:'funded',  winRate:87, consistency:92, drawdown:4.8, compliance:100, trades:47, profit:19.6, broker:'Deriv',    market:'Forex & Indices', joined:'Jan 2026' },
+  { initials:'PN', name:'Plaxedes Ncube',   detail:'Exness MT5',   phase:'funded',  winRate:86, consistency:90, drawdown:3.6, compliance:100, trades:41, profit:15.2, broker:'Exness',   market:'Commodities',     joined:'Jan 2026' },
+  { initials:'AM', name:'Admire Mureza',    detail:'Deriv MT5',    phase:'funded',  winRate:89, consistency:94, drawdown:5.2, compliance:100, trades:52, profit:24.8, broker:'Deriv',    market:'Synthetics',      joined:'Feb 2026' },
+  { initials:'TG', name:'Tariro Gova',      detail:'Weltrade MT5', phase:'funded',  winRate:83, consistency:83, drawdown:6.1, compliance:90,  trades:38, profit:12.4, broker:'Weltrade', market:'Forex',           joined:'Feb 2026' },
+  { initials:'DM', name:'Danai Mutemeri',   detail:'Exness MT5',   phase:'funded',  winRate:88, consistency:91, drawdown:4.4, compliance:100, trades:49, profit:22.1, broker:'Exness',   market:'Indices',         joined:'Feb 2026' },
+  { initials:'RM', name:'Rutendo Maposa',   detail:'Exness MT5',   phase:'phase2',  winRate:84, consistency:87, drawdown:3.2, compliance:100, trades:16, profit:9.5,  broker:'Exness',   market:'Crypto',          joined:'Mar 2026' },
+  { initials:'KN', name:'Kudakwashe Ndoro', detail:'Deriv MT5',    phase:'phase2',  winRate:85, consistency:89, drawdown:2.8, compliance:100, trades:14, profit:11.2, broker:'Deriv',    market:'Forex',           joined:'Mar 2026' },
+  { initials:'FM', name:'Farai Manyika',    detail:'Weltrade MT4', phase:'phase2',  winRate:81, consistency:80, drawdown:4.1, compliance:95,  trades:12, profit:7.8,  broker:'Weltrade', market:'Gold',            joined:'Mar 2026' },
+  { initials:'TM', name:'Tafadzwa Moyo',    detail:'Deriv MT5',    phase:'phase1',  winRate:82, consistency:85, drawdown:1.8, compliance:100, trades:8,  profit:6.4,  broker:'Deriv',    market:'Forex',           joined:'Mar 2026' },
+  { initials:'CM', name:'Chiedza Mhene',    detail:'Exness MT5',   phase:'phase1',  winRate:83, consistency:84, drawdown:2.1, compliance:100, trades:9,  profit:4.8,  broker:'Exness',   market:'Forex & Gold',    joined:'Mar 2026' },
+  { initials:'BM', name:'Brian Mutasa',     detail:'Weltrade MT5', phase:'phase1',  winRate:78, consistency:72, drawdown:2.4, compliance:85,  trades:7,  profit:-2.4, broker:'Weltrade', market:'Indices',         joined:'Mar 2026' },
+  { initials:'NZ', name:'Nyasha Zvobgo',    detail:'Deriv MT5',    phase:'phase1',  winRate:86, consistency:91, drawdown:1.2, compliance:100, trades:10, profit:9.2,  broker:'Deriv',    market:'Synthetics',      joined:'Mar 2026' },
+];
+
+function calcGrade(t) {
+  const score = (t.winRate * 0.35) + (t.consistency * 0.30) + ((100 - t.drawdown * 5) * 0.20) + (t.compliance * 0.15);
+  if (score >= 88) return 'A';
+  if (score >= 78) return 'B';
+  if (score >= 68) return 'C';
+  return 'D';
+}
+
+const ALERT_RULES = [
+  { id:1, icon:'📉', color:'var(--red)',    title:'Max Loss Breach',           desc:'Immediately lock account and notify COO when any trader exceeds daily loss limit (5%)',       on:true,  category:'Risk' },
+  { id:2, icon:'⚠️', color:'var(--orange)', title:'Drawdown Warning (70%)',    desc:'Alert COO when a trader uses 70% of their 10% drawdown limit — before they breach',          on:true,  category:'Risk' },
+  { id:3, icon:'🎯', color:'var(--gold)',   title:'Win Rate Watch',            desc:'Flag any trader whose win rate drops below 82% — warning before the 80% minimum is breached', on:true,  category:'Performance' },
+  { id:4, icon:'💳', color:'var(--green)',  title:'Payout Threshold Reached',  desc:'Notify CEO and COO when a funded trader reaches their withdrawal threshold',                  on:true,  category:'Finance' },
+  { id:5, icon:'🏦', color:'var(--gold)',   title:'Master Account Low (<$300)',desc:'Alert CEO when master account balance drops below $300 — insufficient reserves',              on:true,  category:'Finance' },
+  { id:6, icon:'📈', color:'var(--blue)',   title:'Phase Pass Notification',   desc:'Notify COO when a trader passes Phase 1 so Phase 2 can be scheduled',                        on:true,  category:'Operations' },
+  { id:7, icon:'🔒', color:'var(--red)',    title:'Failed Challenge Alert',    desc:'Notify COO when any trader fails Phase 1 or Phase 2 with full breakdown',                    on:true,  category:'Operations' },
+  { id:8, icon:'📊', color:'var(--purple)', title:'Weekly Report Auto-Send',   desc:'Automatically email the weekly performance report to ceo@lazzerquant.com every Monday 08:00', on:true,  category:'Reporting' },
+  { id:9, icon:'💰', color:'var(--gold)',   title:'Founder Withdrawal Ready',  desc:'Alert CEO when master account exceeds $1,000 and conditions for founder withdrawal are met',  on:false, category:'Finance' },
+  { id:10,icon:'🔄', color:'var(--blue)',   title:'Level-Up Capital Required', desc:'Notify CEO when a trader levels up after withdrawal and new capital allocation is needed',    on:true,  category:'Operations' },
+];
+
+// ══ SECTION NAV ════════════════════════════════════════
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  const names = { health:'Firm Health', scorecards:'Trader Scorecards', cohorts:'Cohort Analysis', alerts:'Alert Rules', report:'Weekly Report', exports:'Export Center' };
+  document.getElementById('tb-section').textContent = names[id] || id;
+}
+
+// ══ FIRM HEALTH ════════════════════════════════════════
+function buildHealthCharts() {
+  const months = ['Oct','Nov','Dec','Jan','Feb','Mar'];
+  const opts = (extra={}) => ({
+    responsive:true, maintainAspectRatio:true, animation:false,
+    plugins:{ legend:{ display:false } },
+    scales:{ x:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}} }, y:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}} } },
+    ...extra
+  });
+
+  new Chart(document.getElementById('revTrendChart').getContext('2d'), {
+    type:'line',
+    data:{ labels:months, datasets:[{ data:[38.2,52.4,67.8,89.1,112.3,128.4], borderColor:'var(--green)', backgroundColor:'rgba(34,197,94,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:'var(--green)' }] },
+    options:opts()
+  });
+
+  new Chart(document.getElementById('traderGrowthChart').getContext('2d'), {
+    type:'bar',
+    data:{ labels:months, datasets:[{ data:[2,3,4,6,9,12], backgroundColor:'rgba(59,130,246,0.7)', borderRadius:5 }] },
+    options:opts()
+  });
+
+  new Chart(document.getElementById('wrTrendChart').getContext('2d'), {
+    type:'line',
+    data:{ labels:months, datasets:[
+      { data:[81,82,83,82,84,83], label:'Avg', borderColor:'var(--gold)', borderWidth:2, fill:false, tension:0.4, pointRadius:3, pointBackgroundColor:'var(--gold)' },
+      { data:[80,80,80,80,80,80], label:'Min', borderColor:'var(--red)', borderWidth:1.5, borderDash:[4,4], fill:false, tension:0, pointRadius:0 },
+    ] },
+    options:opts({ plugins:{ legend:{ display:true, position:'bottom', labels:{ color:'#cbd5e1', font:{size:11}, padding:12 } } } })
+  });
+
+  new Chart(document.getElementById('balanceTrendChart').getContext('2d'), {
+    type:'line',
+    data:{ labels:months, datasets:[
+      { data:[200,280,340,420,510,565], borderColor:'var(--gold)', backgroundColor:'rgba(201,168,76,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:'var(--gold)' },
+      { data:[1000,1000,1000,1000,1000,1000], borderColor:'rgba(34,197,94,0.4)', borderWidth:1.5, borderDash:[4,4], fill:false, tension:0, pointRadius:0 },
+    ] },
+    options:opts({ plugins:{ legend:{ display:false } } })
+  });
+}
+
+// ══ SCORECARDS ═════════════════════════════════════════
+let currentFilter = 'all';
+
+function filterScorecards(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('#filter-all,#filter-funded,#filter-eval').forEach(b => { b.style.background='transparent'; b.style.color='var(--muted)'; });
+  btn.style.background = 'var(--gold-dim)';
+  btn.style.color = 'var(--gold)';
+  renderScorecards();
+}
+
+function renderScorecards() {
+  let traders = TRADERS;
+  if (currentFilter === 'funded') traders = traders.filter(t => t.phase === 'funded');
+  if (currentFilter === 'eval')   traders = traders.filter(t => t.phase !== 'funded');
+
+  const grades = { A:0, B:0, C:0, D:0 };
+  traders.forEach(t => grades[calcGrade(t)]++);
+  document.getElementById('grade-a-count').textContent = grades.A;
+  document.getElementById('grade-b-count').textContent = grades.B;
+  document.getElementById('grade-c-count').textContent = grades.C;
+  document.getElementById('grade-d-count').textContent = grades.D;
+
+  document.getElementById('scorecard-grid').innerHTML = traders.map(t => {
+    const grade = calcGrade(t);
+    const gradeClass = `grade-${grade}`;
+    const scoreVal = Math.round((t.winRate*0.35)+(t.consistency*0.30)+((100-t.drawdown*5)*0.20)+(t.compliance*0.15));
+    const phaseLabel = t.phase==='funded'?'Funded':t.phase==='phase2'?'Phase 2':'Phase 1';
+    const phaseColor = t.phase==='funded'?'var(--green)':t.phase==='phase2'?'var(--blue)':'var(--gold)';
+    const profitColor = t.profit>=0?'var(--green)':'var(--red)';
+
+    return `<div class="scorecard">
+      <div class="sc-top">
+        <div class="sc-trader">
+          <div class="sc-avatar">${t.initials}</div>
+          <div>
+            <div class="sc-tname">${t.name}</div>
+            <div class="sc-detail">${t.detail} · <span style="color:${phaseColor};font-weight:700;">${phaseLabel}</span></div>
+          </div>
+        </div>
+        <div class="${gradeClass} grade-badge">${grade}</div>
+      </div>
+      <div class="sc-metrics">
+        <div class="sc-metric"><span class="sc-m-lbl">Win Rate</span><span class="sc-m-val" style="color:${t.winRate>=80?'var(--green)':'var(--red)'};">${t.winRate}%</span></div>
+        <div class="sc-metric"><span class="sc-m-lbl">Consistency</span><span class="sc-m-val" style="color:var(--gold);">${t.consistency}%</span></div>
+        <div class="sc-metric"><span class="sc-m-lbl">Drawdown</span><span class="sc-m-val" style="color:${t.drawdown>7?'var(--red)':'var(--text)'};">${t.drawdown}%</span></div>
+        <div class="sc-metric"><span class="sc-m-lbl">Profit</span><span class="sc-m-val" style="color:${profitColor};">${t.profit>=0?'+':''}${t.profit}%</span></div>
+      </div>
+      <div class="sc-bar-wrap">
+        <div class="sc-bar-label"><span>Overall Score</span><span style="color:var(--gold);font-weight:700;">${scoreVal}/100</span></div>
+        <div class="sc-bar-track"><div class="sc-bar-fill" style="width:${scoreVal}%; background:${grade==='A'?'var(--green)':grade==='B'?'var(--gold)':grade==='C'?'var(--orange)':'var(--red)'};"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══ COHORTS ════════════════════════════════════════════
+function renderCohorts() {
+  const cohorts = [
+    { name:'January 2026', traders:2, passRate:100, avgWin:87.5, avgPnl:'+$21.2', retention:'100%', trend:92 },
+    { name:'February 2026', traders:3, passRate:80,  avgWin:85.3, avgPnl:'+$18.8', retention:'100%', trend:87 },
+    { name:'March 2026',    traders:7, passRate:57,  avgWin:82.7, avgPnl:'+$6.4',  retention:'86%',  trend:81 },
+    { name:'Deriv (broker)',traders:5, passRate:80,  avgWin:85.6, avgPnl:'+$12.8', retention:'100%', trend:88 },
+    { name:'Exness (broker)',traders:4,passRate:75,  avgWin:84.8, avgPnl:'+$11.4', retention:'100%', trend:86 },
+    { name:'Weltrade (broker)',traders:3,passRate:50,avgWin:80.7, avgPnl:'+$5.9',  retention:'67%',  trend:78 },
+    { name:'Forex traders', traders:5, passRate:80,  avgWin:84.2, avgPnl:'+$10.2', retention:'100%', trend:85 },
+    { name:'Synthetics',    traders:2, passRate:100, avgWin:87.5, avgPnl:'+$16.8', retention:'100%', trend:90 },
+  ];
+
+  document.getElementById('cohort-rows').innerHTML = cohorts.map(c => {
+    const barPct = c.trend;
+    const barColor = c.trend >= 88 ? 'var(--green)' : c.trend >= 80 ? 'var(--gold)' : 'var(--red)';
+    return `<div class="cohort-row">
+      <div class="cohort-name">${c.name}</div>
+      <div style="font-family:'Outfit',sans-serif;font-weight:700;">${c.traders}</div>
+      <div style="color:${c.passRate>=75?'var(--green)':'var(--orange)'}; font-weight:700;">${c.passRate}%</div>
+      <div style="color:var(--gold);font-weight:700;">${c.avgWin}%</div>
+      <div style="color:var(--green);font-family:'Outfit',sans-serif;font-weight:700;">${c.avgPnl}</div>
+      <div style="color:${c.retention==='100%'?'var(--green)':'var(--orange)'};">${c.retention}</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="cohort-bar-wrap" style="flex:1;"><div class="cohort-bar-fill" style="width:${barPct}%;background:${barColor};"></div></div>
+          <span style="font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;color:${barColor};">${barPct}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  buildCohortCharts();
+}
+
+function buildCohortCharts() {
+  const opts = () => ({
+    responsive:true, maintainAspectRatio:true, animation:false,
+    plugins:{ legend:{ display:false } },
+    scales:{ x:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}} }, y:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}} } }
+  });
+
+  new Chart(document.getElementById('brokerWrChart').getContext('2d'), {
+    type:'bar',
+    data:{ labels:['Deriv','Exness','Weltrade'], datasets:[{ data:[85.6,84.8,80.7], backgroundColor:['rgba(34,197,94,0.7)','rgba(59,130,246,0.7)','rgba(249,115,22,0.7)'], borderRadius:6 }] },
+    options:opts()
+  });
+
+  new Chart(document.getElementById('marketPassChart').getContext('2d'), {
+    type:'bar',
+    data:{ labels:['Forex','Indices','Synthetics','Commodities','Crypto','Gold'], datasets:[{ data:[80,65,100,75,70,60], backgroundColor:'rgba(201,168,76,0.7)', borderRadius:6 }] },
+    options:opts()
+  });
+
+  new Chart(document.getElementById('phaseProfitChart').getContext('2d'), {
+    type:'bar',
+    data:{ labels:['Phase 1','Phase 2','Funded'], datasets:[{ data:[4.5,9.5,18.8], backgroundColor:['rgba(201,168,76,0.7)','rgba(59,130,246,0.7)','rgba(34,197,94,0.7)'], borderRadius:6 }] },
+    options:opts()
+  });
+
+  new Chart(document.getElementById('joinsChart').getContext('2d'), {
+    type:'line',
+    data:{ labels:['Oct','Nov','Dec','Jan','Feb','Mar'], datasets:[{ data:[0,1,1,2,3,5], borderColor:'var(--purple)', backgroundColor:'rgba(168,85,247,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'var(--purple)' }] },
+    options:opts()
+  });
+}
+
+// ══ ALERT RULES ════════════════════════════════════════
+function renderAlertRules() {
+  const active = ALERT_RULES.filter(r => r.on).length;
+  const paused = ALERT_RULES.filter(r => !r.on).length;
+  document.getElementById('rules-active').textContent = active;
+  document.getElementById('rules-paused').textContent = paused;
+
+  const catColors = { Risk:'var(--red)', Performance:'var(--orange)', Finance:'var(--gold)', Operations:'var(--blue)', Reporting:'var(--purple)' };
+  const catBg = { Risk:'var(--red-dim)', Performance:'var(--orange-dim)', Finance:'var(--gold-dim)', Operations:'var(--blue-dim)', Reporting:'var(--purple-dim)' };
+
+  document.getElementById('alert-rules-list').innerHTML = ALERT_RULES.map(r => `
+    <div class="alert-rule">
+      <div class="ar-left">
+        <div class="ar-icon" style="background:${catBg[r.category]||'var(--gold-dim)'};">${r.icon}</div>
+        <div>
+          <div class="ar-title">${r.title}</div>
+          <div class="ar-desc">${r.desc}</div>
+        </div>
+      </div>
+      <div class="ar-right">
+        <span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px;background:${catBg[r.category]};color:${catColors[r.category]};">${r.category}</span>
+        <div class="toggle-wrap ${r.on ? 'on' : ''}" onclick="toggleRule(${r.id})" title="${r.on ? 'Click to disable' : 'Click to enable'}">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </div>
+        <span class="ar-status ${r.on ? 'active' : 'inactive'}" id="rule-status-${r.id}">${r.on ? 'Active' : 'Paused'}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleRule(id) {
+  const rule = ALERT_RULES.find(r => r.id === id);
+  if (!rule) return;
+  rule.on = !rule.on;
+  renderAlertRules();
+  showToast(`Rule "${rule.title}" ${rule.on ? 'enabled' : 'paused'}`, rule.on ? 'success' : 'info');
+}
+
+function addAlertRule() {
+  showToast('Custom alert rule builder coming in Phase 2B (backend required)', 'info');
+}
+
+// ══ WEEKLY REPORT ══════════════════════════════════════
+function renderWeeklyReport() {
+  const avgWr = (TRADERS.reduce((s,t) => s+t.winRate, 0) / TRADERS.length).toFixed(1);
+  const totalTrades = TRADERS.reduce((s,t) => s+t.trades, 0);
+  const violations = TRADERS.filter(t => t.winRate < 80 || t.compliance < 90).length;
+  const funded = TRADERS.filter(t => t.phase === 'funded');
+  const topTrader = [...TRADERS].sort((a,b) => b.winRate - a.winRate)[0];
+
+  document.getElementById('report-body').innerHTML = `
+    <div style="max-width:720px;margin:0 auto;">
+
+      <!-- Header -->
+      <div style="text-align:center;padding:20px 0 32px;border-bottom:1px solid var(--navy-border);margin-bottom:28px;">
+        <div style="font-family:'Outfit',sans-serif;font-size:28px;font-weight:800;margin-bottom:6px;">Lazzer Quant Trading Firm</div>
+        <div style="font-size:14px;color:var(--muted);">Weekly Performance Report · Week of 9–15 March 2026</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">Generated: Sunday, 15 March 2026 · 23:59 CAT</div>
+      </div>
+
+      <!-- Executive summary -->
+      <div class="report-block">
+        <div class="rb-title">Executive Summary</div>
+        <div class="report-metric-grid">
+          <div class="rm-card"><div class="rm-lbl">Active Traders</div><div class="rm-val" style="color:var(--white);">12</div></div>
+          <div class="rm-card"><div class="rm-lbl">Total Trades</div><div class="rm-val" style="color:var(--gold);">${totalTrades}</div></div>
+          <div class="rm-card"><div class="rm-lbl">Avg Win Rate</div><div class="rm-val" style="color:var(--green);">${avgWr}%</div></div>
+          <div class="rm-card"><div class="rm-lbl">Firm Revenue (30%)</div><div class="rm-val" style="color:var(--green);">+$128.40</div></div>
+          <div class="rm-card"><div class="rm-lbl">Trader Payouts</div><div class="rm-val" style="color:var(--red);">$298.40</div></div>
+          <div class="rm-card"><div class="rm-lbl">Violations / Flags</div><div class="rm-val" style="color:${violations>0?'var(--red)':'var(--green)'};">${violations}</div></div>
+        </div>
+      </div>
+
+      <!-- Top performers -->
+      <div class="report-block">
+        <div class="rb-title">Top Performers This Week</div>
+        ${[...TRADERS].filter(t=>t.phase==='funded').sort((a,b)=>b.winRate-a.winRate).slice(0,3).map((t,i)=>`
+          <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--navy);border:1px solid var(--navy-border);border-radius:12px;margin-bottom:10px;">
+            <span style="font-size:22px;">${i===0?'🥇':i===1?'🥈':'🥉'}</span>
+            <div style="width:36px;height:36px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--gold);">${t.initials}</div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:14px;">${t.name}</div>
+              <div style="font-size:12px;color:var(--muted);">${t.detail} · Grade ${calcGrade(t)}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'Outfit',sans-serif;font-size:17px;font-weight:800;color:var(--green);">+${t.profit}%</div>
+              <div style="font-size:11px;color:var(--muted);">Win: ${t.winRate}%</div>
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <!-- Alerts & flags -->
+      <div class="report-block">
+        <div class="rb-title">Alerts & Flags This Week</div>
+        ${TRADERS.filter(t=>t.winRate<80||t.compliance<90).map(t=>`
+          <div style="display:flex;gap:12px;align-items:flex-start;padding:12px;background:var(--red-dim);border:1px solid rgba(239,68,68,0.2);border-radius:10px;margin-bottom:8px;">
+            <span style="font-size:16px;">⚠️</span>
+            <div style="font-size:13px;color:var(--text);line-height:1.6;">
+              <strong style="color:var(--red);">${t.name}</strong> — 
+              ${t.winRate<80?`Win rate at ${t.winRate}% (below 80% minimum)`:''}
+              ${t.compliance<90?`Compliance score at ${t.compliance}%`:''}.
+            </div>
+          </div>`).join('') || '<div style="font-size:13px;color:var(--green);padding:12px;background:var(--green-dim);border-radius:10px;">✅ No violations this week. All traders compliant.</div>'}
+      </div>
+
+      <!-- Automated recommendations -->
+      <div class="report-block">
+        <div class="rb-title">System Recommendations</div>
+        <div class="rec-item"><div class="rec-icon">📈</div><div class="rec-text"><strong>Scale Admire Mureza:</strong> Highest composite score (${calcGrade(TRADERS[2])} grade, 89% win rate). Consider upgrading to Level 2 account.</div></div>
+        <div class="rec-item"><div class="rec-icon">⚠️</div><div class="rec-text"><strong>Review Brian Mutasa:</strong> Win rate has dropped to 78% in Phase 1 Day 5. Schedule a check-in before evaluation ends.</div></div>
+        <div class="rec-item"><div class="rec-icon">💡</div><div class="rec-text"><strong>Nyasha Zvobgo is Phase 2 ready:</strong> Completed Phase 1 with 86% win rate and zero violations. Reset week begins today.</div></div>
+        <div class="rec-item"><div class="rec-icon">💳</div><div class="rec-text"><strong>Process Simba Makoni payout:</strong> Balance of $624.50 has exceeded the $600 threshold. $368.15 ready to process.</div></div>
+        <div class="rec-item"><div class="rec-icon">🏦</div><div class="rec-text"><strong>Master account at 56.5% of threshold:</strong> $565 balance, need $435 more before founders can withdraw. On track at current growth rate.</div></div>
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align:center;padding-top:24px;border-top:1px solid var(--navy-border);font-size:12px;color:var(--muted);">
+        This report was automatically generated by the Lazzer Quant Analytics System.<br>
+        Lazzer Quant Trading Firm · Harare, Zimbabwe · lazzerquant.com
+      </div>
+    </div>
+  `;
+}
+
+// ══ EXPORT CENTER ══════════════════════════════════════
+function renderExports() {
+  const exports = [
+    { icon:'📈', title:'Income Statement',         desc:'Profit & loss for the current period showing all revenue and expenses.',         format:'pdf',  last:'Mar 15, 2026' },
+    { icon:'⚖️', title:'Balance Sheet',             desc:'Statement of financial position showing assets, liabilities, and equity.',        format:'pdf',  last:'Mar 15, 2026' },
+    { icon:'💧', title:'Cash Flow Statement',       desc:'All cash movements in and out of the firm master account.',                       format:'pdf',  last:'Mar 15, 2026' },
+    { icon:'🧾', title:'Expense Report',            desc:'Full list of all expenses with categories, vendors, and approval status.',        format:'csv',  last:'Mar 15, 2026' },
+    { icon:'📊', title:'Weekly Performance Report', desc:'Auto-generated report covering trader performance, violations, and recommendations.', format:'pdf', last:'Mar 15, 2026' },
+    { icon:'🏅', title:'Trader Scorecards',         desc:'All trader grades, scores, and metrics exported as a printable document.',        format:'pdf',  last:'Mar 14, 2026' },
+    { icon:'💳', title:'Payout History',            desc:'Complete record of all trader payouts processed including method and amounts.',    format:'csv',  last:'Mar 12, 2026' },
+    { icon:'👑', title:'Founder Withdrawal History',desc:'All founder withdrawals with dates, amounts, and payment methods.',               format:'csv',  last:'Mar 10, 2026' },
+    { icon:'📋', title:'Trader Registry',           desc:'Full list of all registered traders with codes, brokers, and account amounts.',   format:'both', last:'Mar 15, 2026' },
+    { icon:'🔬', title:'Cohort Analysis Report',    desc:'Performance breakdown by broker, market, join date, and evaluation phase.',       format:'both', last:'Mar 14, 2026' },
+    { icon:'🔔', title:'Alert Log',                 desc:'History of all automated alerts fired, with trader, type, and resolution.',       format:'csv',  last:'Mar 15, 2026' },
+    { icon:'📰', title:'Notes to Financials',       desc:'Accounting policies, key line items, related parties, and debt schedule.',        format:'pdf',  last:'Mar 15, 2026' },
+  ];
+
+  const fmtLabel = { pdf:'PDF', csv:'CSV', both:'PDF + CSV' };
+  const fmtClass = { pdf:'fmt-pdf', csv:'fmt-csv', both:'fmt-both' };
+
+  document.getElementById('export-grid').innerHTML = exports.map(e => `
+    <div class="export-card" onclick="doExport('${e.title}','${e.format}')">
+      <div class="export-icon">${e.icon}</div>
+      <div class="export-title">${e.title}</div>
+      <div class="export-desc">${e.desc}</div>
+      <div class="export-meta">
+        <div>
+          <span class="export-format ${fmtClass[e.format]}">${fmtLabel[e.format]}</span>
+          <span style="font-size:11px;color:var(--muted);margin-left:8px;">Last: ${e.last}</span>
+        </div>
+        <button class="export-btn" onclick="event.stopPropagation();doExport('${e.title}','${e.format}')">Download</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function doExport(name, format) {
+  const fmt = format === 'pdf' ? 'PDF' : format === 'csv' ? 'CSV' : 'PDF + CSV';
+  showToast(`Exporting ${name} as ${fmt}...`, 'info');
+  setTimeout(() => showToast(`${name} downloaded successfully`, 'success'), 1500);
+}
+
+// ══ UTILITIES ══════════════════════════════════════════
+function exportSection(name) {
+  showToast(`Exporting ${name}...`, 'info');
+  setTimeout(() => showToast(`${name} downloaded`, 'success'), 1200);
+}
+
+function emailReport() {
+  showToast('Weekly report emailed to ceo@lazzerquant.com and coo@lazzerquant.com', 'success');
+}
+
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  const icons = { success:'✅', error:'❌', info:'💡' };
+  t.innerHTML = `<span>${icons[type]||'💡'}</span> ${msg}`;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ══ INIT ═══════════════════════════════════════════════
+buildHealthCharts();
+renderScorecards();
+renderCohorts();
+renderAlertRules();
+renderWeeklyReport();
+renderExports();
+document.getElementById('filter-all').style.background = 'var(--gold-dim)';
+document.getElementById('filter-all').style.color = 'var(--gold)';
+</script>
+</body>
+</html>
