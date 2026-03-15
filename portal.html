@@ -392,7 +392,7 @@ html, body {
         </div>
         <div class="sidebar-link" onclick="showSection('messages', this)" id="sl-messages">
           <span class="sl-icon">📬</span> Messages
-          <span class="sl-badge" id="msg-badge">3</span>
+          <span class="sl-badge" id="msg-badge">4</span>
         </div>
       </div>
 
@@ -717,9 +717,35 @@ const TRADES = [
 ];
 
 const MESSAGES = [
-  { type: 'unread', title: 'Welcome to Lazzer Quant Trading Firm', from: 'Kelvin Chafachaipa — CEO', date: 'Mar 14, 2026', body: 'Congratulations on passing your interview and beginning your evaluation. We are excited to have you in the Lazzer Quant program. Please ensure you have read the full challenge rules document before placing your first trade.' },
-  { type: 'info', title: 'Phase 1 Challenge Rules Reminder', from: 'Tatenda Fortune Vambe — COO', date: 'Mar 15, 2026', body: 'A quick reminder that all trades must include a stop loss at the time of entry. Maximum risk per trade is 3% of account balance. Daily loss limit is 5%. Total drawdown limit is 10%. Minimum trades per week is 7. Win rate must be at least 80%.' },
-  { type: 'alert', title: 'Important: Platform Maintenance Notice', from: 'Lazzer Quant Operations', date: 'Mar 15, 2026', body: 'Deriv MT5 will undergo scheduled maintenance on Sunday March 16 from 02:00 to 04:00 CAT. Please ensure you do not have open trades during this window as they may be affected.' },
+  {
+    type: 'unread',
+    icon: '🎉',
+    title: '🎉 Withdrawal Threshold Reached — $600.00',
+    from: 'Lazzer Quant System · Automated',
+    date: 'Mar 15, 2026',
+    body: 'Congratulations! Your account balance has reached the Level 1 withdrawal threshold of $600.00. You are now eligible to request your first payout.\n\nYour earnings breakdown:\n• Total Balance: $624.50\n• Your Share (70%): $368.15\n• Lazzer Quant Share (30%): $157.78\n\nThe COO has been notified and will process your payout shortly. When your payout is being processed, you will be asked to provide your preferred payment method (Wise or USDT) and your payment details.\n\nAfter this payout, your account will be upgraded to Level 2 ($100 account, $750 threshold). Keep trading.'
+  },
+  {
+    type: 'unread',
+    title: 'Welcome to Lazzer Quant Trading Firm',
+    from: 'Kelvin Chafachaipa — CEO',
+    date: 'Mar 14, 2026',
+    body: 'Congratulations on passing your interview and beginning your evaluation. We are excited to have you in the Lazzer Quant program. Please ensure you have read the full challenge rules document before placing your first trade.'
+  },
+  {
+    type: 'info',
+    title: 'Phase 1 Challenge Rules Reminder',
+    from: 'Tatenda Fortune Vambe — COO',
+    date: 'Mar 15, 2026',
+    body: 'A quick reminder that all trades must include a stop loss at the time of entry. Maximum risk per trade is 3% of account balance. Daily loss limit is 5%. Total drawdown limit is 10%. Minimum trades per week is 7. Win rate must be at least 80%.'
+  },
+  {
+    type: 'alert',
+    title: 'Important: Platform Maintenance Notice',
+    from: 'Lazzer Quant Operations',
+    date: 'Mar 15, 2026',
+    body: 'Deriv MT5 will undergo scheduled maintenance on Sunday March 16 from 02:00 to 04:00 CAT. Please ensure you do not have open trades during this window as they may be affected.'
+  },
 ];
 
 const ALL_TRADERS = [
@@ -818,9 +844,33 @@ function renderAll() {
 
 function renderDashboard(d) {
   document.getElementById('dash-title').textContent = d.label;
-  document.getElementById('dash-sub').textContent   = currentState === 'funded'
-    ? 'Your funded account performance overview.'
+  const balance = d.balance;
+  const threshold = 600;
+  const thresholdReached = currentState === 'funded' && balance >= threshold;
+  document.getElementById('dash-sub').textContent = currentState === 'funded'
+    ? (thresholdReached ? `🎉 Withdrawal threshold reached! Your payout of $${((balance - 100) * 0.7).toFixed(2)} is ready.` : 'Your funded account performance overview.')
     : `Active ${d.label} — Day ${d.daysPassed} of ${d.totalDays}.`;
+
+  // Show/hide threshold banner
+  const existingBanner = document.getElementById('threshold-banner');
+  if (existingBanner) existingBanner.remove();
+  if (thresholdReached) {
+    const banner = document.createElement('div');
+    banner.id = 'threshold-banner';
+    banner.style.cssText = 'background:linear-gradient(135deg,rgba(201,168,76,0.15),rgba(34,197,94,0.1)); border:1px solid var(--gold-border); border-radius:14px; padding:18px 22px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;';
+    banner.innerHTML = `
+      <div style="display:flex; align-items:center; gap:14px;">
+        <span style="font-size:32px;">🎉</span>
+        <div>
+          <div style="font-family:'Outfit',sans-serif; font-size:16px; font-weight:800; color:var(--gold); margin-bottom:3px;">Withdrawal Threshold Reached!</div>
+          <div style="font-size:13px; color:var(--text);">Your account has passed the $600 threshold. Your payout of <strong style="color:var(--green);">$${((balance - 100) * 0.7).toFixed(2)}</strong> is being processed by the COO.</div>
+        </div>
+      </div>
+      <button onclick="document.getElementById('sl-messages').click()" style="padding:9px 20px; background:var(--gold); color:var(--navy); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:13px; border:none; border-radius:8px; cursor:pointer;">View Message →</button>
+    `;
+    const statsEl = document.getElementById('dash-stats');
+    statsEl.parentNode.insertBefore(banner, statsEl);
+  }
 
   const isPhase = currentState !== 'funded';
   const statsHTML = `
@@ -977,13 +1027,16 @@ function renderChallenge(d) {
 
 function renderMessages() {
   document.getElementById('messages-list').innerHTML = MESSAGES.map(m => `
-    <div class="msg-card ${m.type}">
+    <div class="msg-card ${m.type}" style="${m.type === 'unread' ? 'border-left:3px solid var(--gold);' : m.type === 'alert' ? 'border-left:3px solid var(--red);' : 'border-left:3px solid var(--blue);'}">
       <div class="msg-header">
         <div class="msg-title">${m.title}</div>
-        <div class="msg-date">${m.date}</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          ${m.type === 'unread' ? '<span style="width:8px;height:8px;border-radius:50%;background:var(--gold);display:inline-block;"></span>' : ''}
+          <div class="msg-date">${m.date}</div>
+        </div>
       </div>
       <div class="msg-from">📌 ${m.from}</div>
-      <div class="msg-body">${m.body}</div>
+      <div class="msg-body" style="white-space:pre-line;">${m.body}</div>
     </div>
   `).join('');
 }
