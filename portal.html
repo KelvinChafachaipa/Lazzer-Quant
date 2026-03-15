@@ -323,6 +323,28 @@ html, body {
   </div>
 </div>
 
+
+<!-- ══ ACCOUNT LOCKED SCREEN ══════════════════════════ -->
+<div id="locked-page" style="display:none; min-height:100vh; background:var(--navy); align-items:center; justify-content:center; flex-direction:column; text-align:center; padding:40px 20px;">
+  <div style="max-width:480px; background:var(--navy-card); border:1px solid rgba(239,68,68,0.4); border-radius:24px; padding:48px 40px;">
+    <div style="font-size:64px; margin-bottom:20px;">🔒</div>
+    <div style="font-family:'Outfit',sans-serif; font-size:26px; font-weight:800; color:var(--red); margin-bottom:12px;">Account Under Review</div>
+    <div style="font-size:15px; color:var(--text); line-height:1.8; margin-bottom:28px;">
+      Your account has been temporarily locked due to a <strong style="color:var(--red);">maximum loss limit breach</strong> detected on your account.<br><br>
+      All open trades have been automatically closed to protect firm capital. The Lazzer Quant team has been notified and is reviewing your account.
+    </div>
+    <div style="background:var(--navy); border:1px solid var(--navy-border); border-radius:14px; padding:20px; margin-bottom:28px; text-align:left;">
+      <div style="font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--red); margin-bottom:12px;">What Happened</div>
+      <div style="font-size:14px; color:var(--text); line-height:1.7;" id="lock-reason">Your daily loss limit was exceeded during today's trading session.</div>
+    </div>
+    <div style="background:var(--gold-dim); border:1px solid var(--gold-border); border-radius:14px; padding:20px; margin-bottom:28px; text-align:left;">
+      <div style="font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--gold); margin-bottom:12px;">What Happens Next</div>
+      <div style="font-size:14px; color:var(--text); line-height:1.7;">The COO will review your trade history and contact you within 24 hours with a decision. You will receive a new temporary password by email once the review is complete.</div>
+    </div>
+    <div style="font-size:13px; color:var(--muted);">Questions? Contact <span style="color:var(--gold);">coo@lazzerquant.com</span></div>
+  </div>
+</div>
+
 <!-- ══════════════ PORTAL PAGE ══════════════ -->
 <div id="portal-page">
 
@@ -558,6 +580,21 @@ html, body {
               <div style="display:flex; justify-content:space-between; font-size:14px; padding:12px 0;">
                 <span style="color:var(--text-muted)">Profit Split</span>
                 <span style="color:var(--green); font-weight:700;">70% / 30%</span>
+              </div>
+            </div>
+          </div>
+          <div class="settings-card" id="payment-settings-card">
+            <div class="settings-title">Payment Method</div>
+            <div id="payment-method-display">
+              <div style="font-size:13px; color:var(--text-muted); line-height:1.7; margin-bottom:20px;" id="payment-status-msg">
+                💡 Your payment method will be set up when you process your first withdrawal. No details are stored until you reach your withdrawal threshold.
+              </div>
+              <div id="saved-payment-info" style="display:none;">
+                <div style="background:var(--navy); border:1px solid var(--navy-border); border-radius:12px; padding:16px; margin-bottom:16px;">
+                  <div style="font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--gold); margin-bottom:10px;">Saved Method</div>
+                  <div id="saved-method-detail" style="font-size:14px; color:var(--text);"></div>
+                </div>
+                <button class="settings-save" onclick="clearPaymentMethod()">Update Payment Method</button>
               </div>
             </div>
           </div>

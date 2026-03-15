@@ -235,12 +235,63 @@ html, body { height:100%; overflow:hidden; font-family:'Plus Jakarta Sans',sans-
 }
 .payout-row.header { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); background:rgba(255,255,255,0.02); border-bottom:1px solid var(--navy-border); }
 .payout-btn {
-  padding:6px 14px; border-radius:7px; font-size:12px; font-weight:700;
+  padding:8px 18px; border-radius:8px; font-size:13px; font-weight:700;
   cursor:pointer; border:none; transition:all 0.2s; font-family:'Plus Jakarta Sans',sans-serif;
 }
-.payout-btn.ready { background:var(--green-dim); color:var(--green); border:1px solid rgba(34,197,94,0.3); }
-.payout-btn.ready:hover { background:var(--green); color:var(--navy); }
+.payout-btn.ready {
+  background: linear-gradient(135deg, var(--green), #16a34a);
+  color:var(--white); box-shadow:0 4px 16px rgba(34,197,94,0.3);
+  animation: payPulse 2s infinite;
+}
+@keyframes payPulse { 0%,100%{box-shadow:0 4px 16px rgba(34,197,94,0.3)} 50%{box-shadow:0 4px 24px rgba(34,197,94,0.6)} }
+.payout-btn.ready:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(34,197,94,0.5); }
 .payout-btn.pending { background:rgba(255,255,255,0.04); color:var(--muted); border:1px solid var(--navy-border); cursor:default; }
+
+/* MODALS */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; z-index:900; padding:20px; }
+.modal-overlay.open { display:flex; }
+.modal-box { background:var(--navy-card); border:1px solid var(--navy-border); border-radius:24px; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; }
+.modal-box::-webkit-scrollbar { width:4px; }
+.modal-box::-webkit-scrollbar-thumb { background:var(--navy-border); border-radius:2px; }
+.modal-header { padding:24px 28px 20px; border-bottom:1px solid var(--navy-border); display:flex; justify-content:space-between; align-items:center; }
+.modal-title { font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; }
+.modal-close { width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.06); border:none; cursor:pointer; font-size:16px; color:var(--muted); transition:all 0.2s; display:flex; align-items:center; justify-content:center; }
+.modal-close:hover { background:var(--red-dim); color:var(--red); }
+.modal-body { padding:24px 28px; }
+.modal-footer { padding:16px 28px 24px; display:flex; gap:12px; justify-content:flex-end; }
+.pay-method-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px; }
+.pay-method-card { border:2px solid var(--navy-border); border-radius:14px; padding:20px 16px; cursor:pointer; transition:all 0.2s; text-align:center; background:transparent; }
+.pay-method-card:hover { border-color:var(--gold-border); background:var(--gold-dim); }
+.pay-method-card.selected { border-color:var(--gold); background:var(--gold-dim); }
+.pm-icon { font-size:32px; margin-bottom:10px; }
+.pm-name { font-size:14px; font-weight:700; margin-bottom:4px; }
+.pm-desc { font-size:12px; color:var(--muted); line-height:1.5; }
+.pm-fee { display:inline-block; margin-top:8px; font-size:11px; font-weight:700; padding:2px 8px; border-radius:100px; background:var(--green-dim); color:var(--green); border:1px solid rgba(34,197,94,0.25); }
+.pay-field { margin-bottom:16px; }
+.pay-label { font-size:12px; font-weight:700; color:var(--text); margin-bottom:7px; display:block; letter-spacing:0.3px; }
+.pay-input { width:100%; padding:11px 14px; background:rgba(255,255,255,0.04); border:1.5px solid var(--navy-border); border-radius:9px; color:var(--white); font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; }
+.pay-input:focus { border-color:var(--gold); background:rgba(201,168,76,0.04); }
+.pay-input::placeholder { color:var(--muted); }
+.payout-summary { background:var(--navy); border:1px solid var(--navy-border); border-radius:12px; padding:20px; margin-bottom:20px; }
+.ps-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:14px; }
+.ps-row:last-child { border-bottom:none; padding-top:14px; }
+.ps-label { color:var(--muted); }
+.ps-val { font-family:'Outfit',sans-serif; font-weight:700; }
+.breach-header { padding:32px 28px 0; text-align:center; }
+.breach-icon { font-size:56px; margin-bottom:16px; }
+.breach-title { font-family:'Outfit',sans-serif; font-size:22px; font-weight:800; color:var(--red); margin-bottom:8px; }
+.breach-sub { font-size:14px; color:var(--muted); line-height:1.6; }
+.breach-detail-row { display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:14px; }
+.breach-detail-row:last-child { border-bottom:none; }
+.bd-label { color:var(--muted); }
+.bd-val { font-weight:700; }
+.new-pw-box { background:var(--navy); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:16px; margin:16px 0; text-align:center; }
+.new-pw-label { font-size:11px; color:var(--red); font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+.new-pw-val { font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; color:var(--white); letter-spacing:3px; }
+.step-indicator { display:flex; gap:8px; justify-content:center; margin-bottom:24px; }
+.step-dot { width:8px; height:8px; border-radius:50%; background:var(--navy-border); transition:background 0.3s; }
+.step-dot.active { background:var(--gold); }
+.step-dot.done { background:var(--green); }
 
 /* Report card */
 .report-section { margin-bottom:28px; }
@@ -635,7 +686,121 @@ html, body { height:100%; overflow:hidden; font-family:'Plus Jakarta Sans',sans-
       </div>
     </div>
 
-  </div><!-- end main -->
+  
+<!-- ══ PAY NOW MODAL ══════════════════════════════════ -->
+<div class="modal-overlay" id="pay-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="pay-modal-title">Process Payout</span>
+      <button class="modal-close" onclick="closePayModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Step indicators -->
+      <div class="step-indicator" id="pay-steps">
+        <div class="step-dot active" id="pdot-1"></div>
+        <div class="step-dot" id="pdot-2"></div>
+        <div class="step-dot" id="pdot-3"></div>
+      </div>
+
+      <!-- STEP 1: Payout summary + method selection -->
+      <div id="pay-step-1">
+        <div style="font-size:13px; font-weight:700; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;">Payout Summary</div>
+        <div class="payout-summary" id="pay-summary"></div>
+        <div style="font-size:13px; font-weight:700; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;">Select Payment Method</div>
+        <div class="pay-method-grid">
+          <div class="pay-method-card selected" id="pm-wise" onclick="selectPayMethod('wise')">
+            <div class="pm-icon">🏦</div>
+            <div class="pm-name">Wise</div>
+            <div class="pm-desc">Bank transfer globally. Best for most countries.</div>
+            <span class="pm-fee">~0.5–1% fee</span>
+          </div>
+          <div class="pay-method-card" id="pm-usdt" onclick="selectPayMethod('usdt')">
+            <div class="pm-icon">💎</div>
+            <div class="pm-name">USDT (Tether)</div>
+            <div class="pm-desc">Crypto stablecoin. Works everywhere, fast settlement.</div>
+            <span class="pm-fee">~1% fee</span>
+          </div>
+        </div>
+        <div id="pay-method-note" style="font-size:12px; color:var(--muted); padding:12px; background:var(--gold-dim); border:1px solid var(--gold-border); border-radius:8px; line-height:1.6;">
+          💡 <strong style="color:var(--gold);">First withdrawal:</strong> The trader will be prompted to enter their payment details. Details are saved for future payouts.
+        </div>
+      </div>
+
+      <!-- STEP 2: Payment details (first withdrawal) -->
+      <div id="pay-step-2" style="display:none;">
+        <div style="font-size:13px; color:var(--text); line-height:1.6; margin-bottom:20px; padding:14px; background:var(--gold-dim); border:1px solid var(--gold-border); border-radius:10px;">
+          ⚠️ <strong style="color:var(--gold);">First withdrawal detected.</strong> This trader has not provided payment details yet. Please confirm their details before processing.
+        </div>
+        <div id="wise-fields">
+          <div class="pay-field"><label class="pay-label">Account Holder Full Name</label><input type="text" class="pay-input" id="pw-name" placeholder="As it appears on the bank account"></div>
+          <div class="pay-field"><label class="pay-label">Email Address (Wise Account)</label><input type="email" class="pay-input" id="pw-email" placeholder="trader@email.com"></div>
+          <div class="pay-field"><label class="pay-label">Country</label><input type="text" class="pay-input" id="pw-country" placeholder="e.g. Zimbabwe"></div>
+          <div class="pay-field"><label class="pay-label">Bank Account / IBAN</label><input type="text" class="pay-input" id="pw-account" placeholder="Account number or IBAN"></div>
+        </div>
+        <div id="usdt-fields" style="display:none;">
+          <div class="pay-field"><label class="pay-label">USDT Wallet Address (TRC20 or ERC20)</label><input type="text" class="pay-input" id="pw-wallet" placeholder="e.g. TQn9Y2khEsLJW..."></div>
+          <div class="pay-field"><label class="pay-label">Network</label>
+            <select class="pay-input" id="pw-network">
+              <option value="">Select network</option>
+              <option>TRC20 (Tron) — Recommended, lowest fees</option>
+              <option>ERC20 (Ethereum)</option>
+              <option>BEP20 (BNB Chain)</option>
+            </select>
+          </div>
+          <div class="pay-field"><label class="pay-label">Confirm Wallet Address</label><input type="text" class="pay-input" id="pw-wallet2" placeholder="Re-enter wallet address"></div>
+        </div>
+        <p style="font-size:12px; color:var(--muted); margin-top:8px;">✅ Details will be saved securely for future payouts.</p>
+      </div>
+
+      <!-- STEP 3: Confirm & send -->
+      <div id="pay-step-3" style="display:none;">
+        <div style="text-align:center; padding:16px 0 24px;">
+          <div style="font-size:48px; margin-bottom:16px;">✅</div>
+          <div style="font-family:'Outfit',sans-serif; font-size:20px; font-weight:800; margin-bottom:8px;">Confirm Payout</div>
+          <div style="font-size:14px; color:var(--muted); line-height:1.6; margin-bottom:24px;">Please review the details below before sending. This action cannot be undone.</div>
+        </div>
+        <div class="payout-summary" id="pay-confirm-summary"></div>
+        <div style="padding:14px; background:var(--green-dim); border:1px solid rgba(34,197,94,0.25); border-radius:10px; font-size:13px; color:var(--green); line-height:1.6;">
+          🔒 Payment will be processed via your selected method. The trader will receive a notification upon successful transfer.
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn outline" id="pay-back-btn" onclick="payStepBack()" style="display:none;">← Back</button>
+      <button class="action-btn gold" id="pay-next-btn" onclick="payStepNext()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BREACH NOTIFICATION MODAL ══════════════════════ -->
+<div class="modal-overlay" id="breach-modal">
+  <div class="modal-box" style="max-width:480px; border-color:rgba(239,68,68,0.4);">
+    <div class="breach-header">
+      <div class="breach-icon">🚨</div>
+      <div class="breach-title">Account Locked — Rule Violation</div>
+      <div class="breach-sub" id="breach-sub-text">A trader has breached the maximum loss limit. All open trades have been automatically closed and the account has been locked.</div>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--red); margin-bottom:12px;">Breach Details</div>
+      <div id="breach-details"></div>
+      <div class="new-pw-box">
+        <div class="new-pw-label">🔑 Auto-Generated Temporary Password</div>
+        <div class="new-pw-val" id="breach-new-pw">—</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:8px;">Share this with the trader only after your review is complete.</div>
+      </div>
+      <div style="font-size:13px; color:var(--text); line-height:1.7; padding:14px; background:var(--red-dim); border:1px solid rgba(239,68,68,0.25); border-radius:10px;">
+        <strong style="color:var(--red);">Required action:</strong> Review the trader's account and decide whether to reinstate with a new challenge or permanently disqualify. The trader currently sees a locked account screen.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="action-btn outline" onclick="closeBreachModal()">Dismiss</button>
+      <button class="action-btn" style="background:var(--red); color:var(--white);" onclick="disqualifyTrader()">Disqualify Trader</button>
+      <button class="action-btn gold" onclick="reinstateTrader()">Reinstate</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- end main -->
 </div><!-- end body-wrap -->
 </div><!-- end shell -->
 
@@ -937,32 +1102,246 @@ function updateRiskRows() {
 }
 
 // ══ PAYOUTS ════════════════════════════════════════════
+let currentPayout = null;
+let payStep = 1;
+let selectedMethod = 'wise';
+let firstWithdrawal = true; // In Phase 2B this checks the DB
+
 function renderPayouts() {
   document.getElementById('payout-rows').innerHTML = FUNDED.map(t => {
     const profit = t.balance - t.account;
-    const traderShare = profit * 0.7;
+    const traderShare = Math.max(profit * 0.7, 0);
     const ready = t.balance >= t.threshold;
+    const pct = Math.min((t.balance / t.threshold) * 100, 100).toFixed(0);
     return `<div class="payout-row">
       <div class="tr-name"><div class="tr-avatar">${t.initials}</div><div><div class="tr-n">${t.name}</div><div class="tr-d">${t.level} · $${t.threshold} threshold</div></div></div>
       <div style="font-family:'Outfit',sans-serif; font-weight:700; font-size:15px;">$${t.account}</div>
       <div style="font-family:'Outfit',sans-serif; font-weight:700; font-size:15px; color:var(--white)">$${t.balance.toFixed(2)}</div>
       <div>
-        <div style="margin-bottom:4px; font-size:12px; color:var(--muted);">$${t.balance.toFixed(2)} / $${t.threshold}</div>
-        <div class="mini-progress" style="width:120px;"><div class="mini-fill" style="width:${Math.min(t.balance/t.threshold*100,100).toFixed(0)}%; background:${ready ? 'var(--green)' : 'var(--gold)'};"></div></div>
+        <div style="margin-bottom:4px; font-size:12px; color:var(--muted);">$${t.balance.toFixed(2)} / $${t.threshold} (${pct}%)</div>
+        <div class="mini-progress" style="width:120px;"><div class="mini-fill" style="width:${pct}%; background:${ready ? 'var(--green)' : 'var(--gold)'};"></div></div>
       </div>
-      <div style="font-family:'Outfit',sans-serif; font-weight:800; font-size:16px; color:${ready ? 'var(--green)' : 'var(--text)'}">$${traderShare.toFixed(2)}</div>
+      <div style="font-family:'Outfit',sans-serif; font-weight:800; font-size:16px; color:${ready ? 'var(--green)' : 'var(--text)'}">
+        ${ready ? '$'+traderShare.toFixed(2) : '—'}
+      </div>
       <div>
-        <button class="payout-btn ${ready ? 'ready' : 'pending'}" onclick="${ready ? `processPayout('${t.name}', ${traderShare.toFixed(2)})` : ''}">
-          ${ready ? '✓ Process' : 'Not Ready'}
+        <button class="payout-btn ${ready ? 'ready' : 'pending'}"
+          onclick="${ready ? `openPayModal('${t.name}','${t.initials}',${traderShare.toFixed(2)},${t.account},'${t.level}')` : ''}">
+          ${ready ? '💳 Pay Now' : 'Not Ready'}
         </button>
       </div>
     </div>`;
   }).join('');
 }
 
-function processPayout(name, amount) {
-  showToast(`Payout of $${amount} initiated for ${name}`, 'success');
+// ── Pay Modal ──
+function openPayModal(name, initials, amount, account, level) {
+  currentPayout = { name, initials, amount, account, level };
+  payStep = 1;
+  selectedMethod = 'wise';
+  firstWithdrawal = true; // Phase 2B: check DB here
+
+  // Reset steps
+  document.getElementById('pay-step-1').style.display = 'block';
+  document.getElementById('pay-step-2').style.display = 'none';
+  document.getElementById('pay-step-3').style.display = 'none';
+  document.getElementById('pay-back-btn').style.display = 'none';
+  document.getElementById('pay-next-btn').textContent = 'Next →';
+
+  // Set method highlight
+  document.getElementById('pm-wise').classList.add('selected');
+  document.getElementById('pm-usdt').classList.remove('selected');
+  document.getElementById('wise-fields').style.display = 'block';
+  document.getElementById('usdt-fields').style.display = 'none';
+
+  // Build summary
+  const fee = selectedMethod === 'wise' ? (amount * 0.008).toFixed(2) : (amount * 0.01).toFixed(2);
+  const net = (amount - fee).toFixed(2);
+  document.getElementById('pay-summary').innerHTML = `
+    <div class="ps-row"><span class="ps-label">Trader</span><span class="ps-val">${name}</span></div>
+    <div class="ps-row"><span class="ps-label">Account Level</span><span class="ps-val">${level}</span></div>
+    <div class="ps-row"><span class="ps-label">Gross Profit</span><span class="ps-val" style="color:var(--green)">$${amount.toFixed(2)}</span></div>
+    <div class="ps-row"><span class="ps-label">Trader Share (70%)</span><span class="ps-val" style="color:var(--green)">$${amount.toFixed(2)}</span></div>
+    <div class="ps-row"><span class="ps-label" style="font-weight:700; color:var(--white);">Amount to Send</span><span class="ps-val" style="color:var(--gold); font-size:18px;">$${amount.toFixed(2)}</span></div>
+  `;
+
+  updateStepDots();
+  document.getElementById('pay-modal-title').textContent = `Pay Now — ${name}`;
+  document.getElementById('pay-modal').classList.add('open');
 }
+
+function closePayModal() {
+  document.getElementById('pay-modal').classList.remove('open');
+  currentPayout = null;
+}
+
+function selectPayMethod(method) {
+  selectedMethod = method;
+  document.getElementById('pm-wise').classList.toggle('selected', method === 'wise');
+  document.getElementById('pm-usdt').classList.toggle('selected', method === 'usdt');
+  document.getElementById('wise-fields').style.display = method === 'wise' ? 'block' : 'none';
+  document.getElementById('usdt-fields').style.display = method === 'usdt' ? 'block' : 'none';
+}
+
+function updateStepDots() {
+  [1,2,3].forEach(i => {
+    const dot = document.getElementById(`pdot-${i}`);
+    dot.className = 'step-dot' + (i < payStep ? ' done' : i === payStep ? ' active' : '');
+  });
+  // Skip step 2 indicator if not first withdrawal
+  if (!firstWithdrawal && payStep === 2) payStepNext();
+}
+
+function payStepNext() {
+  if (payStep === 1) {
+    if (firstWithdrawal) {
+      payStep = 2;
+      document.getElementById('pay-step-1').style.display = 'none';
+      document.getElementById('pay-step-2').style.display = 'block';
+      document.getElementById('pay-back-btn').style.display = 'inline-flex';
+      document.getElementById('pay-next-btn').textContent = 'Continue →';
+    } else {
+      payStep = 3;
+      buildConfirmStep();
+    }
+  } else if (payStep === 2) {
+    // Validate fields
+    const method = selectedMethod;
+    if (method === 'wise') {
+      if (!document.getElementById('pw-name').value || !document.getElementById('pw-email').value || !document.getElementById('pw-account').value) {
+        showToast('Please fill in all payment details', 'error'); return;
+      }
+    } else {
+      const w1 = document.getElementById('pw-wallet').value;
+      const w2 = document.getElementById('pw-wallet2').value;
+      if (!w1 || !w2) { showToast('Please enter the wallet address', 'error'); return; }
+      if (w1 !== w2) { showToast('Wallet addresses do not match', 'error'); return; }
+    }
+    payStep = 3;
+    buildConfirmStep();
+  } else if (payStep === 3) {
+    // Process payment
+    completePayout();
+  }
+  updateStepDots();
+}
+
+function payStepBack() {
+  if (payStep === 2) {
+    payStep = 1;
+    document.getElementById('pay-step-1').style.display = 'block';
+    document.getElementById('pay-step-2').style.display = 'none';
+    document.getElementById('pay-back-btn').style.display = 'none';
+    document.getElementById('pay-next-btn').textContent = 'Next →';
+  } else if (payStep === 3) {
+    payStep = firstWithdrawal ? 2 : 1;
+    document.getElementById('pay-step-3').style.display = 'none';
+    document.getElementById(`pay-step-${payStep}`).style.display = 'block';
+    document.getElementById('pay-next-btn').textContent = payStep === 1 ? 'Next →' : 'Continue →';
+    if (payStep === 1) document.getElementById('pay-back-btn').style.display = 'none';
+  }
+  updateStepDots();
+}
+
+function buildConfirmStep() {
+  document.getElementById('pay-step-2').style.display = 'none';
+  document.getElementById('pay-step-3').style.display = 'block';
+  document.getElementById('pay-next-btn').textContent = '✓ Confirm & Send';
+
+  const method = selectedMethod === 'wise' ? 'Wise Bank Transfer' : 'USDT (Tether)';
+  const fee = selectedMethod === 'wise' ? (currentPayout.amount * 0.008).toFixed(2) : (currentPayout.amount * 0.01).toFixed(2);
+  const net = (currentPayout.amount - parseFloat(fee)).toFixed(2);
+
+  let dest = '';
+  if (selectedMethod === 'wise') {
+    dest = document.getElementById('pw-name').value || 'On file';
+  } else {
+    const w = document.getElementById('pw-wallet').value;
+    dest = w ? w.substring(0,8) + '...' + w.substring(w.length-6) : 'On file';
+  }
+
+  document.getElementById('pay-confirm-summary').innerHTML = `
+    <div class="ps-row"><span class="ps-label">Trader</span><span class="ps-val">${currentPayout.name}</span></div>
+    <div class="ps-row"><span class="ps-label">Payment Method</span><span class="ps-val">${method}</span></div>
+    <div class="ps-row"><span class="ps-label">Destination</span><span class="ps-val">${dest}</span></div>
+    <div class="ps-row"><span class="ps-label">Gross Amount</span><span class="ps-val">$${currentPayout.amount.toFixed(2)}</span></div>
+    <div class="ps-row"><span class="ps-label">Transfer Fee (~)</span><span class="ps-val" style="color:var(--red)">-$${fee}</span></div>
+    <div class="ps-row"><span class="ps-label" style="font-weight:700;color:var(--white);">Trader Receives</span><span class="ps-val" style="color:var(--green); font-size:18px;">$${net}</span></div>
+  `;
+}
+
+function completePayout() {
+  closePayModal();
+  const method = selectedMethod === 'wise' ? 'Wise' : 'USDT';
+  showToast(`✅ Payout of $${currentPayout ? currentPayout.amount.toFixed(2) : ''} sent via ${method} to ${currentPayout ? currentPayout.name : ''}`, 'success');
+  // In Phase 2B: call Django API to process payment and notify trader
+  currentPayout = null;
+}
+
+// ══ BREACH / ACCOUNT LOCK SYSTEM ════════════════════════
+let breachTrader = null;
+
+function generateTempPassword() {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$';
+  let pw = '';
+  // Ensure at least one of each required type
+  pw += 'ABCDEFGHJKMNPQRSTUVWXYZ'[Math.floor(Math.random()*22)];
+  pw += 'abcdefghjkmnpqrstuvwxyz'[Math.floor(Math.random()*22)];
+  pw += '23456789'[Math.floor(Math.random()*8)];
+  pw += '!@#$'[Math.floor(Math.random()*4)];
+  for (let i = 0; i < 6; i++) pw += chars[Math.floor(Math.random()*chars.length)];
+  return pw.split('').sort(() => Math.random()-0.5).join('');
+}
+
+function triggerBreach(trader, breachType, details) {
+  breachTrader = trader;
+  const tempPw = generateTempPassword();
+
+  document.getElementById('breach-sub-text').textContent =
+    `${trader.name} has breached the ${breachType}. All open trades have been automatically closed and the account has been locked pending COO review.`;
+
+  document.getElementById('breach-details').innerHTML = `
+    <div style="background:var(--navy); border:1px solid var(--navy-border); border-radius:12px; padding:16px; margin-bottom:16px;">
+      <div class="breach-detail-row"><span class="bd-label">Trader</span><span class="bd-val">${trader.name}</span></div>
+      <div class="breach-detail-row"><span class="bd-label">Registration Code</span><span class="bd-val" style="color:var(--gold); font-family:'Outfit',sans-serif; letter-spacing:2px;">D04821</span></div>
+      <div class="breach-detail-row"><span class="bd-label">Broker</span><span class="bd-val">${trader.detail}</span></div>
+      <div class="breach-detail-row"><span class="bd-label">Phase</span><span class="bd-val">${trader.phase}</span></div>
+      <div class="breach-detail-row"><span class="bd-label">Breach Type</span><span class="bd-val" style="color:var(--red);">${breachType}</span></div>
+      <div class="breach-detail-row"><span class="bd-label">Details</span><span class="bd-val" style="color:var(--red);">${details}</span></div>
+      <div class="breach-detail-row"><span class="bd-label">Time of Breach</span><span class="bd-val">${new Date().toLocaleTimeString('en-GB')} today</span></div>
+      <div class="breach-detail-row"><span class="bd-label">Trades Auto-Closed</span><span class="bd-val" style="color:var(--green);">✅ Yes — all positions closed</span></div>
+      <div class="breach-detail-row"><span class="bd-label">Account Status</span><span class="bd-val" style="color:var(--red);">🔒 Locked</span></div>
+    </div>
+  `;
+
+  document.getElementById('breach-new-pw').textContent = tempPw;
+  document.getElementById('breach-modal').classList.add('open');
+
+  // Also fire an alert
+  showToast(`🚨 BREACH: ${trader.name} — ${breachType} — Account auto-locked`, 'critical');
+}
+
+function closeBreachModal() {
+  document.getElementById('breach-modal').classList.remove('open');
+}
+
+function disqualifyTrader() {
+  closeBreachModal();
+  showToast(`${breachTrader ? breachTrader.name : 'Trader'} has been disqualified. Account permanently locked.`, 'error');
+  breachTrader = null;
+}
+
+function reinstateTrader() {
+  closeBreachModal();
+  showToast(`${breachTrader ? breachTrader.name : 'Trader'} reinstated. New challenge issued. Password sent.`, 'success');
+  breachTrader = null;
+}
+
+// Simulate a breach event after 20 seconds (demo purposes)
+setTimeout(() => {
+  const t = TRADERS.find(x => x.winRate < 80) || TRADERS[2];
+  triggerBreach(t, 'Maximum Daily Loss Limit (5%)', `Daily loss reached $${(t.account * 0.052).toFixed(2)} — limit is $${(t.account * 0.05).toFixed(2)}`);
+}, 20000);
 
 // ══ REPORT CHARTS ══════════════════════════════════════
 function buildReportCharts() {
