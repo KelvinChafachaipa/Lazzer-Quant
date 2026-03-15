@@ -7,6 +7,9 @@
     { "source": "/how-it-works", "destination": "/how-it-works.html" },
     { "source": "/rules", "destination": "/rules.html" },
     { "source": "/faq", "destination": "/faq.html" },
-    { "source": "/contact", "destination": "/contact.html" }
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/portal", "destination": "/portal.html" },
+    { "source": "/register", "destination": "/register.html" },
+    { "source": "/admin", "destination": "/register.html" }
   ]
 }

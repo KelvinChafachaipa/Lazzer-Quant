@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — Lazzer Quant Trading Firm</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #060d1a;
+  --navy-mid: #0c1628;
+  --navy-card: #101e35;
+  --navy-border: #1a2d4a;
+  --gold: #c9a84c;
+  --gold-light: #e2bf6e;
+  --gold-dim: rgba(201,168,76,0.12);
+  --gold-border: rgba(201,168,76,0.25);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.12);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.12);
+  --white: #ffffff;
+  --text: #cbd5e1;
+  --text-muted: #64748b;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  min-height: 100%;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--navy); color: var(--white);
+}
+
+/* ── PAGE WRAPPER ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── HEADER ── */
+header {
+  position: sticky; top: 0; z-index: 100;
+  height: 64px;
+  background: rgba(6,13,26,0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--navy-border);
+  display: flex; align-items: center;
+  padding: 0 5%; justify-content: space-between;
+}
+
+.header-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--white);
+}
+.logo-badge {
+  width: 34px; height: 34px; background: var(--gold);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 14px; color: var(--navy);
+}
+.logo-name { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 17px; }
+.logo-name span { color: var(--gold); }
+
+.header-right { display: flex; align-items: center; gap: 10px; }
+.hdr-link {
+  font-size: 13px; font-weight: 500; color: var(--text-muted);
+  text-decoration: none; padding: 7px 14px; border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+}
+.hdr-link:hover { color: var(--white); background: rgba(255,255,255,0.05); }
+.hdr-btn {
+  font-size: 13px; font-weight: 700; color: var(--navy);
+  background: var(--gold); padding: 7px 18px; border-radius: 7px;
+  text-decoration: none; transition: background 0.2s;
+}
+.hdr-btn:hover { background: var(--gold-light); }
+
+/* ── REGISTRATION FORM PAGE ── */
+.reg-wrapper {
+  min-height: calc(100vh - 64px - 56px);
+  display: flex; align-items: flex-start;
+  justify-content: center;
+  padding: 60px 20px 80px;
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(201,168,76,0.04), transparent);
+}
+
+.reg-box {
+  width: 100%; max-width: 560px;
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 24px; padding: 48px 44px;
+}
+
+.reg-top { text-align: center; margin-bottom: 36px; }
+.reg-top .logo-wrap { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 20px; }
+.reg-title { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+.reg-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+/* Account type selector */
+.type-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+.type-card {
+  border: 2px solid var(--navy-border);
+  border-radius: 14px; padding: 18px 16px;
+  cursor: pointer; transition: all 0.2s; text-align: center;
+  background: transparent;
+}
+.type-card:hover { border-color: var(--gold-border); background: var(--gold-dim); }
+.type-card.selected { border-color: var(--gold); background: var(--gold-dim); }
+.type-icon { font-size: 28px; margin-bottom: 10px; }
+.type-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.type-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.type-prefix {
+  display: inline-block; margin-top: 8px;
+  font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700;
+  padding: 3px 10px; border-radius: 100px;
+  background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border);
+}
+
+/* Form fields */
+.form-group { margin-bottom: 18px; }
+.form-label {
+  display: block; font-size: 12px; font-weight: 700;
+  color: var(--text); margin-bottom: 7px; letter-spacing: 0.3px;
+}
+.form-label span { color: var(--red); margin-left: 3px; }
+.form-input, .form-select {
+  width: 100%; padding: 12px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid var(--navy-border);
+  border-radius: 10px; color: var(--white);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px;
+  outline: none; transition: border-color 0.2s, background 0.2s;
+  appearance: none;
+}
+.form-input::placeholder { color: var(--text-muted); }
+.form-input:focus, .form-select:focus { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+.form-select option { background: var(--navy-mid); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* Password field */
+.pw-wrap { position: relative; }
+.pw-wrap .form-input { padding-right: 44px; }
+.pw-toggle {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; font-size: 16px; color: var(--text-muted);
+  transition: color 0.2s;
+}
+.pw-toggle:hover { color: var(--white); }
+
+/* Registration code field */
+.code-field-wrap { position: relative; }
+.code-field-wrap .form-input { font-family: 'Outfit', sans-serif; font-weight: 700; letter-spacing: 2px; font-size: 16px; }
+.code-status {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 18px;
+}
+
+/* Password strength */
+.pw-strength { margin-top: 8px; }
+.pw-bars { display: flex; gap: 4px; margin-bottom: 6px; }
+.pw-bar { flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); transition: background 0.3s; }
+.pw-bar.weak { background: var(--red); }
+.pw-bar.fair { background: var(--gold); }
+.pw-bar.strong { background: var(--green); }
+.pw-label { font-size: 11px; color: var(--text-muted); }
+
+/* Password requirements */
+.pw-reqs { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.pw-req { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); }
+.pw-req .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--navy-border); transition: background 0.2s; }
+.pw-req.met { color: var(--green); }
+.pw-req.met .dot { background: var(--green); }
+
+/* Submit button */
+.reg-btn {
+  width: 100%; padding: 14px; margin-top: 8px;
+  background: var(--gold); color: var(--navy);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 15px;
+  border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s;
+}
+.reg-btn:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(201,168,76,0.25); }
+.reg-btn:disabled { background: var(--navy-border); color: var(--text-muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+.reg-login { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+.reg-login a { color: var(--gold); text-decoration: none; font-weight: 600; }
+
+/* Alert */
+.alert {
+  padding: 12px 16px; border-radius: 10px;
+  font-size: 13px; line-height: 1.6; margin-bottom: 18px; display: none;
+}
+.alert-error { background: var(--red-dim); border: 1px solid rgba(239,68,68,0.3); color: var(--red); }
+.alert-success { background: var(--green-dim); border: 1px solid rgba(34,197,94,0.3); color: var(--green); }
+
+/* Success screen */
+.success-screen {
+  text-align: center; padding: 20px 0; display: none;
+}
+.success-icon { font-size: 64px; margin-bottom: 20px; }
+.success-title { font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 12px; }
+.success-body { font-size: 15px; color: var(--text); line-height: 1.7; margin-bottom: 28px; }
+.success-code {
+  display: inline-block;
+  font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800;
+  color: var(--gold); background: var(--gold-dim); border: 1px solid var(--gold-border);
+  padding: 12px 32px; border-radius: 12px; letter-spacing: 4px;
+  margin-bottom: 28px;
+}
+
+/* ── FOOTER ── */
+footer {
+  height: 56px;
+  background: var(--navy-mid); border-top: 1px solid var(--navy-border);
+  display: flex; align-items: center; padding: 0 5%;
+  justify-content: space-between;
+}
+.footer-left { font-size: 12px; color: var(--text-muted); }
+.footer-right { font-size: 11px; font-weight: 700; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; font-family: 'Outfit', sans-serif; }
+
+/* ══════════════════════════════════════════════════════
+   ADMIN PAGE
+══════════════════════════════════════════════════════ */
+.admin-layout {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 28px;
+  padding: 40px 5% 80px;
+  max-width: 1300px;
+  margin: 0 auto;
+}
+
+.admin-page-title {
+  padding: 36px 5% 0;
+  max-width: 1300px; margin: 0 auto;
+}
+.apt-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+.apt-h1 { font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+.apt-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 0; }
+
+/* Generator panel */
+.gen-panel {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 20px; padding: 32px;
+  height: fit-content;
+  position: sticky; top: 84px;
+}
+.gen-title { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.gen-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--navy-border); }
+
+.gen-type-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.gen-type-btn {
+  padding: 14px 10px; border-radius: 12px;
+  border: 2px solid var(--navy-border); background: transparent;
+  cursor: pointer; text-align: center; transition: all 0.2s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.gen-type-btn:hover { border-color: var(--gold-border); background: var(--gold-dim); }
+.gen-type-btn.selected { border-color: var(--gold); background: var(--gold-dim); }
+.gen-type-icon { font-size: 24px; margin-bottom: 8px; }
+.gen-type-name { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+.gen-type-prefix { font-size: 11px; color: var(--gold); font-family: 'Outfit', sans-serif; font-weight: 700; }
+
+.gen-label { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 8px; letter-spacing: 0.3px; }
+.gen-input {
+  width: 100%; padding: 12px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid var(--navy-border);
+  border-radius: 10px; color: var(--white);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px;
+  outline: none; transition: border-color 0.2s;
+  margin-bottom: 16px; appearance: none;
+}
+.gen-input:focus { border-color: var(--gold); }
+.gen-input option { background: var(--navy-mid); }
+
+/* Generated code display */
+.gen-code-display {
+  background: var(--navy);
+  border: 1px solid var(--navy-border);
+  border-radius: 12px; padding: 20px;
+  text-align: center; margin-bottom: 16px;
+  min-height: 80px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.gcd-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+.gcd-code {
+  font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 800;
+  color: var(--gold); letter-spacing: 4px;
+}
+.gcd-placeholder { font-size: 13px; color: var(--text-muted); }
+
+.gen-btn {
+  width: 100%; padding: 13px; margin-bottom: 10px;
+  background: var(--gold); color: var(--navy);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14px;
+  border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s;
+}
+.gen-btn:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+.save-btn {
+  width: 100%; padding: 13px;
+  background: transparent; color: var(--green);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14px;
+  border: 1.5px solid rgba(34,197,94,0.3); border-radius: 10px;
+  cursor: pointer; transition: all 0.2s;
+}
+.save-btn:hover { background: var(--green-dim); }
+.save-btn:disabled { color: var(--text-muted); border-color: var(--navy-border); cursor: not-allowed; }
+
+.gen-note {
+  margin-top: 12px; padding: 12px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  border-radius: 8px; font-size: 12px; color: var(--text); line-height: 1.6;
+}
+
+/* Stats row */
+.admin-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+.as-card {
+  background: var(--navy-card); border: 1px solid var(--navy-border);
+  border-radius: 14px; padding: 18px 20px;
+}
+.asc-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+.asc-val { font-family: 'Outfit', sans-serif; font-size: 28px; font-weight: 800; line-height: 1; }
+
+/* Trader table panel */
+.traders-panel {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 20px; overflow: hidden;
+}
+
+.tp-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--navy-border);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.tp-title { font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; }
+
+/* Search & filter */
+.tp-controls { display: flex; gap: 10px; }
+.tp-search {
+  padding: 8px 14px; background: rgba(255,255,255,0.04);
+  border: 1px solid var(--navy-border); border-radius: 8px;
+  color: var(--white); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px;
+  outline: none; width: 200px; transition: border-color 0.2s;
+}
+.tp-search:focus { border-color: var(--gold); }
+.tp-search::placeholder { color: var(--text-muted); }
+.tp-filter {
+  padding: 8px 14px; background: rgba(255,255,255,0.04);
+  border: 1px solid var(--navy-border); border-radius: 8px;
+  color: var(--white); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px;
+  outline: none; appearance: none; cursor: pointer;
+}
+
+/* Registered traders table */
+.reg-table { width: 100%; border-collapse: collapse; }
+.reg-table th {
+  text-align: left; padding: 12px 20px;
+  font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--text-muted); border-bottom: 1px solid var(--navy-border);
+  background: rgba(255,255,255,0.02);
+}
+.reg-table td {
+  padding: 15px 20px; font-size: 13px; color: var(--text);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: middle;
+}
+.reg-table tr:last-child td { border-bottom: none; }
+.reg-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.td-code {
+  font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px;
+  letter-spacing: 2px;
+}
+.td-code.demo { color: var(--gold); }
+.td-code.real { color: var(--green); }
+
+.td-name { font-weight: 600; color: var(--white); }
+.td-email { font-size: 12px; color: var(--text-muted); }
+
+.badge {
+  display: inline-block; padding: 3px 10px;
+  border-radius: 100px; font-size: 11px; font-weight: 700;
+}
+.badge-demo { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold-border); }
+.badge-real { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+.badge-pending { background: rgba(59,130,246,0.1); color: #3b82f6; border: 1px solid rgba(59,130,246,0.25); }
+.badge-registered { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+
+.del-btn {
+  padding: 6px 14px; background: transparent;
+  border: 1px solid rgba(239,68,68,0.3); border-radius: 6px;
+  color: var(--red); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.del-btn:hover { background: var(--red-dim); border-color: var(--red); }
+
+.copy-btn {
+  padding: 6px 12px; background: var(--gold-dim);
+  border: 1px solid var(--gold-border); border-radius: 6px;
+  color: var(--gold); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; margin-right: 6px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.copy-btn:hover { background: var(--gold); color: var(--navy); }
+
+.empty-state {
+  padding: 60px 20px; text-align: center;
+  color: var(--text-muted); font-size: 14px;
+}
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+/* Toast notification */
+.toast {
+  position: fixed; bottom: 28px; right: 28px;
+  background: var(--navy-card); border: 1px solid var(--navy-border);
+  border-radius: 12px; padding: 14px 20px;
+  font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  transform: translateY(80px); opacity: 0;
+  transition: all 0.3s ease; z-index: 999;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: rgba(34,197,94,0.3); color: var(--green); }
+.toast.error { border-color: rgba(239,68,68,0.3); color: var(--red); }
+.toast.info { border-color: var(--gold-border); color: var(--gold); }
+
+/* Confirm dialog */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  display: none; align-items: center; justify-content: center; z-index: 500;
+}
+.overlay.show { display: flex; }
+.confirm-box {
+  background: var(--navy-card); border: 1px solid var(--navy-border);
+  border-radius: 20px; padding: 36px; max-width: 400px; width: 90%;
+  text-align: center;
+}
+.cb-icon { font-size: 48px; margin-bottom: 16px; }
+.cb-title { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+.cb-body { font-size: 14px; color: var(--text-muted); margin-bottom: 28px; line-height: 1.6; }
+.cb-btns { display: flex; gap: 12px; justify-content: center; }
+.cb-cancel {
+  padding: 11px 24px; background: transparent;
+  border: 1.5px solid var(--navy-border); border-radius: 8px;
+  color: var(--text-muted); font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s;
+}
+.cb-cancel:hover { border-color: var(--white); color: var(--white); }
+.cb-confirm {
+  padding: 11px 24px; background: var(--red);
+  border: none; border-radius: 8px; color: var(--white);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 14px;
+  cursor: pointer; transition: all 0.2s;
+}
+.cb-confirm:hover { background: #dc2626; }
+
+@media (max-width: 900px) {
+  .admin-layout { grid-template-columns: 1fr; }
+  .gen-panel { position: static; }
+  .admin-stats { grid-template-columns: 1fr 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"></div>
+
+<!-- ══ CONFIRM DIALOG ══ -->
+<div class="overlay" id="overlay">
+  <div class="confirm-box">
+    <div class="cb-icon">⚠️</div>
+    <div class="cb-title">Delete Registration?</div>
+    <div class="cb-body" id="cb-body">This will permanently remove this trader's registration. They will no longer be able to access the portal with this code.</div>
+    <div class="cb-btns">
+      <button class="cb-cancel" onclick="closeConfirm()">Cancel</button>
+      <button class="cb-confirm" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE: REGISTRATION FORM
+═════════════════════════════════════════ -->
+<div class="page active" id="page-register">
+  <header>
+    <a href="index.html" class="header-logo">
+      <div class="logo-badge">LQ</div>
+      <span class="logo-name">Lazzer <span>Quant</span></span>
+    </a>
+    <div class="header-right">
+      <a href="index.html" class="hdr-link">← Back to Site</a>
+      <a href="portal.html" class="hdr-btn">Trader Login</a>
+    </div>
+  </header>
+
+  <div class="reg-wrapper">
+    <div class="reg-box">
+
+      <!-- Form view -->
+      <div id="form-view">
+        <div class="reg-top">
+          <div class="logo-wrap">
+            <div class="logo-badge">LQ</div>
+            <span class="logo-name" style="font-family:'Outfit',sans-serif; font-weight:700; font-size:18px;">Lazzer <span style="color:var(--gold)">Quant</span></span>
+          </div>
+          <div class="reg-title">Create Your Account</div>
+          <div class="reg-sub">Use the registration code provided by the COO to create your trader account.</div>
+        </div>
+
+        <!-- Account type -->
+        <div style="font-size:12px; font-weight:700; color:var(--text); margin-bottom:10px; letter-spacing:0.3px;">ACCOUNT TYPE <span style="color:var(--red)">*</span></div>
+        <div class="type-selector">
+          <div class="type-card selected" id="type-demo" onclick="selectType('demo')">
+            <div class="type-icon">📋</div>
+            <div class="type-name">Demo Account</div>
+            <div class="type-desc">For Phase 1 & Phase 2 evaluation challenges</div>
+            <span class="type-prefix">D00000</span>
+          </div>
+          <div class="type-card" id="type-real" onclick="selectType('real')">
+            <div class="type-icon">💰</div>
+            <div class="type-name">Real Account</div>
+            <div class="type-desc">For funded traders with live capital</div>
+            <span class="type-prefix" style="background:var(--green-dim); color:var(--green); border-color:rgba(34,197,94,0.25);">R00000</span>
+          </div>
+        </div>
+
+        <div class="alert alert-error" id="reg-error"></div>
+
+        <!-- Registration code -->
+        <div class="form-group">
+          <label class="form-label">Registration Code <span>*</span></label>
+          <div class="code-field-wrap">
+            <input type="text" class="form-input" id="reg-code"
+              placeholder="e.g. D04821"
+              maxlength="6"
+              oninput="validateCode(this)"
+              style="font-family:'Outfit',sans-serif; font-weight:700; letter-spacing:3px; font-size:18px; text-transform:uppercase;">
+            <span class="code-status" id="code-status"></span>
+          </div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:6px;">Enter the code provided to you by the Lazzer Quant COO.</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">First Name <span>*</span></label>
+            <input type="text" class="form-input" id="reg-fname" placeholder="First name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name <span>*</span></label>
+            <input type="text" class="form-input" id="reg-lname" placeholder="Last name">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address <span>*</span></label>
+          <input type="email" class="form-input" id="reg-email" placeholder="your@email.com">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Country <span>*</span></label>
+            <input type="text" class="form-input" id="reg-country" placeholder="Your country">
+          </div>
+          <div class="form-group">
+            <label class="form-label">City <span>*</span></label>
+            <input type="text" class="form-input" id="reg-city" placeholder="Your city">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Preferred Broker <span>*</span></label>
+          <select class="form-select" id="reg-broker">
+            <option value="">Select your broker platform</option>
+            <option value="Deriv MT5">Deriv — MetaTrader 5 (MT5)</option>
+            <option value="Exness MT5">Exness — MetaTrader 5 (MT5)</option>
+            <option value="Weltrade MT4">Weltrade — MetaTrader 4 (MT4)</option>
+            <option value="Weltrade MT5">Weltrade — MetaTrader 5 (MT5)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password <span>*</span></label>
+          <div class="pw-wrap">
+            <input type="password" class="form-input" id="reg-pw"
+              placeholder="Create a strong password"
+              oninput="checkPassword(this.value)">
+            <button type="button" class="pw-toggle" onclick="togglePw('reg-pw', this)">👁</button>
+          </div>
+          <div class="pw-strength">
+            <div class="pw-bars">
+              <div class="pw-bar" id="pb1"></div>
+              <div class="pw-bar" id="pb2"></div>
+              <div class="pw-bar" id="pb3"></div>
+              <div class="pw-bar" id="pb4"></div>
+            </div>
+            <div class="pw-label" id="pw-label">Enter a password</div>
+          </div>
+          <div class="pw-reqs" id="pw-reqs">
+            <div class="pw-req" id="req-len"><span class="dot"></span>At least 8 characters</div>
+            <div class="pw-req" id="req-upper"><span class="dot"></span>One uppercase letter</div>
+            <div class="pw-req" id="req-num"><span class="dot"></span>One number</div>
+            <div class="pw-req" id="req-special"><span class="dot"></span>One special character</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirm Password <span>*</span></label>
+          <div class="pw-wrap">
+            <input type="password" class="form-input" id="reg-pw2"
+              placeholder="Re-enter your password">
+            <button type="button" class="pw-toggle" onclick="togglePw('reg-pw2', this)">👁</button>
+          </div>
+        </div>
+
+        <button class="reg-btn" id="reg-submit" onclick="submitRegistration()">Create Account →</button>
+        <div class="reg-login">Already have an account? <a href="portal.html">Sign In</a></div>
+      </div>
+
+      <!-- Success view -->
+      <div class="success-screen" id="success-view">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">Account Created!</div>
+        <div class="success-body">Your Lazzer Quant trader account has been successfully created. Your registration code is:</div>
+        <div class="success-code" id="success-code">D04821</div>
+        <div class="success-body">Keep this code safe — you will need it to log in. You can now access your trader portal.</div>
+        <a href="portal.html" style="display:inline-block; padding:14px 36px; background:var(--gold); color:var(--navy); font-weight:700; font-size:15px; border-radius:10px; text-decoration:none; transition:background 0.2s;" onmouseover="this.style.background='var(--gold-light)'" onmouseout="this.style.background='var(--gold)'">Go to Trader Portal →</a>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-left">© 2026 Lazzer Quant Trading Firm · Harare, Zimbabwe</div>
+    <div class="footer-right">Discipline · Precision · Consistency</div>
+  </footer>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE: ADMIN — REGISTRATION MANAGER
+═════════════════════════════════════════ -->
+<div class="page" id="page-admin">
+  <header>
+    <a href="index.html" class="header-logo">
+      <div class="logo-badge">LQ</div>
+      <span class="logo-name">Lazzer <span>Quant</span></span>
+    </a>
+    <div class="header-right">
+      <span id="admin-user-badge" style="font-size:12px; font-weight:700; color:var(--gold); background:var(--gold-dim); border:1px solid var(--gold-border); padding:5px 14px; border-radius:100px; letter-spacing:0.5px;">Admin</span>
+      <a href="portal.html" class="hdr-link">← Portal</a>
+      <button onclick="adminLogout()" style="padding:7px 16px; background:transparent; border:1px solid var(--navy-border); border-radius:7px; color:var(--text-muted); font-size:12px; font-weight:600; cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--navy-border)';this.style.color='var(--text-muted)'">Log Out</button>
+    </div>
+  </header>
+
+  <!-- Access denied screen -->
+  <div id="access-denied" style="display:none; min-height:calc(100vh - 120px); display:none; align-items:center; justify-content:center; text-align:center; padding:60px 20px;">
+    <div>
+      <div style="font-size:64px; margin-bottom:20px;">🔒</div>
+      <div style="font-family:'Outfit',sans-serif; font-size:28px; font-weight:800; margin-bottom:12px;">Access Restricted</div>
+      <div style="font-size:15px; color:var(--text-muted); margin-bottom:32px; max-width:400px; margin-left:auto; margin-right:auto; line-height:1.7;">This page is only accessible to the CEO and COO of Lazzer Quant Trading Firm.</div>
+      <a href="portal.html" style="display:inline-block; padding:13px 28px; background:var(--gold); color:var(--navy); font-weight:700; font-size:14px; border-radius:9px; text-decoration:none;">Go to Portal Login</a>
+    </div>
+  </div>
+
+  <!-- Admin content -->
+  <div id="admin-content">
+    <div class="admin-page-title">
+      <div class="apt-label">Admin Panel</div>
+      <div class="apt-h1">Registration Manager</div>
+      <div class="apt-sub">Generate registration codes and manage all registered traders.</div>
+    </div>
+
+    <div class="admin-layout">
+
+      <!-- LEFT: Generator -->
+      <div class="gen-panel">
+        <div class="gen-title">Generate Registration Code</div>
+        <div class="gen-sub">Create a unique code to share with a trader who has passed their interview.</div>
+
+        <div class="gen-label">Account Type</div>
+        <div class="gen-type-row">
+          <div class="gen-type-btn selected" id="gtype-demo" onclick="selectGenType('demo', this)">
+            <div class="gen-type-icon">📋</div>
+            <div class="gen-type-name">Demo</div>
+            <div class="gen-type-prefix">D00000</div>
+          </div>
+          <div class="gen-type-btn" id="gtype-real" onclick="selectGenType('real', this)">
+            <div class="gen-type-icon">💰</div>
+            <div class="gen-type-name">Real</div>
+            <div class="gen-type-prefix">R00000</div>
+          </div>
+        </div>
+
+        <div class="gen-label">Trader Name (for reference)</div>
+        <input type="text" class="gen-input" id="gen-trader-name" placeholder="e.g. John Doe">
+
+        <div class="gen-label">Broker Platform</div>
+        <select class="gen-input" id="gen-broker">
+          <option value="">Select broker</option>
+          <option>Deriv MT5</option>
+          <option>Exness MT5</option>
+          <option>Weltrade MT4</option>
+          <option>Weltrade MT5</option>
+        </select>
+
+        <div class="gen-code-display" id="code-display">
+          <div class="gcd-placeholder">Press "Generate Code" to create a unique registration number</div>
+        </div>
+
+        <button class="gen-btn" onclick="generateCode()">⚡ Generate Code</button>
+        <button class="save-btn" id="save-code-btn" onclick="saveCode()" disabled>✓ Save & Activate Code</button>
+
+        <div class="gen-note">
+          💡 <strong>How it works:</strong> Generate a code, then share it with the trader. They use it on the registration page to create their account. Save the code to add it to the active registry.
+        </div>
+      </div>
+
+      <!-- RIGHT: Traders table -->
+      <div>
+        <div class="admin-stats" id="admin-stats-row"></div>
+
+        <div class="traders-panel">
+          <div class="tp-header">
+            <div class="tp-title">Registered Traders</div>
+            <div class="tp-controls">
+              <input type="text" class="tp-search" placeholder="Search name or code..." oninput="filterTable(this.value)">
+              <select class="tp-filter" onchange="filterByType(this.value)">
+                <option value="all">All Types</option>
+                <option value="demo">Demo Only</option>
+                <option value="real">Real Only</option>
+              </select>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="reg-table">
+              <thead>
+                <tr>
+                  <th>Code</th>
+                  <th>Type</th>
+                  <th>Trader</th>
+                  <th>Broker</th>
+                  <th>Registered</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="reg-table-body"></tbody>
+            </table>
+            <div class="empty-state" id="empty-state" style="display:none;">
+              <div class="empty-icon">📭</div>
+              <div>No registered traders found.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-left">© 2026 Lazzer Quant Trading Firm · Harare, Zimbabwe</div>
+    <div class="footer-right">Admin Panel · Restricted Access</div>
+  </footer>
+</div>
+
+<script>
+// ══ STORAGE (simulates database in-memory) ══════════════
+// In Phase 2B this connects to your Django backend
+let DB = {
+  // Pre-seeded demo codes (as if COO already generated these)
+  codes: [
+    { code: 'D04821', type: 'demo', traderName: 'Tafadzwa Moyo',    broker: 'Deriv MT5',    date: 'Mar 10, 2026', status: 'registered', email: 'tafadzwa@email.com' },
+    { code: 'D71234', type: 'demo', traderName: 'Chiedza Mhene',    broker: 'Exness MT5',   date: 'Mar 11, 2026', status: 'registered', email: 'chiedza@email.com' },
+    { code: 'D39017', type: 'demo', traderName: 'Brian Mutasa',     broker: 'Weltrade MT5', date: 'Mar 12, 2026', status: 'registered', email: 'brian@email.com' },
+    { code: 'D55892', type: 'demo', traderName: 'Nyasha Zvobgo',    broker: 'Deriv MT5',    date: 'Mar 13, 2026', status: 'registered', email: 'nyasha@email.com' },
+    { code: 'R18204', type: 'real', traderName: 'Simba Makoni',     broker: 'Deriv MT5',    date: 'Feb 28, 2026', status: 'registered', email: 'simba@email.com' },
+    { code: 'R67441', type: 'real', traderName: 'Plaxedes Ncube',   broker: 'Exness MT5',   date: 'Mar 01, 2026', status: 'registered', email: 'plaxedes@email.com' },
+    { code: 'R92038', type: 'real', traderName: 'Admire Mureza',    broker: 'Deriv MT5',    date: 'Mar 03, 2026', status: 'registered', email: 'admire@email.com' },
+    { code: 'D22761', type: 'demo', traderName: '',                 broker: '',             date: 'Mar 15, 2026', status: 'pending',    email: '' }, // unused code
+  ],
+  currentGenCode: null,
+  genType: 'demo',
+  deleteTarget: null,
+  filterText: '',
+  filterType: 'all',
+};
+
+// Valid admin credentials (mirrors portal.html)
+const ADMINS = ['ceo@lazzerquant.com', 'coo@lazzerquant.com'];
+let loggedInAdmin = null;
+
+// ══ INIT ═══════════════════════════════════════════════
+window.onload = function() {
+  // Determine which page to show based on URL hash
+  if (window.location.hash === '#admin') {
+    showAdminPage();
+  } else {
+    showRegisterPage();
+  }
+};
+
+function showRegisterPage() {
+  document.getElementById('page-register').classList.add('active');
+  document.getElementById('page-admin').classList.remove('active');
+}
+
+function showAdminPage() {
+  document.getElementById('page-register').classList.remove('active');
+  document.getElementById('page-admin').classList.add('active');
+
+  // Check if admin is logged in via sessionStorage
+  const stored = sessionStorage.getItem('lq_admin');
+  if (stored) {
+    loggedInAdmin = JSON.parse(stored);
+    renderAdminPage();
+  } else {
+    promptAdminLogin();
+  }
+}
+
+function promptAdminLogin() {
+  const email = prompt('Admin Login\n\nEnter your admin email:');
+  const pass  = prompt('Enter your password:');
+  const valid = {
+    'ceo@lazzerquant.com': 'admin123',
+    'coo@lazzerquant.com': 'admin123',
+  };
+  if (valid[email] && valid[email] === pass) {
+    loggedInAdmin = { email, name: email.startsWith('ceo') ? 'Kelvin Chafachaipa' : 'Tatenda Fortune Vambe' };
+    sessionStorage.setItem('lq_admin', JSON.stringify(loggedInAdmin));
+    document.getElementById('admin-user-badge').textContent = loggedInAdmin.name.split(' ')[0] + ' · Admin';
+    renderAdminPage();
+  } else {
+    document.getElementById('admin-content').style.display = 'none';
+    document.getElementById('access-denied').style.display = 'flex';
+  }
+}
+
+function adminLogout() {
+  sessionStorage.removeItem('lq_admin');
+  loggedInAdmin = null;
+  window.location.href = 'portal.html';
+}
+
+function renderAdminPage() {
+  document.getElementById('admin-user-badge').textContent = loggedInAdmin.name.split(' ')[0] + ' · Admin';
+  renderStats();
+  renderTable();
+}
+
+// ══ REGISTRATION FORM ══════════════════════════════════
+
+let selectedType = 'demo';
+
+function selectType(type) {
+  selectedType = type;
+  document.getElementById('type-demo').classList.toggle('selected', type === 'demo');
+  document.getElementById('type-real').classList.toggle('selected', type === 'real');
+  document.getElementById('reg-code').value = '';
+  document.getElementById('code-status').textContent = '';
+}
+
+function validateCode(input) {
+  const val = input.value.toUpperCase();
+  input.value = val;
+  const status = document.getElementById('code-status');
+
+  if (val.length < 6) { status.textContent = ''; return; }
+
+  const prefix  = selectedType === 'demo' ? 'D' : 'R';
+  const wrongPrefix = val[0] !== prefix;
+  const exists  = DB.codes.find(c => c.code === val);
+
+  if (wrongPrefix) {
+    status.textContent = '❌';
+    input.style.borderColor = 'var(--red)';
+    showAlert(`This code doesn't match the selected account type. ${selectedType === 'demo' ? 'Demo codes start with D.' : 'Real codes start with R.'}`, 'error');
+  } else if (!exists) {
+    status.textContent = '❌';
+    input.style.borderColor = 'var(--red)';
+    showAlert('This registration code was not found. Please check the code and try again.', 'error');
+  } else if (exists.status === 'registered') {
+    status.textContent = '❌';
+    input.style.borderColor = 'var(--red)';
+    showAlert('This registration code has already been used. Please contact the COO for a new code.', 'error');
+  } else {
+    status.textContent = '✅';
+    input.style.borderColor = 'var(--green)';
+    hideAlert();
+    // Pre-fill broker if COO set one
+    if (exists.broker) document.getElementById('reg-broker').value = exists.broker;
+  }
+}
+
+function checkPassword(pw) {
+  const reqs = {
+    len:     pw.length >= 8,
+    upper:   /[A-Z]/.test(pw),
+    num:     /[0-9]/.test(pw),
+    special: /[!@#$%^&*(),.?":{}|<>]/.test(pw),
+  };
+  const score = Object.values(reqs).filter(Boolean).length;
+
+  ['req-len','req-upper','req-num','req-special'].forEach((id, i) => {
+    const key = ['len','upper','num','special'][i];
+    document.getElementById(id).classList.toggle('met', reqs[key]);
+    const dot = document.getElementById(id).querySelector('.dot');
+    dot.textContent = reqs[key] ? '✓' : '';
+  });
+
+  const bars = ['pb1','pb2','pb3','pb4'];
+  const colors = { 0: '', 1: 'weak', 2: 'weak', 3: 'fair', 4: 'strong' };
+  const labels = { 0: 'Enter a password', 1: 'Weak', 2: 'Weak', 3: 'Fair — add special character', 4: 'Strong ✓' };
+
+  bars.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'pw-bar';
+    if (i < score) el.classList.add(colors[score]);
+  });
+  document.getElementById('pw-label').textContent = labels[score];
+  document.getElementById('pw-label').style.color = score === 4 ? 'var(--green)' : score === 3 ? 'var(--gold)' : score > 0 ? 'var(--red)' : 'var(--text-muted)';
+}
+
+function togglePw(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+}
+
+function showAlert(msg, type) {
+  const el = document.getElementById('reg-error');
+  el.textContent = msg;
+  el.className = `alert alert-${type}`;
+  el.style.display = 'block';
+}
+function hideAlert() { document.getElementById('reg-error').style.display = 'none'; }
+
+function submitRegistration() {
+  const code    = document.getElementById('reg-code').value.trim().toUpperCase();
+  const fname   = document.getElementById('reg-fname').value.trim();
+  const lname   = document.getElementById('reg-lname').value.trim();
+  const email   = document.getElementById('reg-email').value.trim();
+  const country = document.getElementById('reg-country').value.trim();
+  const city    = document.getElementById('reg-city').value.trim();
+  const broker  = document.getElementById('reg-broker').value;
+  const pw      = document.getElementById('reg-pw').value;
+  const pw2     = document.getElementById('reg-pw2').value;
+
+  if (!code || !fname || !lname || !email || !country || !city || !broker || !pw || !pw2) {
+    showAlert('Please fill in all required fields.', 'error'); return;
+  }
+
+  const prefix = selectedType === 'demo' ? 'D' : 'R';
+  if (code[0] !== prefix) { showAlert(`Wrong account type. ${selectedType === 'demo' ? 'Demo codes start with D.' : 'Real codes start with R.'}`, 'error'); return; }
+
+  const record = DB.codes.find(c => c.code === code);
+  if (!record) { showAlert('Registration code not found. Please check your code.', 'error'); return; }
+  if (record.status === 'registered') { showAlert('This code has already been used. Contact the COO for a new code.', 'error'); return; }
+
+  if (pw !== pw2) { showAlert('Passwords do not match. Please try again.', 'error'); return; }
+
+  const pwReqs = pw.length >= 8 && /[A-Z]/.test(pw) && /[0-9]/.test(pw) && /[!@#$%^&*(),.?":{}|<>]/.test(pw);
+  if (!pwReqs) { showAlert('Password is not strong enough. Please meet all requirements.', 'error'); return; }
+
+  // Mark as registered in DB
+  record.status = 'registered';
+  record.traderName = `${fname} ${lname}`;
+  record.email = email;
+  record.broker = broker;
+  record.date = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+
+  // Show success
+  document.getElementById('form-view').style.display = 'none';
+  document.getElementById('success-view').style.display = 'block';
+  document.getElementById('success-code').textContent = code;
+}
+
+// ══ ADMIN: CODE GENERATOR ══════════════════════════════
+
+let genType = 'demo';
+
+function selectGenType(type, btn) {
+  genType = type;
+  document.getElementById('gtype-demo').classList.toggle('selected', type === 'demo');
+  document.getElementById('gtype-real').classList.toggle('selected', type === 'real');
+  DB.currentGenCode = null;
+  document.getElementById('code-display').innerHTML = '<div class="gcd-placeholder">Press "Generate Code" to create a unique registration number</div>';
+  document.getElementById('save-code-btn').disabled = true;
+}
+
+function generateCode() {
+  const prefix = genType === 'demo' ? 'D' : 'R';
+  let code, attempts = 0;
+
+  do {
+    const num = String(Math.floor(Math.random() * 100000)).padStart(5, '0');
+    code = prefix + num;
+    attempts++;
+    if (attempts > 1000) { showToast('Could not generate unique code. Database may be full.', 'error'); return; }
+  } while (DB.codes.find(c => c.code === code));
+
+  DB.currentGenCode = code;
+  document.getElementById('code-display').innerHTML = `
+    <div class="gcd-label">${genType === 'demo' ? 'Demo' : 'Real'} Registration Code</div>
+    <div class="gcd-code" style="color:${genType === 'demo' ? 'var(--gold)' : 'var(--green)'}">${code}</div>
+  `;
+  document.getElementById('save-code-btn').disabled = false;
+  showToast(`Code ${code} generated successfully`, 'info');
+}
+
+function saveCode() {
+  if (!DB.currentGenCode) return;
+  const name   = document.getElementById('gen-trader-name').value.trim();
+  const broker = document.getElementById('gen-broker').value;
+
+  // Check uniqueness one more time
+  if (DB.codes.find(c => c.code === DB.currentGenCode)) {
+    showToast('This code already exists. Please generate a new one.', 'error'); return;
+  }
+
+  DB.codes.push({
+    code:        DB.currentGenCode,
+    type:        genType,
+    traderName:  name || '—',
+    broker:      broker || '—',
+    date:        new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }),
+    status:      'pending',
+    email:       '',
+  });
+
+  showToast(`Code ${DB.currentGenCode} saved and activated`, 'success');
+  DB.currentGenCode = null;
+  document.getElementById('code-display').innerHTML = '<div class="gcd-placeholder">Code saved. Generate another if needed.</div>';
+  document.getElementById('save-code-btn').disabled = true;
+  document.getElementById('gen-trader-name').value = '';
+  document.getElementById('gen-broker').value = '';
+  renderStats();
+  renderTable();
+}
+
+// ══ ADMIN: TABLE ═══════════════════════════════════════
+
+function renderStats() {
+  const all    = DB.codes.length;
+  const demo   = DB.codes.filter(c => c.type === 'demo').length;
+  const real   = DB.codes.filter(c => c.type === 'real').length;
+  const reg    = DB.codes.filter(c => c.status === 'registered').length;
+
+  document.getElementById('admin-stats-row').innerHTML = `
+    <div class="as-card"><div class="asc-label">Total Codes</div><div class="asc-val" style="color:var(--white)">${all}</div></div>
+    <div class="as-card"><div class="asc-label">Demo Codes</div><div class="asc-val" style="color:var(--gold)">${demo}</div></div>
+    <div class="as-card"><div class="asc-label">Real Codes</div><div class="asc-val" style="color:var(--green)">${real}</div></div>
+    <div class="as-card"><div class="asc-label">Registered</div><div class="asc-val" style="color:var(--green)">${reg}</div></div>
+  `;
+}
+
+function renderTable() {
+  const tbody = document.getElementById('reg-table-body');
+  let filtered = DB.codes;
+
+  if (DB.filterText) {
+    const q = DB.filterText.toLowerCase();
+    filtered = filtered.filter(c =>
+      c.code.toLowerCase().includes(q) ||
+      c.traderName.toLowerCase().includes(q) ||
+      c.email.toLowerCase().includes(q)
+    );
+  }
+  if (DB.filterType !== 'all') {
+    filtered = filtered.filter(c => c.type === DB.filterType);
+  }
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    document.getElementById('empty-state').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('empty-state').style.display = 'none';
+  tbody.innerHTML = filtered.map(c => `
+    <tr>
+      <td>
+        <span class="td-code ${c.type}">${c.code}</span>
+      </td>
+      <td>
+        <span class="badge badge-${c.type}">${c.type === 'demo' ? 'Demo' : 'Real'}</span>
+      </td>
+      <td>
+        <div class="td-name">${c.traderName || '—'}</div>
+        <div class="td-email">${c.email || 'Not yet registered'}</div>
+      </td>
+      <td style="font-size:13px; color:var(--text-muted);">${c.broker || '—'}</td>
+      <td style="font-size:12px; color:var(--text-muted);">${c.date}</td>
+      <td>
+        <span class="badge badge-${c.status}">${c.status === 'registered' ? 'Registered' : 'Pending'}</span>
+      </td>
+      <td>
+        <button class="copy-btn" onclick="copyCode('${c.code}')">Copy</button>
+        <button class="del-btn" onclick="askDelete('${c.code}')">Delete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterTable(val) {
+  DB.filterText = val;
+  renderTable();
+}
+
+function filterByType(val) {
+  DB.filterType = val;
+  renderTable();
+}
+
+function copyCode(code) {
+  navigator.clipboard.writeText(code).then(() => showToast(`${code} copied to clipboard`, 'info'));
+}
+
+// ── Delete ──
+function askDelete(code) {
+  DB.deleteTarget = code;
+  document.getElementById('cb-body').textContent = `This will permanently remove code ${code} and its registration data. This action cannot be undone.`;
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeConfirm() {
+  DB.deleteTarget = null;
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function confirmDelete() {
+  if (!DB.deleteTarget) return;
+  const idx = DB.codes.findIndex(c => c.code === DB.deleteTarget);
+  if (idx > -1) {
+    DB.codes.splice(idx, 1);
+    showToast(`${DB.deleteTarget} deleted successfully`, 'success');
+  }
+  closeConfirm();
+  renderStats();
+  renderTable();
+}
+
+// ── Toast ──
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  const icons = { success: '✅', error: '❌', info: '💡' };
+  t.innerHTML = `<span>${icons[type]}</span> ${msg}`;
+  t.className = `toast ${type} show`;
+  setTimeout(() => { t.classList.remove('show'); }, 3000);
+}
+
+// ══ PAGE ROUTING ═══════════════════════════════════════
+// Listen for hash changes so the same file handles both pages
+window.addEventListener('hashchange', () => {
+  if (window.location.hash === '#admin') showAdminPage();
+  else showRegisterPage();
+});
+</script>
+</body>
+</html>
