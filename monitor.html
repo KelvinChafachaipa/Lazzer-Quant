@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics Monitor — Lazzer Quant</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --navy: #060d1a;
+  --navy-mid: #0c1628;
+  --navy-card: #101e35;
+  --navy-border: #1a2d4a;
+  --gold: #c9a84c;
+  --gold-light: #e2bf6e;
+  --gold-dim: rgba(201,168,76,0.12);
+  --gold-border: rgba(201,168,76,0.25);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.12);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.12);
+  --orange: #f97316;
+  --orange-dim: rgba(249,115,22,0.12);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59,130,246,0.12);
+  --white: #ffffff;
+  --text: #cbd5e1;
+  --muted: #64748b;
+  --sidebar-w: 220px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; font-family:'Plus Jakarta Sans',sans-serif; background:var(--navy); color:var(--white); }
+
+/* ── SHELL ── */
+.shell { display:flex; flex-direction:column; height:100vh; }
+
+/* ── TOPBAR ── */
+.topbar {
+  height:60px; min-height:60px; flex-shrink:0;
+  background:var(--navy-mid); border-bottom:1px solid var(--navy-border);
+  display:flex; align-items:center; padding:0 20px;
+  justify-content:space-between; z-index:100;
+}
+.tb-left { display:flex; align-items:center; gap:14px; }
+.tb-logo { display:flex; align-items:center; gap:8px; text-decoration:none; color:var(--white); }
+.tb-badge { width:30px; height:30px; background:var(--gold); border-radius:7px; display:flex; align-items:center; justify-content:center; font-family:'Outfit',sans-serif; font-weight:800; font-size:13px; color:var(--navy); }
+.tb-name { font-family:'Outfit',sans-serif; font-weight:700; font-size:16px; }
+.tb-name span { color:var(--gold); }
+.tb-divider { width:1px; height:20px; background:var(--navy-border); }
+.tb-title { font-size:13px; font-weight:600; color:var(--muted); }
+
+.tb-right { display:flex; align-items:center; gap:12px; }
+
+.live-indicator {
+  display:flex; align-items:center; gap:7px;
+  padding:5px 14px; background:var(--green-dim);
+  border:1px solid rgba(34,197,94,0.25); border-radius:100px;
+  font-size:12px; font-weight:700; color:var(--green);
+}
+.live-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.5)} }
+
+.alert-bell {
+  position:relative; width:36px; height:36px; border-radius:9px;
+  background:var(--navy); border:1px solid var(--navy-border);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:16px; transition:border-color 0.2s;
+}
+.alert-bell:hover { border-color:var(--gold-border); }
+.bell-count {
+  position:absolute; top:-4px; right:-4px;
+  width:18px; height:18px; border-radius:50%;
+  background:var(--red); font-size:10px; font-weight:800;
+  display:flex; align-items:center; justify-content:center; color:var(--white);
+}
+
+.tb-clock { font-family:'Outfit',sans-serif; font-size:13px; color:var(--muted); }
+
+.tb-user { display:flex; align-items:center; gap:8px; }
+.tb-avatar { width:30px; height:30px; border-radius:50%; background:var(--gold-dim); border:1.5px solid var(--gold-border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--gold); }
+
+.tb-btn { padding:6px 14px; background:transparent; border:1px solid var(--navy-border); border-radius:7px; color:var(--muted); font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; text-decoration:none; display:inline-flex; align-items:center; }
+.tb-btn:hover { border-color:var(--gold-border); color:var(--gold); }
+
+/* ── BODY ── */
+.body-wrap { display:flex; flex:1; overflow:hidden; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width:var(--sidebar-w); min-width:var(--sidebar-w); flex-shrink:0;
+  background:var(--navy-mid); border-right:1px solid var(--navy-border);
+  display:flex; flex-direction:column; padding:16px 10px;
+  overflow-y:auto;
+}
+.sb-label { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding:0 10px; margin-bottom:6px; margin-top:12px; }
+.sb-link {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:8px;
+  font-size:13px; font-weight:600; color:var(--muted);
+  cursor:pointer; transition:all 0.2s; margin-bottom:2px;
+  border:1px solid transparent;
+}
+.sb-link:hover { color:var(--white); background:rgba(255,255,255,0.04); }
+.sb-link.active { color:var(--white); background:var(--gold-dim); border-color:var(--gold-border); }
+.sb-icon { font-size:15px; width:20px; text-align:center; }
+.sb-badge { margin-left:auto; background:var(--red); color:var(--white); font-size:10px; font-weight:800; padding:2px 6px; border-radius:100px; }
+.sb-badge.warn { background:var(--orange); }
+
+.sb-bottom { margin-top:auto; padding-top:16px; border-top:1px solid var(--navy-border); }
+
+/* ── MAIN ── */
+.main { flex:1; overflow-y:auto; padding:28px; }
+.main::-webkit-scrollbar { width:4px; }
+.main::-webkit-scrollbar-thumb { background:var(--navy-border); border-radius:2px; }
+
+/* ── SECTIONS ── */
+.section { display:none; }
+.section.active { display:block; }
+
+/* Page header */
+.pg-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px; }
+.pg-title { font-family:'Outfit',sans-serif; font-size:24px; font-weight:800; letter-spacing:-0.5px; margin-bottom:4px; }
+.pg-sub { font-size:13px; color:var(--muted); }
+.pg-actions { display:flex; gap:10px; }
+
+/* Stat cards */
+.stat-row { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:24px; }
+.stat-card { background:var(--navy-card); border:1px solid var(--navy-border); border-radius:14px; padding:18px 20px; position:relative; overflow:hidden; }
+.stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.stat-card.gold::before { background:var(--gold); }
+.stat-card.green::before { background:var(--green); }
+.stat-card.red::before { background:var(--red); }
+.stat-card.blue::before { background:var(--blue); }
+.stat-card.orange::before { background:var(--orange); }
+.sc-lbl { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.sc-val { font-family:'Outfit',sans-serif; font-size:26px; font-weight:800; line-height:1; margin-bottom:6px; }
+.sc-sub { font-size:12px; font-weight:600; }
+.sc-sub.up { color:var(--green); }
+.sc-sub.down { color:var(--red); }
+.sc-sub.neutral { color:var(--muted); }
+
+/* Chart cards */
+.chart-card { background:var(--navy-card); border:1px solid var(--navy-border); border-radius:16px; padding:22px; margin-bottom:20px; }
+.cc-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
+.cc-title { font-size:14px; font-weight:700; }
+.cc-meta { font-size:12px; color:var(--muted); display:flex; align-items:center; gap:8px; }
+.cc-live { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:var(--green); }
+.cc-live-dot { width:5px; height:5px; border-radius:50%; background:var(--green); animation:pulse 1.5s infinite; }
+
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+
+/* Trader rows */
+.trader-row {
+  display:grid; grid-template-columns:200px 80px 100px 100px 100px 100px 120px 1fr;
+  gap:12px; align-items:center;
+  padding:14px 18px; border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:13px; transition:background 0.2s;
+}
+.trader-row:hover { background:rgba(255,255,255,0.02); }
+.trader-row:last-child { border-bottom:none; }
+.trader-row.header {
+  font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  color:var(--muted); padding:12px 18px; background:rgba(255,255,255,0.02);
+  border-bottom:1px solid var(--navy-border);
+}
+.tr-name { display:flex; align-items:center; gap:10px; }
+.tr-avatar { width:32px; height:32px; border-radius:50%; background:var(--gold-dim); border:1.5px solid var(--gold-border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--gold); flex-shrink:0; }
+.tr-info {}
+.tr-n { font-weight:700; font-size:13px; }
+.tr-d { font-size:11px; color:var(--muted); }
+.tr-val { font-family:'Outfit',sans-serif; font-weight:600; font-size:14px; }
+.tr-val.green { color:var(--green); }
+.tr-val.red { color:var(--red); }
+.tr-val.gold { color:var(--gold); }
+
+/* Mini sparkline bar */
+.sparkbar { display:flex; align-items:flex-end; gap:2px; height:24px; }
+.spark-b { width:4px; border-radius:2px; }
+
+/* Progress mini */
+.mini-progress { height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; width:80px; }
+.mini-fill { height:100%; border-radius:3px; }
+
+/* Alert items */
+.alert-item {
+  display:flex; gap:14px; align-items:flex-start;
+  padding:16px 18px; border-bottom:1px solid rgba(255,255,255,0.04);
+  transition:background 0.2s; cursor:pointer;
+}
+.alert-item:hover { background:rgba(255,255,255,0.02); }
+.alert-item:last-child { border-bottom:none; }
+.alert-item.unread { background:rgba(255,255,255,0.02); }
+.ai-icon { width:36px; height:36px; min-width:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.ai-icon.critical { background:var(--red-dim); }
+.ai-icon.warning { background:var(--orange-dim); }
+.ai-icon.info { background:var(--blue-dim); }
+.ai-body {}
+.ai-title { font-size:14px; font-weight:700; margin-bottom:4px; }
+.ai-desc { font-size:13px; color:var(--text); line-height:1.6; margin-bottom:6px; }
+.ai-meta { display:flex; align-items:center; gap:12px; }
+.ai-time { font-size:11px; color:var(--muted); }
+.ai-dismiss { font-size:11px; font-weight:600; color:var(--gold); cursor:pointer; transition:color 0.2s; }
+.ai-dismiss:hover { color:var(--gold-light); }
+
+/* Severity badge */
+.sev { display:inline-block; padding:2px 8px; border-radius:100px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; }
+.sev.critical { background:var(--red-dim); color:var(--red); border:1px solid rgba(239,68,68,0.3); }
+.sev.warning { background:var(--orange-dim); color:var(--orange); border:1px solid rgba(249,115,22,0.3); }
+.sev.info { background:var(--blue-dim); color:var(--blue); border:1px solid rgba(59,130,246,0.3); }
+.sev.resolved { background:var(--green-dim); color:var(--green); border:1px solid rgba(34,197,94,0.3); }
+
+/* Leaderboard */
+.lb-row {
+  display:grid; grid-template-columns:40px 1fr 100px 100px 100px 100px 120px;
+  gap:12px; align-items:center;
+  padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:13px; transition:all 0.2s;
+}
+.lb-row:hover { background:rgba(255,255,255,0.02); }
+.lb-row.header { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); background:rgba(255,255,255,0.02); border-bottom:1px solid var(--navy-border); }
+.lb-rank { font-family:'Outfit',sans-serif; font-size:18px; font-weight:800; text-align:center; }
+.rank-1 { color:var(--gold); }
+.rank-2 { color:#94a3b8; }
+.rank-3 { color:#cd7c54; }
+.lb-score { font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; }
+
+/* Payout table */
+.payout-row {
+  display:grid; grid-template-columns:1fr 100px 100px 120px 120px 100px;
+  gap:12px; align-items:center;
+  padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.04); font-size:13px;
+}
+.payout-row.header { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); background:rgba(255,255,255,0.02); border-bottom:1px solid var(--navy-border); }
+.payout-btn {
+  padding:6px 14px; border-radius:7px; font-size:12px; font-weight:700;
+  cursor:pointer; border:none; transition:all 0.2s; font-family:'Plus Jakarta Sans',sans-serif;
+}
+.payout-btn.ready { background:var(--green-dim); color:var(--green); border:1px solid rgba(34,197,94,0.3); }
+.payout-btn.ready:hover { background:var(--green); color:var(--navy); }
+.payout-btn.pending { background:rgba(255,255,255,0.04); color:var(--muted); border:1px solid var(--navy-border); cursor:default; }
+
+/* Report card */
+.report-section { margin-bottom:28px; }
+.rs-title { font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--gold); margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--navy-border); }
+.report-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
+.rg-card { background:var(--navy); border:1px solid var(--navy-border); border-radius:12px; padding:18px; }
+.rg-label { font-size:11px; color:var(--muted); margin-bottom:6px; }
+.rg-val { font-family:'Outfit',sans-serif; font-size:22px; font-weight:800; }
+
+/* Risk warning rows */
+.risk-row {
+  display:grid; grid-template-columns:1fr 120px 160px 120px;
+  gap:12px; align-items:center;
+  padding:14px 18px; border-bottom:1px solid rgba(255,255,255,0.04); font-size:13px;
+}
+.risk-row.header { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); background:rgba(255,255,255,0.02); border-bottom:1px solid var(--navy-border); }
+.risk-progress-wrap { display:flex; align-items:center; gap:10px; }
+.risk-bar-track { flex:1; height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; }
+.risk-bar-fill { height:100%; border-radius:4px; transition:width 0.5s; }
+.risk-pct { font-family:'Outfit',sans-serif; font-size:12px; font-weight:700; min-width:32px; }
+
+/* Toast */
+.toast {
+  position:fixed; bottom:24px; right:24px;
+  background:var(--navy-card); border:1px solid var(--navy-border);
+  border-radius:12px; padding:14px 18px;
+  font-size:13px; font-weight:600;
+  display:flex; align-items:center; gap:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  transform:translateY(80px); opacity:0;
+  transition:all 0.3s; z-index:999;
+  max-width:360px;
+}
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.critical { border-color:rgba(239,68,68,0.4); }
+.toast.warning { border-color:rgba(249,115,22,0.4); }
+.toast.success { border-color:rgba(34,197,94,0.4); }
+
+/* Action btn */
+.action-btn {
+  padding:8px 18px; border-radius:8px; font-size:13px; font-weight:700;
+  cursor:pointer; transition:all 0.2s; font-family:'Plus Jakarta Sans',sans-serif; border:none;
+}
+.action-btn.gold { background:var(--gold); color:var(--navy); }
+.action-btn.gold:hover { background:var(--gold-light); }
+.action-btn.outline { background:transparent; color:var(--text); border:1px solid var(--navy-border); }
+.action-btn.outline:hover { border-color:var(--gold-border); color:var(--gold); }
+
+@media(max-width:1100px) { .stat-row { grid-template-columns:repeat(3,1fr); } }
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <a href="index.html" class="tb-logo">
+      <div class="tb-badge">LQ</div>
+      <span class="tb-name">Lazzer <span>Quant</span></span>
+    </a>
+    <div class="tb-divider"></div>
+    <span class="tb-title" id="tb-section">Live Monitor</span>
+  </div>
+  <div class="tb-right">
+    <div class="live-indicator"><div class="live-dot"></div>LIVE</div>
+    <div class="alert-bell" onclick="showSection('alerts', document.getElementById('sl-alerts'))" title="Alerts">
+      🔔
+      <div class="bell-count" id="bell-count">4</div>
+    </div>
+    <div class="tb-clock" id="clock">--:--:--</div>
+    <div class="tb-user">
+      <div class="tb-avatar" id="tb-avatar">TV</div>
+      <span style="font-size:13px; font-weight:600;" id="tb-uname">Tatenda</span>
+    </div>
+    <a href="portal.html" class="tb-btn">← Portal</a>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="body-wrap">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-label">Monitor</div>
+    <div class="sb-link active" id="sl-monitor" onclick="showSection('monitor', this)">
+      <span class="sb-icon">📡</span> Live Monitor
+    </div>
+    <div class="sb-link" id="sl-alerts" onclick="showSection('alerts', this)">
+      <span class="sb-icon">🚨</span> Alert Center
+      <span class="sb-badge" id="sb-alert-count">4</span>
+    </div>
+
+    <div class="sb-label">Analytics</div>
+    <div class="sb-link" id="sl-leaderboard" onclick="showSection('leaderboard', this)">
+      <span class="sb-icon">🏆</span> Leaderboard
+    </div>
+    <div class="sb-link" id="sl-risk" onclick="showSection('risk', this)">
+      <span class="sb-icon">⚠️</span> Risk Warnings
+      <span class="sb-badge warn" id="sb-risk-count">3</span>
+    </div>
+
+    <div class="sb-label">Finance</div>
+    <div class="sb-link" id="sl-payouts" onclick="showSection('payouts', this)">
+      <span class="sb-icon">💳</span> Payout Calculator
+    </div>
+    <div class="sb-link" id="sl-report" onclick="showSection('report', this)">
+      <span class="sb-icon">📊</span> Weekly Report
+    </div>
+
+    <div class="sb-bottom">
+      <div class="sb-link" onclick="window.location.href='register.html#admin'">
+        <span class="sb-icon">⚙️</span> Registration Mgr
+      </div>
+      <div class="sb-link" onclick="window.location.href='index.html'">
+        <span class="sb-icon">🌐</span> Public Site
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ══ LIVE MONITOR ══════════════════════════════ -->
+    <div class="section active" id="section-monitor">
+      <div class="pg-header">
+        <div>
+          <div class="pg-title">Live Performance Monitor</div>
+          <div class="pg-sub">Real-time tracking across all 12 active traders · Updates every 5 seconds</div>
+        </div>
+        <div class="pg-actions">
+          <button class="action-btn outline" onclick="showToast('Snapshot exported to CSV','success')">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card gold"><div class="sc-lbl">Total Traders</div><div class="sc-val" style="color:var(--white)">12</div><div class="sc-sub neutral">Active accounts</div></div>
+        <div class="stat-card green"><div class="sc-lbl">Firm P&L Today</div><div class="sc-val" style="color:var(--green)" id="firm-pnl">+$18.42</div><div class="sc-sub up" id="firm-pnl-sub">+2.3% avg</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">Avg Win Rate</div><div class="sc-val" style="color:var(--blue)" id="avg-wr">83%</div><div class="sc-sub up">Above 80% target</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">Active Violations</div><div class="sc-val" style="color:var(--orange)" id="violation-count">1</div><div class="sc-sub down" id="violation-sub">Requires attention</div></div>
+        <div class="stat-card red"><div class="sc-lbl">Risk Warnings</div><div class="sc-val" style="color:var(--red)">3</div><div class="sc-sub down">Approaching limits</div></div>
+      </div>
+
+      <!-- Firm equity chart -->
+      <div class="chart-card">
+        <div class="cc-header">
+          <span class="cc-title">Firm-Wide Cumulative Equity</span>
+          <span class="cc-meta">
+            <span class="cc-live"><span class="cc-live-dot"></span>Live</span>
+            All 12 traders combined
+          </span>
+        </div>
+        <canvas id="firmEquityChart" height="60"></canvas>
+      </div>
+
+      <!-- Per-trader grid charts -->
+      <div class="chart-card" style="margin-bottom:20px;">
+        <div class="cc-header">
+          <span class="cc-title">Individual Trader Equity Curves</span>
+          <span class="cc-meta"><span class="cc-live"><span class="cc-live-dot"></span>Live</span></span>
+        </div>
+        <div class="grid-3" id="mini-charts-grid"></div>
+      </div>
+
+      <!-- Trader performance table -->
+      <div class="chart-card" style="padding:0; overflow:hidden;">
+        <div style="padding:18px 20px; border-bottom:1px solid var(--navy-border); display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:14px; font-weight:700;">All Traders — Live Status</span>
+          <span class="cc-live"><span class="cc-live-dot"></span>Updates every 5s</span>
+        </div>
+        <div class="trader-row header">
+          <div>Trader</div><div>Phase</div><div>Balance</div><div>P&L Today</div><div>Win Rate</div><div>Drawdown</div><div>7D Trend</div><div>Status</div>
+        </div>
+        <div id="trader-table"></div>
+      </div>
+    </div>
+
+    <!-- ══ ALERT CENTER ══════════════════════════════ -->
+    <div class="section" id="section-alerts">
+      <div class="pg-header">
+        <div>
+          <div class="pg-title">Alert Center</div>
+          <div class="pg-sub">Rule violations and system notifications · Unresolved alerts require action</div>
+        </div>
+        <div class="pg-actions">
+          <button class="action-btn outline" onclick="dismissAll()">Dismiss All</button>
+        </div>
+      </div>
+
+      <div class="stat-row" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card red"><div class="sc-lbl">Critical</div><div class="sc-val" style="color:var(--red)" id="a-critical">1</div><div class="sc-sub down">Immediate action</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">Warnings</div><div class="sc-val" style="color:var(--orange)" id="a-warning">3</div><div class="sc-sub neutral">Monitor closely</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">Info</div><div class="sc-val" style="color:var(--blue)" id="a-info">2</div><div class="sc-sub neutral">No action needed</div></div>
+        <div class="stat-card green"><div class="sc-lbl">Resolved Today</div><div class="sc-val" style="color:var(--green)">5</div><div class="sc-sub up">All cleared</div></div>
+      </div>
+
+      <div class="chart-card" style="padding:0; overflow:hidden;">
+        <div style="padding:18px 20px; border-bottom:1px solid var(--navy-border);">
+          <span style="font-size:14px; font-weight:700;">Active Alerts</span>
+        </div>
+        <div id="alerts-list"></div>
+      </div>
+    </div>
+
+    <!-- ══ LEADERBOARD ═══════════════════════════════ -->
+    <div class="section" id="section-leaderboard">
+      <div class="pg-header">
+        <div>
+          <div class="pg-title">Trader Leaderboard</div>
+          <div class="pg-sub">Ranked by composite score: profit %, win rate, and consistency</div>
+        </div>
+        <div class="pg-actions">
+          <select onchange="sortLeaderboard(this.value)" style="padding:8px 14px; background:var(--navy-card); border:1px solid var(--navy-border); border-radius:8px; color:var(--white); font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; outline:none; appearance:none;">
+            <option value="score">Sort: Composite Score</option>
+            <option value="profit">Sort: Profit %</option>
+            <option value="winrate">Sort: Win Rate</option>
+            <option value="consistency">Sort: Consistency</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:24px;">
+        <div class="chart-card" style="text-align:center; border-color:var(--gold-border); background:var(--gold-dim);">
+          <div style="font-size:32px; margin-bottom:8px;">🥇</div>
+          <div style="font-size:16px; font-weight:700; margin-bottom:4px;" id="lb1-name">—</div>
+          <div style="font-size:13px; color:var(--muted); margin-bottom:12px;" id="lb1-detail">—</div>
+          <div style="font-family:'Outfit',sans-serif; font-size:28px; font-weight:800; color:var(--gold);" id="lb1-score">—</div>
+          <div style="font-size:11px; color:var(--muted);">Composite Score</div>
+        </div>
+        <div class="chart-card" style="text-align:center;">
+          <div style="font-size:32px; margin-bottom:8px;">🥈</div>
+          <div style="font-size:16px; font-weight:700; margin-bottom:4px;" id="lb2-name">—</div>
+          <div style="font-size:13px; color:var(--muted); margin-bottom:12px;" id="lb2-detail">—</div>
+          <div style="font-family:'Outfit',sans-serif; font-size:28px; font-weight:800; color:#94a3b8;" id="lb2-score">—</div>
+          <div style="font-size:11px; color:var(--muted);">Composite Score</div>
+        </div>
+        <div class="chart-card" style="text-align:center;">
+          <div style="font-size:32px; margin-bottom:8px;">🥉</div>
+          <div style="font-size:16px; font-weight:700; margin-bottom:4px;" id="lb3-name">—</div>
+          <div style="font-size:13px; color:var(--muted); margin-bottom:12px;" id="lb3-detail">—</div>
+          <div style="font-family:'Outfit',sans-serif; font-size:28px; font-weight:800; color:#cd7c54;" id="lb3-score">—</div>
+          <div style="font-size:11px; color:var(--muted);">Composite Score</div>
+        </div>
+      </div>
+
+      <div class="chart-card" style="padding:0; overflow:hidden;">
+        <div class="lb-row header">
+          <div>Rank</div><div>Trader</div><div>Profit %</div><div>Win Rate</div><div>Consistency</div><div>Drawdown</div><div>Score</div>
+        </div>
+        <div id="leaderboard-body"></div>
+      </div>
+    </div>
+
+    <!-- ══ RISK WARNINGS ═════════════════════════════ -->
+    <div class="section" id="section-risk">
+      <div class="pg-header">
+        <div>
+          <div class="pg-title">Risk Early Warning System</div>
+          <div class="pg-sub">Flags traders approaching limits before a violation occurs · Thresholds: Daily 70% · Drawdown 70% · Win Rate below 82%</div>
+        </div>
+      </div>
+
+      <div class="stat-row" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card red"><div class="sc-lbl">Critical (>90%)</div><div class="sc-val" style="color:var(--red)" id="rw-critical">2</div><div class="sc-sub down">Immediate risk</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">High (70–90%)</div><div class="sc-val" style="color:var(--orange)" id="rw-high">3</div><div class="sc-sub neutral">Monitor closely</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">Medium (50–70%)</div><div class="sc-val" style="color:var(--blue)" id="rw-medium">4</div><div class="sc-sub neutral">Within range</div></div>
+        <div class="stat-card green"><div class="sc-lbl">Safe (<50%)</div><div class="sc-val" style="color:var(--green)" id="rw-safe">3</div><div class="sc-sub up">No concern</div></div>
+      </div>
+
+      <div class="chart-card" style="padding:0; overflow:hidden; margin-bottom:20px;">
+        <div style="padding:18px 20px; border-bottom:1px solid var(--navy-border);">
+          <span style="font-size:14px; font-weight:700;">Daily Loss Exposure</span>
+          <span style="font-size:12px; color:var(--muted); margin-left:12px;">Limit: 5% of account balance</span>
+        </div>
+        <div class="risk-row header"><div>Trader</div><div>Used / Limit</div><div>Progress</div><div>Status</div></div>
+        <div id="daily-risk-rows"></div>
+      </div>
+
+      <div class="chart-card" style="padding:0; overflow:hidden; margin-bottom:20px;">
+        <div style="padding:18px 20px; border-bottom:1px solid var(--navy-border);">
+          <span style="font-size:14px; font-weight:700;">Total Drawdown Exposure</span>
+          <span style="font-size:12px; color:var(--muted); margin-left:12px;">Limit: 10% of starting balance</span>
+        </div>
+        <div class="risk-row header"><div>Trader</div><div>Used / Limit</div><div>Progress</div><div>Status</div></div>
+        <div id="dd-risk-rows"></div>
+      </div>
+
+      <div class="chart-card" style="padding:0; overflow:hidden;">
+        <div style="padding:18px 20px; border-bottom:1px solid var(--navy-border);">
+          <span style="font-size:14px; font-weight:700;">Win Rate Watch</span>
+          <span style="font-size:12px; color:var(--muted); margin-left:12px;">Minimum required: 80% · Warning below: 82%</span>
+        </div>
+        <div class="risk-row header"><div>Trader</div><div>Current Rate</div><div>Progress</div><div>Status</div></div>
+        <div id="wr-risk-rows"></div>
+      </div>
+    </div>
+
+    <!-- ══ PAYOUT CALCULATOR ═════════════════════════ -->
+    <div class="section" id="section-payouts">
+      <div class="pg-header">
+        <div>
+          <div class="pg-title">Payout Calculator</div>
+          <div class="pg-sub">Automated tracking of withdrawal thresholds · 70/30 profit split</div>
+        </div>
+        <div class="pg-actions">
+          <button class="action-btn outline" onclick="showToast('Payout report exported','success')">Export Report</button>
+        </div>
+      </div>
+
+      <div class="stat-row" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card green"><div class="sc-lbl">Ready for Payout</div><div class="sc-val" style="color:var(--green)">3</div><div class="sc-sub up">Threshold reached</div></div>
+        <div class="stat-card gold"><div class="sc-lbl">Total Trader Share</div><div class="sc-val" style="color:var(--gold)">$298.40</div><div class="sc-sub neutral">70% allocation</div></div>
+        <div class="stat-card blue"><div class="sc-lbl">Firm Share</div><div class="sc-val" style="color:var(--blue)">$127.89</div><div class="sc-sub neutral">30% allocation</div></div>
+        <div class="stat-card orange"><div class="sc-lbl">Total Firm P&L</div><div class="sc-val" style="color:var(--orange)">$426.29</div><div class="sc-sub up">All funded traders</div></div>
+      </div>
+
+      <div class="chart-card" style="padding:0; overflow:hidden;">
+        <div style="padding:18px 20px; border-bottom:1px solid var(--navy-border);">
+          <span style="font-size:14px; font-weight:700;">Funded Trader Payout Status</span>
+        </div>
+        <div class="payout-row header">
+          <div>Trader</div><div>Account</div><div>Balance</div><div>Threshold</div><div>Trader Gets (70%)</div><div>Action</div>
+        </div>
+        <div id="payout-rows"></div>
+      </div>
+    </div>
+
+    <!-- ══ WEEKLY REPORT ═════════════════════════════ -->
+    <div class="section" id="section-report">
+      <div class="pg-header">
+        <div>
+          <div class="pg-title">Weekly Performance Report</div>
+          <div class="pg-sub">Auto-generated · Week of 9 March – 15 March 2026</div>
+        </div>
+        <div class="pg-actions">
+          <button class="action-btn outline" onclick="showToast('Report downloaded as PDF','success')">Download PDF</button>
+          <button class="action-btn gold" onclick="showToast('Report emailed to Kelvin & Tatenda','success')">Email Report</button>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="report-section">
+        <div class="rs-title">Executive Summary</div>
+        <div class="report-grid">
+          <div class="rg-card"><div class="rg-label">Active Traders</div><div class="rg-val" style="color:var(--white)">12</div></div>
+          <div class="rg-card"><div class="rg-label">Total Trades This Week</div><div class="rg-val" style="color:var(--gold)">147</div></div>
+          <div class="rg-card"><div class="rg-label">Firm Gross Profit</div><div class="rg-val" style="color:var(--green)">+$86.40</div></div>
+          <div class="rg-card"><div class="rg-label">Average Win Rate</div><div class="rg-val" style="color:var(--blue)">83.2%</div></div>
+          <div class="rg-card"><div class="rg-label">Rule Violations</div><div class="rg-val" style="color:var(--red)">2</div></div>
+          <div class="rg-card"><div class="rg-label">Traders Paid Out</div><div class="rg-val" style="color:var(--green)">1</div></div>
+        </div>
+      </div>
+
+      <!-- Phase breakdown -->
+      <div class="report-section">
+        <div class="rs-title">Trader Phase Breakdown</div>
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="cc-header"><span class="cc-title">Traders by Phase</span></div>
+            <canvas id="phaseChart" height="120"></canvas>
+          </div>
+          <div class="chart-card">
+            <div class="cc-header"><span class="cc-title">Weekly P&L by Phase</span></div>
+            <canvas id="weeklyPnlChart" height="120"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top performers -->
+      <div class="report-section">
+        <div class="rs-title">Top Performers This Week</div>
+        <div id="top-performers"></div>
+      </div>
+
+      <!-- Alerts summary -->
+      <div class="report-section">
+        <div class="rs-title">Violations & Alerts This Week</div>
+        <div class="chart-card" style="padding:20px;">
+          <div style="display:flex; flex-direction:column; gap:12px;" id="weekly-alerts"></div>
+        </div>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="report-section">
+        <div class="rs-title">Automated Recommendations</div>
+        <div class="chart-card" style="padding:24px;">
+          <div style="display:flex; flex-direction:column; gap:14px;" id="recommendations"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main -->
+</div><!-- end body-wrap -->
+</div><!-- end shell -->
+
+<script>
+// ══ DATA ═══════════════════════════════════════════════
+
+const TRADERS = [
+  { initials:'TM', name:'Tafadzwa Moyo',    detail:'Deriv MT5',    phase:'Phase 1', account:50,  balance:53.20, pnlToday:+0.84, winRate:82, drawdown:1.8, consistency:88 },
+  { initials:'CM', name:'Chiedza Mhene',    detail:'Exness MT5',   phase:'Phase 1', account:50,  balance:52.40, pnlToday:+0.60, winRate:83, drawdown:2.1, consistency:85 },
+  { initials:'BM', name:'Brian Mutasa',     detail:'Weltrade MT5', phase:'Phase 1', account:50,  balance:48.80, pnlToday:-0.40, winRate:78, drawdown:2.4, consistency:72 },
+  { initials:'NZ', name:'Nyasha Zvobgo',    detail:'Deriv MT5',    phase:'Phase 1', account:50,  balance:54.60, pnlToday:+1.10, winRate:86, drawdown:1.2, consistency:91 },
+  { initials:'RM', name:'Rutendo Maposa',   detail:'Exness MT5',   phase:'Phase 2', account:100, balance:109.50,pnlToday:+1.80, winRate:84, drawdown:3.2, consistency:87 },
+  { initials:'KN', name:'Kudakwashe Ndoro', detail:'Deriv MT5',    phase:'Phase 2', account:100, balance:111.20,pnlToday:+2.10, winRate:85, drawdown:2.8, consistency:89 },
+  { initials:'FM', name:'Farai Manyika',    detail:'Weltrade MT4', phase:'Phase 2', account:100, balance:107.80,pnlToday:+0.90, winRate:81, drawdown:4.1, consistency:80 },
+  { initials:'SM', name:'Simba Makoni',     detail:'Deriv MT5',    phase:'Funded',  account:100, balance:224.50,pnlToday:+3.20, winRate:87, drawdown:4.8, consistency:92 },
+  { initials:'PN', name:'Plaxedes Ncube',   detail:'Exness MT5',   phase:'Funded',  account:100, balance:189.20,pnlToday:+2.40, winRate:86, drawdown:3.6, consistency:90 },
+  { initials:'AM', name:'Admire Mureza',    detail:'Deriv MT5',    phase:'Funded',  account:100, balance:303.10,pnlToday:+4.80, winRate:89, drawdown:5.2, consistency:94 },
+  { initials:'TG', name:'Tariro Gova',      detail:'Weltrade MT5', phase:'Funded',  account:100, balance:167.40,pnlToday:+1.60, winRate:83, drawdown:6.1, consistency:83 },
+  { initials:'DM', name:'Danai Mutemeri',   detail:'Exness MT5',   phase:'Funded',  account:100, balance:256.80,pnlToday:+3.90, winRate:88, drawdown:4.4, consistency:91 },
+];
+
+const ALERTS = [
+  { id:1, type:'critical', icon:'🚨', severity:'critical', title:'Rule Violation — Brian Mutasa', desc:'Win rate has dropped to 78%, below the 80% minimum requirement. Immediate review required. Trader is in Phase 1 Day 5 of 7.', trader:'Brian Mutasa', time:'Today, 09:14 AM', dismissed:false },
+  { id:2, type:'warning',  icon:'⚠️', severity:'warning',  title:'Approaching Daily Loss Limit — Tariro Gova', desc:'Daily loss is at $4.20 of $5.00 limit (84%). One bad trade could trigger disqualification. Trader has been active for 6 hours today.', trader:'Tariro Gova', time:'Today, 11:32 AM', dismissed:false },
+  { id:3, type:'warning',  icon:'⚠️', severity:'warning',  title:'Drawdown Warning — Farai Manyika', desc:'Total drawdown has reached 4.1% of 10% limit. While still within bounds, the rate of drawdown over the past 2 days is above average.', trader:'Farai Manyika', time:'Today, 10:05 AM', dismissed:false },
+  { id:4, type:'warning',  icon:'⚠️', severity:'warning',  title:'Win Rate Watch — Farai Manyika', desc:'Win rate has slipped to 81% — within requirement but trending downward. Last 4 trades: 2 wins, 2 losses. Monitor closely.', trader:'Farai Manyika', time:'Today, 08:50 AM', dismissed:false },
+  { id:5, type:'info',     icon:'💡', severity:'info',     title:'Phase 1 Complete — Nyasha Zvobgo', desc:'Nyasha has completed all 7 days of Phase 1 with 86% win rate and no rule violations. Eligible for Phase 2 after market reset week.', trader:'Nyasha Zvobgo', time:'Today, 07:00 AM', dismissed:false },
+  { id:6, type:'info',     icon:'💡', severity:'info',     title:'Withdrawal Threshold Reached — Admire Mureza', desc:'Admire has reached their Level 1 withdrawal threshold of $350. Payout of $175.00 (70%) is ready for processing.', trader:'Admire Mureza', time:'Yesterday, 16:22 PM', dismissed:false },
+];
+
+const FUNDED = [
+  { initials:'SM', name:'Simba Makoni',   account:100, balance:224.50, threshold:350, level:'L1' },
+  { initials:'PN', name:'Plaxedes Ncube', account:100, balance:189.20, threshold:350, level:'L1' },
+  { initials:'AM', name:'Admire Mureza',  account:100, balance:303.10, threshold:350, level:'L1' },
+  { initials:'TG', name:'Tariro Gova',    account:100, balance:167.40, threshold:350, level:'L1' },
+  { initials:'DM', name:'Danai Mutemeri', account:100, balance:256.80, threshold:350, level:'L1' },
+];
+
+// Composite score
+function score(t) { return Math.round((t.winRate * 0.4) + (t.consistency * 0.4) + (Math.min(t.balance / t.account * 10, 20))); }
+
+// ══ CLOCK ══════════════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-GB');
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ══ SECTION NAV ════════════════════════════════════════
+function showSection(id, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  if(el) el.classList.add('active');
+  const names = { monitor:'Live Monitor', alerts:'Alert Center', leaderboard:'Leaderboard', risk:'Risk Warnings', payouts:'Payout Calculator', report:'Weekly Report' };
+  document.getElementById('tb-section').textContent = names[id] || id;
+}
+
+// ══ RENDER TRADER TABLE ════════════════════════════════
+function renderTraderTable() {
+  document.getElementById('trader-table').innerHTML = TRADERS.map(t => {
+    const phaseColor = t.phase === 'Funded' ? 'var(--green)' : t.phase === 'Phase 2' ? 'var(--blue)' : 'var(--gold)';
+    const pnlColor = t.pnlToday >= 0 ? 'var(--green)' : 'var(--red)';
+    const wrColor = t.winRate >= 80 ? 'var(--green)' : 'var(--red)';
+    const ddColor = t.drawdown > 7 ? 'var(--red)' : t.drawdown > 5 ? 'var(--orange)' : 'var(--text)';
+    const statusColor = t.winRate < 80 ? 'var(--red)' : t.drawdown > 7 ? 'var(--orange)' : 'var(--green)';
+    const statusText = t.winRate < 80 ? '⚠️ Violation' : t.drawdown > 7 ? '⚠️ Warning' : '✅ Compliant';
+
+    const sparkBars = Array.from({length:7}, () => {
+      const h = Math.random() * 20 + 4;
+      const c = Math.random() > 0.25 ? 'var(--green)' : 'var(--red)';
+      return `<div class="spark-b" style="height:${h}px; background:${c};"></div>`;
+    }).join('');
+
+    return `<div class="trader-row">
+      <div class="tr-name"><div class="tr-avatar">${t.initials}</div><div class="tr-info"><div class="tr-n">${t.name}</div><div class="tr-d">${t.detail}</div></div></div>
+      <div><span style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:100px; background:${phaseColor}22; color:${phaseColor}; border:1px solid ${phaseColor}44;">${t.phase}</span></div>
+      <div class="tr-val">$${t.balance.toFixed(2)}</div>
+      <div class="tr-val" style="color:${pnlColor}">${t.pnlToday >= 0 ? '+' : ''}$${t.pnlToday.toFixed(2)}</div>
+      <div class="tr-val" style="color:${wrColor}">${t.winRate}%</div>
+      <div class="tr-val" style="color:${ddColor}">${t.drawdown}%</div>
+      <div class="sparkbar">${sparkBars}</div>
+      <div style="font-size:12px; font-weight:700; color:${statusColor}">${statusText}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══ MINI CHARTS ════════════════════════════════════════
+const miniChartObjs = {};
+
+function buildMiniCharts() {
+  const grid = document.getElementById('mini-charts-grid');
+  grid.innerHTML = TRADERS.slice(0, 6).map((t, i) => `
+    <div style="background:var(--navy); border:1px solid var(--navy-border); border-radius:12px; padding:14px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <div style="font-size:12px; font-weight:700;">${t.name.split(' ')[0]}</div>
+        <div style="font-family:'Outfit',sans-serif; font-size:13px; font-weight:700; color:${t.pnlToday >= 0 ? 'var(--green)' : 'var(--red)'}">
+          ${t.pnlToday >= 0 ? '+' : ''}$${t.pnlToday.toFixed(2)}
+        </div>
+      </div>
+      <canvas id="mini-${i}" height="50"></canvas>
+    </div>
+  `).join('');
+
+  TRADERS.slice(0, 6).forEach((t, i) => {
+    const pts = 20;
+    let v = t.account;
+    const data = [v];
+    for(let j = 0; j < pts; j++) {
+      v += (Math.random() > 0.3 ? 1 : -1) * Math.random() * 0.4;
+      data.push(parseFloat(v.toFixed(2)));
+    }
+    const color = t.pnlToday >= 0 ? '#22c55e' : '#ef4444';
+    if (miniChartObjs[i]) miniChartObjs[i].destroy();
+    miniChartObjs[i] = new Chart(document.getElementById(`mini-${i}`).getContext('2d'), {
+      type:'line',
+      data: { labels: data.map((_,j) => j), datasets: [{ data, borderColor:color, backgroundColor:color+'22', borderWidth:1.5, fill:true, tension:0.4, pointRadius:0 }] },
+      options: { responsive:true, maintainAspectRatio:true, plugins:{legend:{display:false}}, scales:{ x:{display:false}, y:{display:false} }, animation:false }
+    });
+  });
+}
+
+// ══ FIRM EQUITY CHART ══════════════════════════════════
+let firmChartObj = null;
+const firmEquityData = { labels:[], datasets:[{ data:[], borderColor:'var(--gold)', backgroundColor:'rgba(201,168,76,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:0 }] };
+
+function initFirmChart() {
+  let v = 1000;
+  for(let i = 0; i < 40; i++) {
+    v += (Math.random() > 0.28 ? 1 : -1) * Math.random() * 2.5;
+    firmEquityData.labels.push('');
+    firmEquityData.datasets[0].data.push(parseFloat(v.toFixed(2)));
+  }
+  firmChartObj = new Chart(document.getElementById('firmEquityChart').getContext('2d'), {
+    type:'line', data: firmEquityData,
+    options: {
+      responsive:true, maintainAspectRatio:true, animation:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b', font:{size:10}} },
+        y:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b', font:{size:10}} }
+      }
+    }
+  });
+}
+
+function tickFirmChart() {
+  const last = firmEquityData.datasets[0].data.slice(-1)[0];
+  const next = parseFloat((last + (Math.random() > 0.32 ? 1 : -1) * Math.random() * 1.8).toFixed(2));
+  firmEquityData.labels.push('');
+  firmEquityData.datasets[0].data.push(next);
+  if(firmEquityData.labels.length > 80) { firmEquityData.labels.shift(); firmEquityData.datasets[0].data.shift(); }
+  if(firmChartObj) firmChartObj.update('none');
+
+  // Also jitter individual trader PnL
+  TRADERS.forEach(t => {
+    t.pnlToday = parseFloat((t.pnlToday + (Math.random() > 0.45 ? 0.01 : -0.01) * Math.random() * 0.3).toFixed(2));
+    t.balance  = parseFloat((t.balance + (Math.random() > 0.45 ? 0.01 : -0.005) * Math.random() * 0.2).toFixed(2));
+  });
+
+  // Update firm P&L display
+  const totalPnl = TRADERS.reduce((s,t) => s + t.pnlToday, 0);
+  document.getElementById('firm-pnl').textContent = (totalPnl >= 0 ? '+' : '') + '$' + totalPnl.toFixed(2);
+  document.getElementById('firm-pnl-sub').textContent = (totalPnl >= 0 ? '+' : '') + (totalPnl / 1200 * 100).toFixed(1) + '% avg';
+
+  renderTraderTable();
+  updateRiskRows();
+}
+
+// ══ ALERTS ════════════════════════════════════════════
+function renderAlerts() {
+  const active = ALERTS.filter(a => !a.dismissed);
+  document.getElementById('alerts-list').innerHTML = active.length === 0
+    ? `<div style="padding:48px; text-align:center; color:var(--muted); font-size:14px;">🎉 No active alerts. All traders are compliant.</div>`
+    : active.map(a => `
+      <div class="alert-item ${a.type === 'critical' ? 'unread' : ''}">
+        <div class="ai-icon ${a.type}"><span>${a.icon}</span></div>
+        <div class="ai-body">
+          <div class="ai-title">${a.title} <span class="sev ${a.severity}" style="margin-left:8px;">${a.severity}</span></div>
+          <div class="ai-desc">${a.desc}</div>
+          <div class="ai-meta">
+            <span class="ai-time">🕐 ${a.time}</span>
+            <span class="ai-dismiss" onclick="dismissAlert(${a.id})">Dismiss →</span>
+          </div>
+        </div>
+      </div>`).join('');
+
+  const c = active.filter(a => a.severity==='critical').length;
+  const w = active.filter(a => a.severity==='warning').length;
+  const info = active.filter(a => a.severity==='info').length;
+  document.getElementById('a-critical').textContent = c;
+  document.getElementById('a-warning').textContent  = w;
+  document.getElementById('a-info').textContent     = info;
+  document.getElementById('bell-count').textContent = active.length;
+  document.getElementById('sb-alert-count').textContent = active.length;
+  if(active.length === 0) { document.getElementById('bell-count').style.display='none'; document.getElementById('sb-alert-count').style.display='none'; }
+}
+
+function dismissAlert(id) {
+  const a = ALERTS.find(x => x.id === id);
+  if(a) { a.dismissed = true; renderAlerts(); showToast(`Alert dismissed: ${a.trader}`, 'success'); }
+}
+
+function dismissAll() {
+  ALERTS.forEach(a => a.dismissed = true);
+  renderAlerts();
+  showToast('All alerts dismissed', 'success');
+}
+
+// ══ LEADERBOARD ════════════════════════════════════════
+let sortKey = 'score';
+
+function sortLeaderboard(key) { sortKey = key; renderLeaderboard(); }
+
+function renderLeaderboard() {
+  const sorted = [...TRADERS].sort((a,b) => {
+    if(sortKey === 'profit')      return (b.balance/b.account) - (a.balance/a.account);
+    if(sortKey === 'winrate')     return b.winRate - a.winRate;
+    if(sortKey === 'consistency') return b.consistency - a.consistency;
+    return score(b) - score(a);
+  });
+
+  // Top 3 podium
+  ['lb1','lb2','lb3'].forEach((id, i) => {
+    const t = sorted[i];
+    document.getElementById(`${id}-name`).textContent = t.name;
+    document.getElementById(`${id}-detail`).textContent = `${t.phase} · ${t.detail}`;
+    document.getElementById(`${id}-score`).textContent = score(t);
+  });
+
+  document.getElementById('leaderboard-body').innerHTML = sorted.map((t, i) => {
+    const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : '';
+    const rankEmoji = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1);
+    const profitPct = ((t.balance - t.account) / t.account * 100).toFixed(1);
+    return `<div class="lb-row">
+      <div class="lb-rank ${rankClass}">${rankEmoji}</div>
+      <div class="tr-name"><div class="tr-avatar">${t.initials}</div><div><div class="tr-n">${t.name}</div><div class="tr-d">${t.detail}</div></div></div>
+      <div class="tr-val ${parseFloat(profitPct) >= 0 ? 'green' : 'red'}">+${profitPct}%</div>
+      <div class="tr-val" style="color:${t.winRate >= 80 ? 'var(--green)' : 'var(--red)'}">${t.winRate}%</div>
+      <div class="tr-val gold">${t.consistency}%</div>
+      <div class="tr-val" style="color:${t.drawdown > 7 ? 'var(--red)' : 'var(--text)'}">${t.drawdown}%</div>
+      <div class="lb-score" style="color:var(--gold)">${score(t)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ══ RISK ROWS ══════════════════════════════════════════
+function riskStatusBadge(pct) {
+  if(pct >= 90) return `<span class="sev critical">Critical</span>`;
+  if(pct >= 70) return `<span class="sev warning">Warning</span>`;
+  if(pct >= 50) return `<span class="sev info">Medium</span>`;
+  return `<span class="sev resolved">Safe</span>`;
+}
+
+function riskBarColor(pct) {
+  return pct >= 90 ? 'var(--red)' : pct >= 70 ? 'var(--orange)' : pct >= 50 ? 'var(--blue)' : 'var(--green)';
+}
+
+function riskRow(t, used, limit, unit='$') {
+  const pct = Math.min((used / limit) * 100, 100);
+  const color = riskBarColor(pct);
+  return `<div class="risk-row">
+    <div class="tr-name"><div class="tr-avatar">${t.initials}</div><div><div class="tr-n">${t.name}</div><div class="tr-d">${t.phase}</div></div></div>
+    <div style="font-family:'Outfit',sans-serif; font-size:13px; font-weight:700;">${unit}${used.toFixed(2)} / ${unit}${limit.toFixed(2)}</div>
+    <div class="risk-progress-wrap">
+      <div class="risk-bar-track"><div class="risk-bar-fill" style="width:${pct.toFixed(0)}%; background:${color};"></div></div>
+      <div class="risk-pct" style="color:${color}">${pct.toFixed(0)}%</div>
+    </div>
+    ${riskStatusBadge(pct)}
+  </div>`;
+}
+
+function updateRiskRows() {
+  document.getElementById('daily-risk-rows').innerHTML = TRADERS.map(t => {
+    const dailyLimit = t.account * 0.05;
+    const dailyUsed = Math.abs(Math.min(t.pnlToday, 0)) + Math.random() * 0.5;
+    return riskRow(t, dailyUsed, dailyLimit);
+  }).join('');
+
+  document.getElementById('dd-risk-rows').innerHTML = TRADERS.map(t => {
+    return riskRow(t, t.drawdown, 10, '');
+  }).join('');
+
+  document.getElementById('wr-risk-rows').innerHTML = TRADERS.map(t => {
+    const pct = t.winRate;
+    const color = pct < 80 ? 'var(--red)' : pct < 82 ? 'var(--orange)' : 'var(--green)';
+    const status = pct < 80 ? `<span class="sev critical">Violation</span>` : pct < 82 ? `<span class="sev warning">Watch</span>` : `<span class="sev resolved">Safe</span>`;
+    return `<div class="risk-row">
+      <div class="tr-name"><div class="tr-avatar">${t.initials}</div><div><div class="tr-n">${t.name}</div><div class="tr-d">${t.phase}</div></div></div>
+      <div style="font-family:'Outfit',sans-serif; font-size:16px; font-weight:800; color:${color}">${t.winRate}%</div>
+      <div class="risk-progress-wrap">
+        <div class="risk-bar-track"><div class="risk-bar-fill" style="width:${t.winRate}%; background:${color};"></div></div>
+        <div class="risk-pct" style="color:${color}">${t.winRate}%</div>
+      </div>
+      ${status}
+    </div>`;
+  }).join('');
+}
+
+// ══ PAYOUTS ════════════════════════════════════════════
+function renderPayouts() {
+  document.getElementById('payout-rows').innerHTML = FUNDED.map(t => {
+    const profit = t.balance - t.account;
+    const traderShare = profit * 0.7;
+    const ready = t.balance >= t.threshold;
+    return `<div class="payout-row">
+      <div class="tr-name"><div class="tr-avatar">${t.initials}</div><div><div class="tr-n">${t.name}</div><div class="tr-d">${t.level} · $${t.threshold} threshold</div></div></div>
+      <div style="font-family:'Outfit',sans-serif; font-weight:700; font-size:15px;">$${t.account}</div>
+      <div style="font-family:'Outfit',sans-serif; font-weight:700; font-size:15px; color:var(--white)">$${t.balance.toFixed(2)}</div>
+      <div>
+        <div style="margin-bottom:4px; font-size:12px; color:var(--muted);">$${t.balance.toFixed(2)} / $${t.threshold}</div>
+        <div class="mini-progress" style="width:120px;"><div class="mini-fill" style="width:${Math.min(t.balance/t.threshold*100,100).toFixed(0)}%; background:${ready ? 'var(--green)' : 'var(--gold)'};"></div></div>
+      </div>
+      <div style="font-family:'Outfit',sans-serif; font-weight:800; font-size:16px; color:${ready ? 'var(--green)' : 'var(--text)'}">$${traderShare.toFixed(2)}</div>
+      <div>
+        <button class="payout-btn ${ready ? 'ready' : 'pending'}" onclick="${ready ? `processPayout('${t.name}', ${traderShare.toFixed(2)})` : ''}">
+          ${ready ? '✓ Process' : 'Not Ready'}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function processPayout(name, amount) {
+  showToast(`Payout of $${amount} initiated for ${name}`, 'success');
+}
+
+// ══ REPORT CHARTS ══════════════════════════════════════
+function buildReportCharts() {
+  new Chart(document.getElementById('phaseChart').getContext('2d'), {
+    type:'doughnut',
+    data:{ labels:['Phase 1','Phase 2','Funded'], datasets:[{ data:[4,3,5], backgroundColor:['#c9a84c','#3b82f6','#22c55e'], borderWidth:0 }] },
+    options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ display:true, position:'bottom', labels:{ color:'#cbd5e1', font:{size:11}, padding:12 } } }, cutout:'60%' }
+  });
+
+  new Chart(document.getElementById('weeklyPnlChart').getContext('2d'), {
+    type:'bar',
+    data:{
+      labels:['Mon','Tue','Wed','Thu','Fri'],
+      datasets:[
+        { label:'Phase 1', data:[2.1,1.8,2.4,1.6,2.8], backgroundColor:'rgba(201,168,76,0.7)', borderRadius:4 },
+        { label:'Phase 2', data:[4.2,3.8,5.1,3.4,4.9], backgroundColor:'rgba(59,130,246,0.7)', borderRadius:4 },
+        { label:'Funded', data:[8.4,7.2,9.8,6.8,10.2], backgroundColor:'rgba(34,197,94,0.7)', borderRadius:4 },
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{ display:true, position:'bottom', labels:{ color:'#cbd5e1', font:{size:11}, padding:12 } } },
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#64748b', font:{size:10}}, stacked:false },
+        y:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#64748b', font:{size:10}} }
+      }
+    }
+  });
+}
+
+function renderReport() {
+  const sorted = [...TRADERS].sort((a,b) => score(b) - score(a)).slice(0, 3);
+  document.getElementById('top-performers').innerHTML = sorted.map((t, i) => {
+    const profitPct = ((t.balance - t.account) / t.account * 100).toFixed(1);
+    return `<div style="display:flex; align-items:center; gap:16px; padding:16px; background:var(--navy); border:1px solid var(--navy-border); border-radius:12px; margin-bottom:10px;">
+      <div style="font-size:24px;">${i===0?'🥇':i===1?'🥈':'🥉'}</div>
+      <div class="tr-avatar">${t.initials}</div>
+      <div style="flex:1;"><div style="font-weight:700; font-size:14px;">${t.name}</div><div style="font-size:12px; color:var(--muted);">${t.phase} · ${t.detail}</div></div>
+      <div style="text-align:right;">
+        <div style="font-family:'Outfit',sans-serif; font-size:18px; font-weight:800; color:var(--green);">+${profitPct}%</div>
+        <div style="font-size:11px; color:var(--muted);">Win Rate: ${t.winRate}%</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('weekly-alerts').innerHTML = [
+    { icon:'🚨', color:'var(--red)',    text:'Brian Mutasa — Win rate violation (78%). Evaluation under review.' },
+    { icon:'⚠️', color:'var(--orange)', text:'Tariro Gova — Approached daily loss limit (84% used) on Wednesday.' },
+    { icon:'✅', color:'var(--green)',  text:'All 5 funded traders maintained drawdown below 6% this week.' },
+    { icon:'✅', color:'var(--green)',  text:'No stop-loss violations recorded across any trader this week.' },
+  ].map(a => `
+    <div style="display:flex; gap:12px; align-items:flex-start;">
+      <span style="font-size:18px;">${a.icon}</span>
+      <span style="font-size:14px; color:${a.color}; line-height:1.6;">${a.text}</span>
+    </div>`).join('');
+
+  document.getElementById('recommendations').innerHTML = [
+    { icon:'📈', text:'<strong>Scale Admire Mureza:</strong> Consistent 89% win rate with lowest drawdown among funded traders. Consider increasing account to Level 2 ($150).' },
+    { icon:'⚠️', text:'<strong>Review Brian Mutasa:</strong> Win rate has dropped to 78% in Phase 1. Consider scheduling a check-in call before his evaluation ends on Day 7.' },
+    { icon:'💡', text:'<strong>Nyasha Zvobgo is Phase 2 ready:</strong> Completed Phase 1 with 86% win rate and zero violations. Reset week begins today — Phase 2 starts Monday.' },
+    { icon:'💳', text:'<strong>Process Admire Mureza payout:</strong> Has reached the $350 withdrawal threshold. Trader share of $175.00 is ready for processing.' },
+  ].map(r => `
+    <div style="display:flex; gap:14px; align-items:flex-start; padding:14px; background:var(--navy); border-radius:10px; border:1px solid var(--navy-border);">
+      <span style="font-size:20px;">${r.icon}</span>
+      <span style="font-size:14px; color:var(--text); line-height:1.7;">${r.text}</span>
+    </div>`).join('');
+}
+
+// ══ TOAST ══════════════════════════════════════════════
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  const icons = { success:'✅', error:'❌', info:'💡', critical:'🚨', warning:'⚠️' };
+  t.innerHTML = `<span>${icons[type]||'💡'}</span> ${msg}`;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ══ RANDOM ALERT FIRES ═════════════════════════════════
+function fireRandomAlert() {
+  const msgs = [
+    { type:'warning',  msg:'Tariro Gova approaching daily loss limit — 87% used' },
+    { type:'info',     msg:'Kudakwashe Ndoro win rate improved to 86%' },
+    { type:'critical', msg:'Drawdown warning: Farai Manyika at 4.3%' },
+    { type:'info',     msg:'Rutendo Maposa placed a new trade — EUR/USD BUY' },
+  ];
+  const pick = msgs[Math.floor(Math.random() * msgs.length)];
+  showToast(pick.msg, pick.type);
+}
+
+// ══ INIT ═══════════════════════════════════════════════
+renderTraderTable();
+renderAlerts();
+renderLeaderboard();
+updateRiskRows();
+renderPayouts();
+renderReport();
+buildMiniCharts();
+initFirmChart();
+buildReportCharts();
+
+// Live ticks
+setInterval(tickFirmChart, 5000);
+setInterval(renderLeaderboard, 8000);
+setInterval(updateRiskRows, 6000);
+setInterval(() => { if(Math.random() > 0.6) fireRandomAlert(); }, 12000);
+</script>
+</body>
+</html>
