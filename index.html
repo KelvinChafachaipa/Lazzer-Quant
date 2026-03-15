@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lazzer Quant Trading Firm</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* ── HOME-SPECIFIC ── */
+
+/* Hero with chart background */
+.hero {
+  position: relative;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  padding: 80px 5%;
+  overflow: hidden;
+}
+
+/* Animated candlestick chart background */
+.chart-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.chart-bg canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.18;
+}
+
+/* Navy overlay on top of chart */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(6,13,26,0.97) 0%, rgba(6,13,26,0.80) 60%, rgba(6,13,26,0.50) 100%),
+    linear-gradient(180deg, rgba(6,13,26,0.3) 0%, rgba(6,13,26,0.5) 100%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  margin-bottom: 28px;
+}
+
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: blink 1.8s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.hero h1 { margin-bottom: 24px; }
+
+.hero h1 .gold { color: var(--gold); }
+
+.hero-cta-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 20px;
+}
+
+/* Differentiators */
+.diff-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
+
+@media (max-width: 1100px) { .diff-grid { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 600px) { .diff-grid { grid-template-columns: 1fr; } }
+
+.diff-card { display: flex; flex-direction: column; }
+.diff-icon {
+  width: 44px; height: 44px;
+  background: var(--gold-dim); border: 1px solid var(--gold-border);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 18px;
+}
+.diff-title { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+.diff-desc { font-size: 14px; color: var(--text); line-height: 1.65; }
+
+/* Process steps */
+.process-steps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  position: relative;
+}
+
+.process-step {
+  position: relative;
+  padding: 0 16px 0 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.process-step::after {
+  content: '→';
+  position: absolute;
+  right: -4px; top: 18px;
+  color: var(--gold);
+  font-size: 18px;
+}
+
+.process-step:last-child::after { display: none; }
+
+.step-num {
+  width: 40px; height: 40px;
+  background: var(--gold-dim);
+  border: 1.5px solid var(--gold-border);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700; font-size: 16px; color: var(--gold);
+  margin-bottom: 14px;
+}
+
+.step-num.done { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+
+.step-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+.step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.step-badge { margin-top: 10px; }
+
+/* Funding layout */
+.funding-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+
+.split-visual {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 16px; padding: 40px;
+  text-align: center;
+}
+
+.donut-wrap { width: 160px; height: 160px; margin: 0 auto 24px; position: relative; }
+.donut-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.donut-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.donut-pct { font-family: 'Outfit', sans-serif; font-size: 32px; font-weight: 800; color: var(--green); }
+.donut-lbl { font-size: 12px; color: var(--text-muted); }
+.split-legend { display: flex; justify-content: center; gap: 28px; margin-top: 20px; }
+.sl-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text); }
+.sl-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* Risk cards */
+.risk-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; }
+@media (max-width: 1100px) { .risk-grid { grid-template-columns: repeat(2,1fr); } }
+
+.risk-card {
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 14px; padding: 28px;
+  transition: border-color 0.25s;
+}
+.risk-card:hover { border-color: var(--gold-border); }
+.risk-icon { font-size: 24px; margin-bottom: 16px; }
+.risk-label { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; font-weight: 500; }
+.risk-value {
+  font-family: 'Outfit', sans-serif;
+  font-size: 32px; font-weight: 800;
+  color: var(--gold); line-height: 1;
+  margin-bottom: 10px;
+}
+.risk-desc { font-size: 13px; color: var(--text); line-height: 1.6; }
+
+/* CTA band */
+.cta-band {
+  margin: 0 5% 80px;
+  background: var(--navy-card);
+  border: 1px solid var(--navy-border);
+  border-radius: 20px;
+  padding: 72px 80px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.cta-band::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 100% at 50% 0%, rgba(201,168,76,0.05), transparent);
+  pointer-events: none;
+}
+.cta-band h2 { position: relative; }
+.cta-band p { position: relative; color: var(--text); font-size: 17px; margin: 16px 0 36px; max-width: 500px; margin-left: auto; margin-right: auto; }
+.cta-band .btn-group { position: relative; justify-content: center; }
+
+@media (max-width: 700px) { .cta-band { padding: 48px 28px; } }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- HEADER -->
+  <header>
+    <a href="index.html" class="header-logo">
+      <div class="logo-badge">LQ</div>
+      <span class="logo-name">Lazzer <span>Quant</span></span>
+    </a>
+    <nav>
+      <a href="index.html" class="active">Home</a>
+      <a href="about.html">About</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="rules.html">Trader Rules</a>
+      <a href="faq.html">FAQ</a>
+      <a href="contact.html">Contact</a>
+      <a href="apply.html" class="nav-apply">Apply Now</a>
+    </nav>
+  </header>
+
+  <!-- MAIN (scrollable) -->
+  <main>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="chart-bg">
+        <canvas id="chartCanvas"></canvas>
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">
+          <span class="live-dot"></span>
+          Proprietary Trading Firm &nbsp;·&nbsp; Harare, Zimbabwe
+        </div>
+        <h1>Trade with<br><span class="gold">Institutional</span><br>Discipline.</h1>
+        <p class="lead">Lazzer Quant funds traders who demonstrate precision, consistency, and risk control. No challenge fees. No shortcuts. Just proven skill.</p>
+        <div class="btn-group">
+          <a href="apply.html" class="btn btn-gold">Apply as a Trader →</a>
+          <a href="how-it-works.html" class="btn btn-outline">How It Works</a>
+        </div>
+        <p class="hero-cta-note">Free evaluation &nbsp;·&nbsp; 70% profit share &nbsp;·&nbsp; 28-day process</p>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row" style="margin: 0 5%;">
+      <div class="stat-box">
+        <div class="stat-num">70%</div>
+        <div class="stat-lbl">Trader Profit Share</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">$0</div>
+        <div class="stat-lbl">Challenge Fees</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">28</div>
+        <div class="stat-lbl">Day Evaluation Period</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">5</div>
+        <div class="stat-lbl">Asset Classes Available</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">3</div>
+        <div class="stat-lbl">Broker Platforms</div>
+      </div>
+    </div>
+
+    <!-- WHY LAZZER QUANT -->
+    <section class="section">
+      <span class="label">Why Lazzer Quant</span>
+      <h2>Built different.<br>On purpose.</h2>
+      <p class="lead">Most prop firms charge you to fail. We invest in traders who already know how to succeed.</p>
+      <div class="diff-grid">
+        <div class="card diff-card">
+          <div class="diff-icon">🚫</div>
+          <div class="diff-title">Zero Challenge Fees</div>
+          <div class="diff-desc">You do not pay to prove yourself. The entire evaluation is funded by the firm. No subscriptions, no hidden costs, no retry fees.</div>
+        </div>
+        <div class="card diff-card">
+          <div class="diff-icon">🎯</div>
+          <div class="diff-title">Interview-Based Screening</div>
+          <div class="diff-desc">Before the challenge begins, every applicant passes a human interview. We assess your mindset and strategy, not just your trading history.</div>
+        </div>
+        <div class="card diff-card">
+          <div class="diff-icon">⚖️</div>
+          <div class="diff-title">Discipline-First Evaluation</div>
+          <div class="diff-desc">We don't reward lucky profits. Phase 1 has no profit target — we measure how you manage risk and stay consistent under pressure.</div>
+        </div>
+        <div class="card diff-card">
+          <div class="diff-icon">📈</div>
+          <div class="diff-title">Multi-Phase Verification</div>
+          <div class="diff-desc">Our two-phase model with a reset week between verifies performance across different market conditions — not just one favorable week.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE PROCESS -->
+    <section class="section section-alt">
+      <span class="label">The Process</span>
+      <h2>From application<br>to funded.</h2>
+      <p class="lead" style="margin-bottom: 52px;">Five steps. Twenty-eight days. One funded account.</p>
+      <div class="process-steps">
+        <div class="process-step">
+          <div class="step-num">1</div>
+          <div class="step-title">Apply & Interview</div>
+          <div class="step-desc">Submit your application. Our COO reviews it and schedules a screening interview.</div>
+          <span class="pill step-badge">Screening</span>
+        </div>
+        <div class="process-step">
+          <div class="step-num">2</div>
+          <div class="step-title">Phase 1 Challenge</div>
+          <div class="step-desc">7-day challenge on a $50 demo. No profit target — discipline only.</div>
+          <span class="pill step-badge">7 Days</span>
+        </div>
+        <div class="process-step">
+          <div class="step-num">3</div>
+          <div class="step-title">Market Reset</div>
+          <div class="step-desc">A one-week pause between challenges to shift market conditions.</div>
+          <span class="pill step-badge">1 Week</span>
+        </div>
+        <div class="process-step">
+          <div class="step-num">4</div>
+          <div class="step-title">Phase 2 Confirmation</div>
+          <div class="step-desc">14-day challenge on a $100 demo. 15% profit target + all risk rules.</div>
+          <span class="pill step-badge">14 Days</span>
+        </div>
+        <div class="process-step">
+          <div class="step-num done">✓</div>
+          <div class="step-title">Get Funded</div>
+          <div class="step-desc">Receive your funded live account and start earning 70% of profits.</div>
+          <span class="pill step-badge" style="background: rgba(34,197,94,0.1); color: var(--green); border-color: rgba(34,197,94,0.2);">Funded</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FUNDED TRADER MODEL -->
+    <section class="section">
+      <span class="label">Funded Trader Model</span>
+      <h2>Your account<br>grows with you.</h2>
+      <p class="lead">Every time you hit a withdrawal threshold, your account size increases and the next threshold grows by 25%.</p>
+      <div class="funding-layout">
+        <div class="table-wrap">
+          <table class="fund-table">
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Account Size</th>
+                <th>Withdrawal Threshold</th>
+                <th>Increase</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Level 1</td><td class="f-account">$50</td><td class="f-threshold">$350</td><td class="f-increase">—</td></tr>
+              <tr><td>Level 2</td><td class="f-account">$100</td><td class="f-threshold">$440</td><td class="f-increase">+25%</td></tr>
+              <tr><td>Level 3</td><td class="f-account">$150</td><td class="f-threshold">$550</td><td class="f-increase">+25%</td></tr>
+              <tr><td>Level 4</td><td class="f-account">$200</td><td class="f-threshold">$688</td><td class="f-increase">+25%</td></tr>
+              <tr><td>Level 5</td><td class="f-account">$250</td><td class="f-threshold">$860</td><td class="f-increase">+25%</td></tr>
+              <tr><td>Level 6+</td><td class="f-account">↑ +$50</td><td class="f-threshold">↑ +25%</td><td class="f-increase">Unlimited</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="split-visual">
+          <h3 style="margin-bottom: 24px;">Profit Split</h3>
+          <div class="donut-wrap">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="14"/>
+              <circle cx="50" cy="50" r="38" fill="none" stroke="var(--green)" stroke-width="14" stroke-dasharray="167 239" stroke-linecap="butt"/>
+              <circle cx="50" cy="50" r="38" fill="none" stroke="var(--gold)" stroke-width="14" stroke-dasharray="72 239" stroke-dashoffset="-167" stroke-linecap="butt"/>
+            </svg>
+            <div class="donut-center">
+              <div class="donut-pct">70%</div>
+              <div class="donut-lbl">Yours</div>
+            </div>
+          </div>
+          <p style="font-size: 15px; color: var(--text); line-height: 1.7; margin-bottom: 20px;">You keep <strong style="color: var(--white);">70% of every dollar</strong> you generate. Lazzer Quant retains 30% to support operations and capital growth.</p>
+          <div class="split-legend">
+            <div class="sl-item"><span class="sl-dot" style="background: var(--green);"></span>70% Trader</div>
+            <div class="sl-item"><span class="sl-dot" style="background: var(--gold);"></span>30% Firm</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MARKETS -->
+    <section class="section section-alt">
+      <span class="label">Available Markets</span>
+      <h2>Trade what<br>you know best.</h2>
+      <p class="lead" style="margin-bottom: 48px;">Access five asset classes across professional broker platforms.</p>
+      <div class="market-grid">
+        <div class="market-card">
+          <span class="market-icon">💱</span>
+          <div class="market-name">Forex</div>
+          <div class="market-sub">Major, minor & exotic pairs</div>
+        </div>
+        <div class="market-card">
+          <span class="market-icon">📊</span>
+          <div class="market-name">Indices</div>
+          <div class="market-sub">US500, NAS100, UK100</div>
+        </div>
+        <div class="market-card">
+          <span class="market-icon">₿</span>
+          <div class="market-name">Crypto</div>
+          <div class="market-sub">BTC, ETH & majors</div>
+        </div>
+        <div class="market-card">
+          <span class="market-icon">🥇</span>
+          <div class="market-name">Commodities</div>
+          <div class="market-sub">Gold, Oil & more</div>
+        </div>
+        <div class="market-card">
+          <span class="market-icon">🤖</span>
+          <div class="market-name">Synthetics</div>
+          <div class="market-sub">Deriv Volatility Indices</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RISK MANAGEMENT -->
+    <section class="section">
+      <span class="label">Risk Management</span>
+      <h2>Rules that<br>protect capital.</h2>
+      <p class="lead" style="margin-bottom: 48px;">Every rule exists to ensure funded capital is managed responsibly and sustainably.</p>
+      <div class="risk-grid">
+        <div class="risk-card">
+          <div class="risk-icon">🛡️</div>
+          <div class="risk-label">Max Risk Per Trade</div>
+          <div class="risk-value">3%</div>
+          <div class="risk-desc">No single trade may risk more than 3% of your account balance. Stop loss is mandatory on every trade.</div>
+        </div>
+        <div class="risk-card">
+          <div class="risk-icon">📉</div>
+          <div class="risk-label">Daily Loss Limit</div>
+          <div class="risk-value">5%</div>
+          <div class="risk-desc">If losses exceed 5% of account balance in a single trading day, the evaluation ends immediately.</div>
+        </div>
+        <div class="risk-card">
+          <div class="risk-icon">⚠️</div>
+          <div class="risk-label">Total Drawdown Limit</div>
+          <div class="risk-value">10%</div>
+          <div class="risk-desc">Maximum total drawdown from starting balance is 10%. Exceeding this at any point is a disqualification.</div>
+        </div>
+        <div class="risk-card">
+          <div class="risk-icon">🎯</div>
+          <div class="risk-label">Win Rate Requirement</div>
+          <div class="risk-value">80%</div>
+          <div class="risk-desc">Minimum 80% accuracy across all trades taken during the evaluation. Quality over quantity.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA BAND -->
+    <div class="cta-band">
+      <span class="label">Ready?</span>
+      <h2>Stop trading for others.<br>Start building your future.</h2>
+      <p>Applications are reviewed personally by our COO. Zero fees. Zero shortcuts.</p>
+      <div class="btn-group">
+        <a href="apply.html" class="btn btn-gold">Apply Now — It's Free</a>
+        <a href="rules.html" class="btn btn-outline">Read Full Rules</a>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-left">© 2026 Lazzer Quant Trading Firm · Harare, Zimbabwe</div>
+    <div class="footer-center">
+      <a href="about.html">About</a>
+      <a href="how-it-works.html">How It Works</a>
+      <a href="rules.html">Rules</a>
+      <a href="apply.html">Apply</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <div class="footer-right">Discipline · Precision · Consistency</div>
+  </footer>
+
+</div>
+
+<script>
+// Animated candlestick chart on canvas
+const canvas = document.getElementById('chartCanvas');
+const ctx = canvas.getContext('2d');
+
+function resize() {
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+}
+resize();
+window.addEventListener('resize', () => { resize(); drawChart(); });
+
+function randomCandle(prevClose, volatility = 0.012) {
+  const open = prevClose * (1 + (Math.random() - 0.5) * volatility * 0.4);
+  const close = open * (1 + (Math.random() - 0.48) * volatility);
+  const high = Math.max(open, close) * (1 + Math.random() * volatility * 0.6);
+  const low = Math.min(open, close) * (1 - Math.random() * volatility * 0.6);
+  return { open, close, high, low };
+}
+
+let candles = [];
+let basePrice = 1000;
+for (let i = 0; i < 120; i++) {
+  const c = randomCandle(basePrice, 0.018);
+  candles.push(c);
+  basePrice = c.close;
+}
+
+let offset = 0;
+
+function drawChart() {
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const visible = candles.slice(offset, offset + 70);
+  if (visible.length < 2) return;
+
+  const prices = visible.flatMap(c => [c.high, c.low]);
+  const minP = Math.min(...prices);
+  const maxP = Math.max(...prices);
+  const range = maxP - minP || 1;
+
+  const pad = { top: 20, bottom: 30, left: 0, right: 0 };
+  const chartH = H - pad.top - pad.bottom;
+  const candleW = Math.floor((W) / visible.length);
+  const gap = Math.max(1, Math.floor(candleW * 0.2));
+  const bodyW = candleW - gap * 2;
+
+  function yOf(price) {
+    return pad.top + chartH - ((price - minP) / range) * chartH;
+  }
+
+  // Draw moving average line
+  const maLen = 10;
+  ctx.beginPath();
+  ctx.strokeStyle = 'rgba(201,168,76,0.6)';
+  ctx.lineWidth = 1.5;
+  for (let i = maLen; i < visible.length; i++) {
+    const avg = visible.slice(i - maLen, i).reduce((s, c) => s + (c.open + c.close) / 2, 0) / maLen;
+    const x = i * candleW + candleW / 2;
+    const y = yOf(avg);
+    i === maLen ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Draw candles
+  visible.forEach((c, i) => {
+    const x = i * candleW;
+    const isUp = c.close >= c.open;
+    const color = isUp ? '#22c55e' : '#ef4444';
+
+    const highY = yOf(c.high);
+    const lowY = yOf(c.low);
+    const openY = yOf(c.open);
+    const closeY = yOf(c.close);
+
+    // Wick
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.moveTo(x + candleW / 2, highY);
+    ctx.lineTo(x + candleW / 2, lowY);
+    ctx.stroke();
+
+    // Body
+    const bodyTop = Math.min(openY, closeY);
+    const bodyH = Math.max(Math.abs(closeY - openY), 1);
+    ctx.fillStyle = color;
+    ctx.fillRect(x + gap, bodyTop, bodyW, bodyH);
+  });
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 6; i++) {
+    const y = pad.top + (chartH / 5) * i;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y);
+    ctx.stroke();
+  }
+}
+
+drawChart();
+
+// Slowly scroll the chart
+setInterval(() => {
+  offset++;
+  if (offset > candles.length - 70) {
+    // Add a new candle
+    const last = candles[candles.length - 1].close;
+    candles.push(randomCandle(last, 0.018));
+    if (candles.length > 300) candles.shift();
+  }
+  drawChart();
+}, 600);
+</script>
+</body>
+</html>

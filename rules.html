@@ -1,0 +1,188 @@
+<!-- RULES PAGE -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trader Rules — Lazzer Quant Trading Firm</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="shell">
+  <header>
+    <a href="index.html" class="header-logo"><div class="logo-badge">LQ</div><span class="logo-name">Lazzer <span>Quant</span></span></a>
+    <nav>
+      <a href="index.html">Home</a><a href="about.html">About</a><a href="how-it-works.html">How It Works</a>
+      <a href="rules.html" class="active">Trader Rules</a><a href="faq.html">FAQ</a><a href="contact.html">Contact</a>
+      <a href="apply.html" class="nav-apply">Apply Now</a>
+    </nav>
+  </header>
+  <main>
+    <div class="page-hero">
+      <span class="label">Trader Rules</span>
+      <h1>Evaluation rules.<br>No grey areas.</h1>
+      <p class="lead">Every rule at Lazzer Quant exists to protect capital and ensure the evaluation measures genuine skill — not luck, automation, or shortcuts.</p>
+    </div>
+    <section class="section">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('phase1', this)">Phase 1 Rules</button>
+        <button class="tab-btn" onclick="switchTab('phase2', this)">Phase 2 Rules</button>
+        <button class="tab-btn" onclick="switchTab('risk', this)">Risk Management</button>
+        <button class="tab-btn" onclick="switchTab('disq', this)">Disqualification</button>
+      </div>
+
+      <div class="tab-pane active" id="tab-phase1">
+        <div class="grid-2">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Rule</th><th>Requirement</th></tr></thead>
+              <tbody>
+                <tr><td>Account Size</td><td class="val">$50 Demo</td></tr>
+                <tr><td>Duration</td><td class="val">7 Calendar Days</td></tr>
+                <tr><td>Profit Target</td><td><span class="pill">None</span></td></tr>
+                <tr><td>Win Rate Required</td><td class="val-green">80% Minimum</td></tr>
+                <tr><td>Trades Per Week</td><td class="val">7 — 12</td></tr>
+                <tr><td>Min Trading Days</td><td class="val">5 of 7 Days</td></tr>
+                <tr><td>Max Risk Per Trade</td><td class="val-red">3% ($1.50)</td></tr>
+                <tr><td>Max Daily Loss</td><td class="val-red">5% ($2.50)</td></tr>
+                <tr><td>Max Total Drawdown</td><td class="val-red">10% ($5.00)</td></tr>
+                <tr><td>Stop Loss</td><td class="val-red">Mandatory — Every Trade</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h3>Phase 1 Overview</h3>
+            <p class="body">Phase 1 is about discipline — not profits. We want to see that you can follow rules, manage risk, and trade consistently over a full week without blowing limits.</p>
+            <p class="body">The 80% win rate across a minimum of 7 trades ensures we have a meaningful sample of your decision-making — not just one or two lucky trades.</p>
+            <div style="background: var(--gold-dim); border: 1px solid var(--gold-border); border-radius: 14px; padding: 24px; margin-top: 24px;">
+              <div style="font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 10px;">💡 Phase 1 Tip</div>
+              <p style="font-size: 14px; color: var(--text); line-height: 1.7; margin: 0;">Do not try to make impressive profits. A trader who makes 6% cleanly with no violations beats a trader who makes 25% with one risk breach — every single time.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="tab-phase2">
+        <div class="grid-2">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Rule</th><th>Requirement</th></tr></thead>
+              <tbody>
+                <tr><td>Account Size</td><td class="val">$100 Demo</td></tr>
+                <tr><td>Duration</td><td class="val">14 Calendar Days</td></tr>
+                <tr><td>Profit Target</td><td class="val-green">15% ($15.00)</td></tr>
+                <tr><td>Win Rate Required</td><td class="val-green">80% Minimum</td></tr>
+                <tr><td>Trades Per Week</td><td class="val">7 — 12</td></tr>
+                <tr><td>Min Trading Days</td><td class="val">10 of 14 Days</td></tr>
+                <tr><td>Max Risk Per Trade</td><td class="val-red">3% ($3.00)</td></tr>
+                <tr><td>Max Daily Loss</td><td class="val-red">5% ($5.00)</td></tr>
+                <tr><td>Max Total Drawdown</td><td class="val-red">10% ($10.00)</td></tr>
+                <tr><td>Stop Loss</td><td class="val-red">Mandatory — Every Trade</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h3>Phase 2 Overview</h3>
+            <p class="body">Phase 2 confirms that Phase 1 was not a lucky week. A double-length challenge with a profit target ensures we see your true performance across different market conditions.</p>
+            <p class="body">Phase 2 is unannounced. You will be given your Phase 2 challenge immediately after the reset week. Any resistance or hesitation is itself a disqualification signal — real traders welcome scrutiny.</p>
+            <div style="background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 14px; padding: 24px; margin-top: 24px;">
+              <div style="font-size: 13px; font-weight: 700; color: var(--red); margin-bottom: 10px;">⚠️ Important</div>
+              <p style="font-size: 14px; color: var(--text); line-height: 1.7; margin: 0;">Refusing or delaying Phase 2 without a valid documented reason results in automatic disqualification from the evaluation program.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="tab-risk">
+        <p class="body" style="max-width: 600px; margin-bottom: 36px;">These rules apply across both Phase 1 and Phase 2. Violating any single rule results in immediate disqualification regardless of overall performance.</p>
+        <div class="grid-2">
+          <div class="card">
+            <div class="risk-icon" style="font-size: 24px; margin-bottom: 14px;">🛡️</div>
+            <h3>Max Risk Per Trade: 3%</h3>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; font-family: 'Outfit', sans-serif;">Phase 1: $1.50 &nbsp;·&nbsp; Phase 2: $3.00</div>
+            <p class="body" style="margin: 0;">No trade may risk more than 3% of your current account balance. This is measured by your stop loss placement at the time of trade entry. A stop loss is mandatory on every single trade.</p>
+          </div>
+          <div class="card">
+            <div style="font-size: 24px; margin-bottom: 14px;">📉</div>
+            <h3>Max Daily Loss: 5%</h3>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; font-family: 'Outfit', sans-serif;">Phase 1: $2.50 &nbsp;·&nbsp; Phase 2: $5.00</div>
+            <p class="body" style="margin: 0;">If total losses for the day reach 5% of starting balance, you must stop trading for that day. Continuing beyond this limit is an automatic violation and terminates the evaluation.</p>
+          </div>
+          <div class="card">
+            <div style="font-size: 24px; margin-bottom: 14px;">⚠️</div>
+            <h3>Max Total Drawdown: 10%</h3>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; font-family: 'Outfit', sans-serif;">Phase 1: $5.00 &nbsp;·&nbsp; Phase 2: $10.00</div>
+            <p class="body" style="margin: 0;">If your account drawdown from the starting balance reaches 10% at any point during the challenge, the evaluation ends immediately and permanently for that cycle.</p>
+          </div>
+          <div class="card">
+            <div style="font-size: 24px; margin-bottom: 14px;">🎯</div>
+            <h3>Stop Loss: Mandatory</h3>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px; font-family: 'Outfit', sans-serif;">Required on every trade, no exceptions</div>
+            <p class="body" style="margin: 0;">Every trade must have a stop loss placed at the time of opening. Trading without a stop loss is the most fundamental violation and results in instant disqualification with no appeal.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="tab-disq">
+        <p class="body" style="max-width: 600px; margin-bottom: 36px;">The following result in immediate, permanent disqualification. There are no warnings for risk violations.</p>
+        <div class="grid-2">
+          <div>
+            <h4>Risk Violations</h4>
+            <div class="table-wrap" style="margin-bottom: 32px;">
+              <div style="padding: 8px 20px 4px;">
+                <div class="disq-row"><div class="disq-dot"></div><div>Exceeding maximum risk per trade (3% of account balance)</div></div>
+                <div class="disq-row"><div class="disq-dot"></div><div>Daily loss exceeding 5% of account balance</div></div>
+                <div class="disq-row"><div class="disq-dot"></div><div>Total drawdown exceeding 10% of starting balance</div></div>
+                <div class="disq-row"><div class="disq-dot"></div><div>Any trade placed without a stop loss</div></div>
+              </div>
+            </div>
+            <h4>Performance Failures</h4>
+            <div class="table-wrap">
+              <div style="padding: 8px 20px 4px;">
+                <div class="disq-row"><div class="disq-dot"></div><div>Win rate falling below 80% at end of evaluation</div></div>
+                <div class="disq-row"><div class="disq-dot"></div><div>Fewer than minimum active trading days recorded</div></div>
+                <div class="disq-row"><div class="disq-dot"></div><div>More than 12 trades placed in any single week</div></div>
+                <div class="disq-row"><div class="disq-dot"></div><div>Phase 2: Failure to reach 15% profit target by Day 14</div></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4>Behaviour Violations</h4>
+            <div class="table-wrap" style="margin-bottom: 32px;">
+              <div style="padding: 8px 20px 4px;">
+                <div class="disq-row"><div class="disq-dot"></div><div>Use of trading bots, expert advisors (EAs), or automated systems</div></div>
+                <div class="disq-row"><div class="disq-dot"></div><div>Copy trading from external signals, groups, or other accounts</div></div>
+                <div class="disq-row"><div class="disq-dot"></div><div>Account manipulation, trade mirroring, or exploiting platform loopholes</div></div>
+                <div class="disq-row"><div class="disq-dot"></div><div>Coordinated trading across multiple accounts</div></div>
+              </div>
+            </div>
+            <h4>Integrity Violations</h4>
+            <div class="table-wrap">
+              <div style="padding: 8px 20px 4px;">
+                <div class="disq-row"><div class="disq-dot"></div><div>Refusing or delaying Phase 2 without valid documented reason</div></div>
+                <div class="disq-row"><div class="disq-dot"></div><div>Providing false information during application or interview</div></div>
+                <div class="disq-row"><div class="disq-dot"></div><div>Intentionally delaying or disrupting the evaluation process</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+  <footer>
+    <div class="footer-left">© 2026 Lazzer Quant Trading Firm · Harare, Zimbabwe</div>
+    <div class="footer-center"><a href="about.html">About</a><a href="how-it-works.html">How It Works</a><a href="rules.html">Rules</a><a href="apply.html">Apply</a><a href="contact.html">Contact</a></div>
+    <div class="footer-right">Discipline · Precision · Consistency</div>
+  </footer>
+</div>
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
