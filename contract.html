@@ -159,7 +159,7 @@ footer{height:56px;background:var(--navy-mid);border-top:1px solid var(--navy-bo
     <div class="info-grid">
       <div class="info-box"><div class="ib-label">Trader</div><div class="ib-val" id="contract-trader-name">Demo Trader</div></div>
       <div class="info-box"><div class="ib-label">Registration Code</div><div class="ib-val" style="font-family:'Outfit',sans-serif;color:var(--gold);letter-spacing:2px;" id="contract-code">R18204</div></div>
-      <div class="info-box"><div class="ib-label">Account Level</div><div class="ib-val">Level 1 — $100 Live Account</div></div>
+      <div class="info-box"><div class="ib-label">Account Level</div><div class="ib-val">Level 1 — $50 Live Account</div></div>
       <div class="info-box"><div class="ib-label">Profit Split</div><div class="ib-val" style="color:var(--green);">70% Trader / 30% Firm</div></div>
     </div>
 
@@ -219,9 +219,9 @@ footer{height:56px;background:var(--navy-mid);border-top:1px solid var(--navy-bo
           <div class="clause-title">Account Scaling</div>
           <div class="clause-body">Upon successful completion of each withdrawal threshold, the Trader's account will be upgraded to the next level with increased capital allocation. Each level increase is subject to continued compliance with all risk management rules and performance standards. The Firm retains the right to pause scaling at its discretion based on performance review.</div>
           <div class="highlight-box">
-            Level 1: $100 account · $600 threshold<br>
-            Level 2: $150 account · $750 threshold (+25%)<br>
-            Level 3: $200 account · $938 threshold (+25%)<br>
+            Level 1: $50 account · $600 threshold<br>
+            Level 2: $100 account · $750 threshold (+25%)<br>
+            Level 3: $150 account · $938 threshold (+25%)<br>
             Each subsequent level: +$50 account · +25% threshold
           </div>
         </div>
@@ -317,15 +317,27 @@ footer{height:56px;background:var(--navy-mid);border-top:1px solid var(--navy-bo
 
     <div class="sig-wrap">
       <div class="sig-header">
-        <span class="sig-title">Your Digital Signature</span>
-        <button class="sig-clear" onclick="clearSig()">Clear</button>
+        <span class="sig-title">Digital Signature — Full Legal Name</span>
       </div>
-      <canvas id="sig-canvas"></canvas>
-      <div class="sig-hint">Draw your signature above. Use your mouse (click + drag) or touch screen (tap + drag).</div>
+      <div style="padding:24px 20px;">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.6;">
+          Type your <strong style="color:var(--white);">full legal name</strong> exactly as it appears on your national ID or passport. This constitutes your legally binding digital signature.
+        </div>
+        <input type="text" id="sig-name-input" placeholder="e.g. Simba Takudzwa Makoni"
+          style="width:100%;padding:16px 18px;background:rgba(255,255,255,0.04);border:1.5px solid var(--navy-border);border-radius:10px;color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:600;outline:none;transition:border-color 0.2s;letter-spacing:0.5px;"
+          onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--navy-border)'"
+          oninput="validateSigName(this.value)">
+        <div style="margin-top:10px;display:flex;align-items:center;gap:8px;" id="sig-name-feedback">
+          <span style="font-size:12px;color:var(--muted);">Enter your full name to proceed</span>
+        </div>
+      </div>
+      <div style="padding:0 20px 16px;font-size:12px;color:var(--muted);">
+        ✍️ By typing your name above you are providing a legally valid digital signature under the terms of this Agreement.
+      </div>
     </div>
 
     <div style="padding:16px 20px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:12px;font-size:13px;color:var(--text);line-height:1.7;margin-bottom:24px;">
-      By submitting this signature, I <strong style="color:var(--white);" id="final-name">Demo Trader</strong> confirm that I have read, understood, and agree to be bound by all terms of the Lazzer Quant Funded Trader Agreement dated <strong style="color:var(--gold);" id="final-date">—</strong>.
+      By typing my full legal name above, I <strong style="color:var(--white);" id="final-name">Demo Trader</strong> confirm that I have read, understood, and agree to be bound by all terms of the Lazzer Quant Funded Trader Agreement dated <strong style="color:var(--gold);" id="final-date">—</strong>.
     </div>
 
     <div class="btn-row">
@@ -364,8 +376,6 @@ footer{height:56px;background:var(--navy-mid);border-top:1px solid var(--navy-bo
 
 <script>
 let scrollPercent = 0;
-let sigDrawing = false;
-let sigHasContent = false;
 let currentStep = 1;
 
 // Init
@@ -423,47 +433,46 @@ function toggleCheck(row) {
   document.getElementById('btn-step2').disabled = !allChecked;
 }
 
-// ── SIGNATURE PAD ──
-const canvas = document.getElementById('sig-canvas');
-const ctx = canvas.getContext('2d');
+// ── SIGNATURE: NAME INPUT ──
+let sigNameValid = false;
 
-function resizeCanvas() {
-  const ratio = window.devicePixelRatio || 1;
-  canvas.width = canvas.offsetWidth * ratio;
-  canvas.height = canvas.offsetHeight * ratio;
-  ctx.scale(ratio, ratio);
-  ctx.strokeStyle = '#c9a84c';
-  ctx.lineWidth = 2.5;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
+function validateSigName(val) {
+  const input = document.getElementById('sig-name-input');
+  const feedback = document.getElementById('sig-name-feedback');
+  const trimmed = val.trim();
+  // Must have at least 2 words (first + last name)
+  const words = trimmed.split(/\s+/).filter(w => w.length > 0);
+  const valid = words.length >= 2 && trimmed.length >= 5;
+  sigNameValid = valid;
+
+  if (!trimmed) {
+    feedback.innerHTML = '<span style="font-size:12px;color:var(--muted);">Enter your full name to proceed</span>';
+    input.style.borderColor = 'var(--navy-border)';
+  } else if (!valid) {
+    feedback.innerHTML = '<span style="font-size:12px;color:var(--orange);">⚠️ Please enter your full name (first and last name)</span>';
+    input.style.borderColor = 'var(--orange)';
+  } else {
+    feedback.innerHTML = `<span style="font-size:12px;color:var(--green);">✅ Valid — signing as <strong>${trimmed}</strong></span>`;
+    input.style.borderColor = 'var(--green)';
+    // Update the confirmation text
+    document.getElementById('final-name').textContent = trimmed;
+  }
 }
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-
-function getPos(e) {
-  const r = canvas.getBoundingClientRect();
-  const pt = e.touches ? e.touches[0] : e;
-  return { x: pt.clientX - r.left, y: pt.clientY - r.top };
-}
-
-canvas.addEventListener('mousedown',  e => { sigDrawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
-canvas.addEventListener('mousemove',  e => { if(!sigDrawing) return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); sigHasContent=true; });
-canvas.addEventListener('mouseup',    () => sigDrawing=false);
-canvas.addEventListener('mouseleave', () => sigDrawing=false);
-canvas.addEventListener('touchstart', e => { e.preventDefault(); sigDrawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }, {passive:false});
-canvas.addEventListener('touchmove',  e => { e.preventDefault(); if(!sigDrawing) return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); sigHasContent=true; }, {passive:false});
-canvas.addEventListener('touchend',   () => sigDrawing=false);
-
-function clearSig() { ctx.clearRect(0,0,canvas.width,canvas.height); sigHasContent=false; }
 
 // ── SUBMIT ──
 function submitSignature() {
-  if (!sigHasContent) { showToast('Please draw your signature before submitting','error'); return; }
+  const nameInput = document.getElementById('sig-name-input').value.trim();
 
-  const name = document.getElementById('sign-name').textContent;
+  if (!nameInput || !sigNameValid) {
+    showToast('Please enter your full legal name to sign','error');
+    document.getElementById('sig-name-input').style.borderColor = 'var(--red)';
+    document.getElementById('sig-name-input').focus();
+    return;
+  }
+
   const code = document.getElementById('contract-code').textContent;
 
-  document.getElementById('cert-name').textContent  = name;
+  document.getElementById('cert-name').textContent  = nameInput;
   document.getElementById('cert-code').textContent  = code;
   document.getElementById('cert-date').textContent  = today;
   document.getElementById('cert-ref').textContent   = ref;

@@ -944,6 +944,7 @@ function renderAll() {
 function renderDashboard(d) {
   document.getElementById('dash-title').textContent = d.label;
   const balance = d.balance;
+  const startingAccount = currentState === 'funded' ? 50 : d.account;
   const threshold = 600;
   const thresholdReached = currentState === 'funded' && balance >= threshold;
   document.getElementById('dash-sub').textContent = currentState === 'funded'
