@@ -501,23 +501,26 @@ function showSection(id, el) {
 // ══ FIRM HEALTH ════════════════════════════════════════
 function buildHealthCharts() {
   const months = ['Oct','Nov','Dec','Jan','Feb','Mar'];
-  const opts = (extra={}) => ({
+  const opts = (xLabel='', yLabel='', extra={}) => ({
     responsive:true, maintainAspectRatio:true, animation:false,
     plugins:{ legend:{ display:false } },
-    scales:{ x:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}} }, y:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}} } },
+    scales:{
+      x:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}}, title:{ display:!!xLabel, text:xLabel, color:'#64748b', font:{size:11} } },
+      y:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}}, title:{ display:!!yLabel, text:yLabel, color:'#64748b', font:{size:11} } }
+    },
     ...extra
   });
 
   new Chart(document.getElementById('revTrendChart').getContext('2d'), {
     type:'line',
     data:{ labels:months, datasets:[{ data:[38.2,52.4,67.8,89.1,112.3,128.4], borderColor:'var(--green)', backgroundColor:'rgba(34,197,94,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:'var(--green)' }] },
-    options:opts()
+    options:opts('','Win Rate (%)')
   });
 
   new Chart(document.getElementById('traderGrowthChart').getContext('2d'), {
     type:'bar',
     data:{ labels:months, datasets:[{ data:[2,3,4,6,9,12], backgroundColor:'rgba(59,130,246,0.7)', borderRadius:5 }] },
-    options:opts()
+    options:opts('','Win Rate (%)')
   });
 
   new Chart(document.getElementById('wrTrendChart').getContext('2d'), {
@@ -526,7 +529,7 @@ function buildHealthCharts() {
       { data:[81,82,83,82,84,83], label:'Avg', borderColor:'var(--gold)', borderWidth:2, fill:false, tension:0.4, pointRadius:3, pointBackgroundColor:'var(--gold)' },
       { data:[80,80,80,80,80,80], label:'Min', borderColor:'var(--red)', borderWidth:1.5, borderDash:[4,4], fill:false, tension:0, pointRadius:0 },
     ] },
-    options:opts({ plugins:{ legend:{ display:true, position:'bottom', labels:{ color:'#cbd5e1', font:{size:11}, padding:12 } } } })
+    options:opts('','',{ plugins:{ legend:{ display:true, position:'bottom', labels:{ color:'#cbd5e1', font:{size:11}, padding:12 } } } })
   });
 
   new Chart(document.getElementById('balanceTrendChart').getContext('2d'), {
@@ -535,7 +538,7 @@ function buildHealthCharts() {
       { data:[200,280,340,420,510,565], borderColor:'var(--gold)', backgroundColor:'rgba(201,168,76,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:'var(--gold)' },
       { data:[1000,1000,1000,1000,1000,1000], borderColor:'rgba(34,197,94,0.4)', borderWidth:1.5, borderDash:[4,4], fill:false, tension:0, pointRadius:0 },
     ] },
-    options:opts({ plugins:{ legend:{ display:false } } })
+    options:opts('','',{ plugins:{ legend:{ display:false } } })
   });
 }
 
@@ -640,25 +643,25 @@ function buildCohortCharts() {
   new Chart(document.getElementById('brokerWrChart').getContext('2d'), {
     type:'bar',
     data:{ labels:['Deriv','Exness','Weltrade'], datasets:[{ data:[85.6,84.8,80.7], backgroundColor:['rgba(34,197,94,0.7)','rgba(59,130,246,0.7)','rgba(249,115,22,0.7)'], borderRadius:6 }] },
-    options:opts()
+    options:opts('','Win Rate (%)')
   });
 
   new Chart(document.getElementById('marketPassChart').getContext('2d'), {
     type:'bar',
     data:{ labels:['Forex','Indices','Synthetics','Commodities','Crypto','Gold'], datasets:[{ data:[80,65,100,75,70,60], backgroundColor:'rgba(201,168,76,0.7)', borderRadius:6 }] },
-    options:opts()
+    options:opts('','Win Rate (%)')
   });
 
   new Chart(document.getElementById('phaseProfitChart').getContext('2d'), {
     type:'bar',
     data:{ labels:['Phase 1','Phase 2','Funded'], datasets:[{ data:[4.5,9.5,18.8], backgroundColor:['rgba(201,168,76,0.7)','rgba(59,130,246,0.7)','rgba(34,197,94,0.7)'], borderRadius:6 }] },
-    options:opts()
+    options:opts('','Win Rate (%)')
   });
 
   new Chart(document.getElementById('joinsChart').getContext('2d'), {
     type:'line',
     data:{ labels:['Oct','Nov','Dec','Jan','Feb','Mar'], datasets:[{ data:[0,1,1,2,3,5], borderColor:'var(--purple)', backgroundColor:'rgba(168,85,247,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'var(--purple)' }] },
-    options:opts()
+    options:opts('','Win Rate (%)')
   });
 }
 
@@ -831,12 +834,34 @@ function doExport(name, format) {
 
 // ══ UTILITIES ══════════════════════════════════════════
 function exportSection(name) {
-  showToast(`Exporting ${name}...`, 'info');
-  setTimeout(() => showToast(`${name} downloaded`, 'success'), 1200);
+  if (name.includes('Scorecard')) {
+    const headers = ['Trader','Phase','Broker','Win Rate','Consistency','Drawdown','Compliance','Grade','Score'];
+    const rows = TRADERS.map(t => [t.name,t.phase,t.detail,t.winRate+'%',t.consistency+'%',t.drawdown+'%',t.compliance+'%',calcGrade(t),Math.round((t.winRate*0.35)+(t.consistency*0.30)+((100-t.drawdown*5)*0.20)+(t.compliance*0.15))]);
+    downloadCSV('lazzerquant-scorecards.csv', headers, rows);
+    showToast('Trader Scorecards downloaded as CSV', 'success');
+  } else if (name.includes('Cohort')) {
+    const headers = ['Cohort','Traders','Pass Rate','Avg Win Rate','Avg PnL','Retention','Score'];
+    const rows = [['Jan 2026',2,'100%','87.5%','+$21.2','100%',92],['Feb 2026',3,'80%','85.3%','+$18.8','100%',87],['Mar 2026',7,'57%','82.7%','+$6.4','86%',81],['Deriv',5,'80%','85.6%','+$12.8','100%',88],['Exness',4,'75%','84.8%','+$11.4','100%',86]];
+    downloadCSV('lazzerquant-cohort-analysis.csv', headers, rows);
+    showToast('Cohort Analysis downloaded as CSV', 'success');
+  } else if (name.includes('Report')) {
+    const html = `<h1>Weekly Performance Report</h1><div class="sub">Week of Mar 9–15, 2026</div>${document.getElementById('report-body')?.innerHTML||''}`;
+    printSection('Weekly Report — Lazzer Quant', html);
+  } else if (name.includes('Health')) {
+    const html = `<h1>Firm Health Report</h1><div class="sub">Generated ${new Date().toLocaleDateString()}</div>
+      <table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>
+      <tr><td>Health Score</td><td>84/100</td></tr><tr><td>Avg Win Rate</td><td>83%</td></tr>
+      <tr><td>Master Balance</td><td>$565</td></tr><tr><td>Capital Deployed</td><td>$500</td></tr>
+      <tr><td>Active Traders</td><td>12</td></tr><tr><td>Capital Efficiency</td><td>85%</td></tr>
+      </tbody></table>`;
+    printSection('Firm Health — Lazzer Quant', html);
+  } else {
+    showToast(`${name} exported`, 'success');
+  }
 }
 
 function emailReport() {
-  showToast('Weekly report emailed to ceo@lazzerquant.com and coo@lazzerquant.com', 'success');
+  showToast('In Phase 2B this emails the report automatically via SendGrid', 'info');
 }
 
 function showToast(msg, type='info') {
@@ -856,6 +881,35 @@ renderWeeklyReport();
 renderExports();
 document.getElementById('filter-all').style.background = 'var(--gold-dim)';
 document.getElementById('filter-all').style.color = 'var(--gold)';
+
+// ══ FUNCTIONAL EXPORT ═══════════════════════════════════
+function downloadCSV(filename, headers, rows) {
+  const escape = v => { const s = String(v??''); return (s.includes(',')||s.includes('"'))?`"${s.replace(/"/g,'""')}"`:s; };
+  const csv = [headers,...rows].map(r=>r.map(escape).join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'),{href:url,download:filename});
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function printSection(title, html) {
+  const win = window.open('','_blank','width=900,height=700');
+  win.document.write(`<!DOCTYPE html><html><head><title>${title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+    <style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Plus Jakarta Sans',sans-serif;background:#fff;color:#111;padding:32px;}
+    h1{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px;}.sub{font-size:13px;color:#666;margin-bottom:24px;}
+    table{width:100%;border-collapse:collapse;margin-bottom:20px;}th{background:#f5f5f5;text-align:left;padding:10px 12px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#666;border-bottom:2px solid #ddd;}
+    td{padding:10px 12px;font-size:13px;border-bottom:1px solid #eee;}.header-bar{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111;padding-bottom:16px;margin-bottom:24px;}
+    .footer{margin-top:32px;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:12px;}@media print{body{padding:16px;}}</style>
+  </head><body>
+    <div class="header-bar"><div style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;">Lazzer Quant Trading Firm</div>
+    <div style="font-size:12px;color:#666;">Generated: ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</div></div>
+    ${html}
+    <div class="footer">Lazzer Quant Trading Firm · Harare, Zimbabwe · Confidential</div>
+  </body></html>`);
+  win.document.close(); setTimeout(()=>{win.focus();win.print();},600);
+}
+
 </script>
 </body>
 </html>

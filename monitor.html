@@ -464,7 +464,7 @@ html, body { height:100%; overflow:hidden; font-family:'Plus Jakarta Sans',sans-
           <div class="pg-sub">Real-time tracking across all 12 active traders · Updates every 5 seconds</div>
         </div>
         <div class="pg-actions">
-          <button class="action-btn outline" onclick="showToast('Snapshot exported to CSV','success')">Export CSV</button>
+          <button class="action-btn outline" onclick="exportTraderCSV()">Export CSV</button>
         </div>
       </div>
 
@@ -638,7 +638,7 @@ html, body { height:100%; overflow:hidden; font-family:'Plus Jakarta Sans',sans-
           <div class="pg-sub">Automated tracking of withdrawal thresholds · 70/30 profit split</div>
         </div>
         <div class="pg-actions">
-          <button class="action-btn outline" onclick="showToast('Payout report exported','success')">Export Report</button>
+          <button class="action-btn outline" onclick="exportPayoutCSV()">Export Report</button>
         </div>
       </div>
 
@@ -1393,7 +1393,7 @@ function triggerBreach(trader, breachType, details) {
   document.getElementById('breach-modal').classList.add('open');
 
   // Also fire an alert
-  showToast(`🚨 BREACH: ${trader.name} — ${breachType} — Account auto-locked`, 'critical');
+  showToast(`🚨 BREACH: ${trader.name} — ${breachType} — Account auto-locked`, 'critical', null);
 }
 
 function closeBreachModal() {
@@ -1486,24 +1486,29 @@ function renderReport() {
 }
 
 // ══ TOAST ══════════════════════════════════════════════
-function showToast(msg, type='info') {
+function showToast(msg, type='info', link=null) {
   const t = document.getElementById('toast');
   const icons = { success:'✅', error:'❌', info:'💡', critical:'🚨', warning:'⚠️' };
-  t.innerHTML = `<span>${icons[type]||'💡'}</span> ${msg}`;
+  if (link) {
+    t.innerHTML = `<span>${icons[type]||'💡'}</span><span style="flex:1;">${msg}</span><a href="${link}" style="color:var(--gold);font-weight:700;white-space:nowrap;text-decoration:none;font-size:12px;margin-left:8px;">View →</a>`;
+    t.style.cursor = 'default';
+  } else {
+    t.innerHTML = `<span>${icons[type]||'💡'}</span> ${msg}`;
+  }
   t.className = `toast ${type} show`;
-  setTimeout(() => t.classList.remove('show'), 3500);
+  setTimeout(() => t.classList.remove('show'), 4000);
 }
 
 // ══ RANDOM ALERT FIRES ═════════════════════════════════
 function fireRandomAlert() {
   const msgs = [
-    { type:'warning',  msg:'Tariro Gova approaching daily loss limit — 87% used' },
-    { type:'info',     msg:'Kudakwashe Ndoro win rate improved to 86%' },
-    { type:'critical', msg:'Drawdown warning: Farai Manyika at 4.3%' },
-    { type:'info',     msg:'Rutendo Maposa placed a new trade — EUR/USD BUY' },
+    { type:'warning',  msg:'Tariro Gova approaching daily loss limit — 87% used', link:'#' },
+    { type:'info',     msg:'Kudakwashe Ndoro win rate improved to 86%', link:null },
+    { type:'critical', msg:'Drawdown warning: Farai Manyika at 4.3%', link:'#' },
+    { type:'info',     msg:'Rutendo Maposa placed a new trade — EUR/USD BUY', link:null },
   ];
   const pick = msgs[Math.floor(Math.random() * msgs.length)];
-  showToast(pick.msg, pick.type);
+  showToast(pick.msg, pick.type, pick.link);
 }
 
 // ══ INIT ═══════════════════════════════════════════════
@@ -1522,6 +1527,51 @@ setInterval(tickFirmChart, 5000);
 setInterval(renderLeaderboard, 8000);
 setInterval(updateRiskRows, 6000);
 setInterval(() => { if(Math.random() > 0.6) fireRandomAlert(); }, 12000);
+
+// ══ FUNCTIONAL EXPORT ═══════════════════════════════════
+function downloadCSV(filename, headers, rows) {
+  const escape = v => { const s = String(v??''); return (s.includes(',')||s.includes('"'))?`"${s.replace(/"/g,'""')}"`:s; };
+  const csv = [headers,...rows].map(r=>r.map(escape).join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'),{href:url,download:filename});
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function printSection(title, html) {
+  const win = window.open('','_blank','width=900,height=700');
+  win.document.write(`<!DOCTYPE html><html><head><title>${title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+    <style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Plus Jakarta Sans',sans-serif;background:#fff;color:#111;padding:32px;}
+    h1{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px;}.sub{font-size:13px;color:#666;margin-bottom:24px;}
+    table{width:100%;border-collapse:collapse;margin-bottom:20px;}th{background:#f5f5f5;text-align:left;padding:10px 12px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#666;border-bottom:2px solid #ddd;}
+    td{padding:10px 12px;font-size:13px;border-bottom:1px solid #eee;}.header-bar{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #111;padding-bottom:16px;margin-bottom:24px;}
+    .footer{margin-top:32px;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:12px;}@media print{body{padding:16px;}}</style>
+  </head><body>
+    <div class="header-bar"><div style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;">Lazzer Quant Trading Firm</div>
+    <div style="font-size:12px;color:#666;">Generated: ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</div></div>
+    ${html}
+    <div class="footer">Lazzer Quant Trading Firm · Harare, Zimbabwe · Confidential</div>
+  </body></html>`);
+  win.document.close(); setTimeout(()=>{win.focus();win.print();},600);
+}
+
+
+function exportTraderCSV() {
+  downloadCSV('lazzerquant-traders-live.csv',
+    ['Trader','Phase','Balance','PnL Today','Win Rate','Drawdown','Broker'],
+    TRADERS.map(t=>[t.name,t.phase,'$'+t.balance.toFixed(2),(t.pnlToday>=0?'+':'')+t.pnlToday.toFixed(2),t.winRate+'%',t.drawdown+'%',t.detail])
+  );
+  showToast('Trader snapshot exported as CSV','success');
+}
+function exportPayoutCSV() {
+  downloadCSV('lazzerquant-payouts.csv',
+    ['Trader','Account','Balance','Threshold','Progress','Ready'],
+    FUNDED.map(t=>{const profit=t.balance-t.account;const share=(profit*0.7).toFixed(2);return [t.name,'$'+t.account,'$'+t.balance.toFixed(2),'$'+t.threshold,((t.balance/t.threshold)*100).toFixed(0)+'%',t.balance>=t.threshold?'Yes — $'+share:'No'];})
+  );
+  showToast('Payout report exported as CSV','success');
+}
+
 </script>
 </body>
 </html>

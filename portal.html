@@ -486,13 +486,11 @@ html, body {
         <div class="sidebar-link" onclick="showSection('settings', this)" id="sl-settings">
           <span class="sl-icon">⚙️</span> Settings
         </div>
-        <div class="sidebar-link" onclick="window.location.href='contract.html'">
+        <div class="sidebar-link" onclick="window.location.href='contract.html'" id="sl-agreement" style="display:none">
           <span class="sl-icon">✍️</span> My Agreement
         </div>
         <!-- Admin only -->
-        <div class="sidebar-link admin-only" onclick="window.location.href='contract.html'" style="display:none" id="sl-contract-link">
-          <span class="sl-icon">✍️</span> Sign Agreement
-        </div>
+
         <div class="sidebar-link admin-only" onclick="window.location.href='audit.html'" style="display:none" id="sl-audit-link">
           <span class="sl-icon">📋</span> Audit Log
         </div>
@@ -631,9 +629,9 @@ html, body {
 
       <!-- ── SETTINGS ── -->
       <div class="portal-section" id="section-settings">
-        <div class="page-title">Account Settings</div>
-        <div class="page-sub">Manage your profile and security settings.</div>
-        <div class="settings-grid">
+        <div class="page-title" id="settings-page-title">Account Settings</div>
+        <div class="page-sub" id="settings-page-sub">Manage your profile and security settings.</div>
+        <div class="settings-grid" id="settings-grid">
           <div class="settings-card">
             <div class="settings-title">Profile Information</div>
             <label class="settings-label">Full Name</label>
@@ -642,7 +640,7 @@ html, body {
             <input class="settings-input" id="s-email" value="" disabled>
             <label class="settings-label">Country</label>
             <input class="settings-input" id="s-country" value="">
-            <label class="settings-label">Preferred Broker</label>
+            <label class="settings-label" id="s-broker-label">Preferred Broker</label>
             <input class="settings-input" id="s-broker" value="">
             <button class="settings-save" onclick="saveSettings()">Save Changes</button>
           </div>
@@ -656,29 +654,13 @@ html, body {
             <input type="password" class="settings-input" placeholder="••••••••">
             <button class="settings-save" onclick="alert('Password updated successfully.')">Update Password</button>
           </div>
-          <div class="settings-card">
-            <div class="settings-title">Account Details</div>
-            <div style="display:flex; flex-direction:column; gap:14px;">
-              <div style="display:flex; justify-content:space-between; font-size:14px; padding:12px 0; border-bottom:1px solid var(--navy-border);">
-                <span style="color:var(--text-muted)">Account Status</span>
-                <span id="s-status" class="pill pill-green">Active</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; font-size:14px; padding:12px 0; border-bottom:1px solid var(--navy-border);">
-                <span style="color:var(--text-muted)">Current Phase</span>
-                <span id="s-phase" class="pill pill-gold">Phase 1</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; font-size:14px; padding:12px 0; border-bottom:1px solid var(--navy-border);">
-                <span style="color:var(--text-muted)">Member Since</span>
-                <span style="font-size:14px;">March 2026</span>
-              </div>
-              <div style="display:flex; justify-content:space-between; font-size:14px; padding:12px 0;">
-                <span style="color:var(--text-muted)">Profit Split</span>
-                <span style="color:var(--green); font-weight:700;">70% / 30%</span>
-              </div>
+          <div class="settings-card" id="s-account-details-card">
+            <div class="settings-title" id="s-account-details-title">Account Details</div>
+            <div style="display:flex; flex-direction:column; gap:14px;" id="account-details-rows">
             </div>
           </div>
           <div class="settings-card" id="payment-settings-card">
-            <div class="settings-title">Payment Method</div>
+            <div class="settings-title" id="payment-card-title">Payment Method</div>
             <div id="payment-method-display">
               <div style="font-size:13px; color:var(--text-muted); line-height:1.7; margin-bottom:20px;" id="payment-status-msg">
                 💡 Your payment method will be set up when you process your first withdrawal. No details are stored until you reach your withdrawal threshold.
@@ -719,19 +701,84 @@ html, body {
 
       <!-- ── ALL TRADERS (ADMIN ONLY) ── -->
       <div class="portal-section" id="section-traders">
-        <div class="page-title">All Traders</div>
-        <div class="page-sub">Overview of all active traders across all brokers and phases.</div>
+        <div class="page-title">Trader Dashboard</div>
+        <div class="page-sub">Select a trader to view their full profile, performance, and progress.</div>
 
-        <div class="stat-row">
-          <div class="stat-card"><div class="sc-label">Total Traders</div><div class="sc-value" style="color:var(--white)">12</div><div class="sc-change neutral">Active accounts</div></div>
-          <div class="stat-card"><div class="sc-label">In Phase 1</div><div class="sc-value" style="color:var(--gold)">4</div><div class="sc-change neutral">Evaluation</div></div>
-          <div class="stat-card"><div class="sc-label">In Phase 2</div><div class="sc-value" style="color:var(--blue)">3</div><div class="sc-change neutral">Confirmation</div></div>
-          <div class="stat-card"><div class="sc-label">Funded</div><div class="sc-value" style="color:var(--green)">5</div><div class="sc-change up">+2 this month</div></div>
+        <!-- Trader selector -->
+        <div style="background:var(--navy-card);border:1px solid var(--navy-border);border-radius:14px;padding:20px 22px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <div style="font-size:13px;font-weight:700;color:var(--text-muted);white-space:nowrap;">Viewing Trader:</div>
+          <div style="position:relative;flex:1;min-width:240px;max-width:420px;">
+            <input type="text" id="trader-search-input" placeholder="🔍  Search by name, broker, or phase..."
+              oninput="filterTraderDropdown(this.value)"
+              onfocus="document.getElementById('trader-dropdown').style.display='block'"
+              style="width:100%;padding:11px 16px;background:rgba(255,255,255,0.04);border:1.5px solid var(--navy-border);border-radius:10px;color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;"
+              onfocusin="this.style.borderColor='var(--gold)'" onblur="setTimeout(()=>document.getElementById('trader-dropdown').style.display='none',200)">
+            <div id="trader-dropdown" style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--navy-card);border:1px solid var(--navy-border);border-radius:10px;max-height:240px;overflow-y:auto;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,0.5);">
+              <div id="trader-dropdown-list"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="filterTradersByPhase('all')"   id="pt-all"    style="padding:8px 14px;border-radius:7px;font-size:11px;font-weight:700;border:1px solid var(--navy-border);background:var(--gold-dim);color:var(--gold);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">All</button>
+            <button onclick="filterTradersByPhase('phase1')" id="pt-p1"    style="padding:8px 14px;border-radius:7px;font-size:11px;font-weight:700;border:1px solid var(--navy-border);background:transparent;color:var(--text-muted);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Phase 1</button>
+            <button onclick="filterTradersByPhase('phase2')" id="pt-p2"    style="padding:8px 14px;border-radius:7px;font-size:11px;font-weight:700;border:1px solid var(--navy-border);background:transparent;color:var(--text-muted);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Phase 2</button>
+            <button onclick="filterTradersByPhase('funded')" id="pt-funded" style="padding:8px 14px;border-radius:7px;font-size:11px;font-weight:700;border:1px solid var(--navy-border);background:transparent;color:var(--text-muted);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">Funded</button>
+          </div>
         </div>
 
-        <div class="chart-card">
-          <div class="chart-header"><span class="chart-title">Active Traders</span><span class="chart-meta">Click a trader to view their portal</span></div>
-          <div id="traders-list"></div>
+        <!-- Firm-wide stats (shown when no trader selected) -->
+        <div id="traders-overview" style="">
+          <div class="stat-row">
+            <div class="stat-card"><div class="sc-label">Total Traders</div><div class="sc-value" style="color:var(--white)">12</div><div class="sc-change neutral">Active accounts</div></div>
+            <div class="stat-card"><div class="sc-label">In Phase 1</div><div class="sc-value" style="color:var(--gold)">4</div><div class="sc-change neutral">Evaluation</div></div>
+            <div class="stat-card"><div class="sc-label">In Phase 2</div><div class="sc-value" style="color:var(--blue)">3</div><div class="sc-change neutral">Confirmation</div></div>
+            <div class="stat-card"><div class="sc-label">Funded</div><div class="sc-value" style="color:var(--green)">5</div><div class="sc-change up">+2 this month</div></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-header"><span class="chart-title">All Traders — Select one above to drill into their profile</span></div>
+            <div id="traders-list"></div>
+          </div>
+        </div>
+
+        <!-- Individual trader profile (shown when a trader is selected) -->
+        <div id="trader-profile" style="display:none;">
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding:20px;background:var(--navy-card);border:1px solid var(--gold-border);border-radius:14px;">
+            <div style="width:52px;height:52px;border-radius:50%;background:var(--gold-dim);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--gold);" id="tp-initials">SM</div>
+            <div style="flex:1;">
+              <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;margin-bottom:3px;" id="tp-name">—</div>
+              <div style="font-size:13px;color:var(--text-muted);" id="tp-detail">—</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;margin-bottom:6px;" id="tp-phase-badge">Funded</div>
+              <button onclick="clearTraderProfile()" style="font-size:12px;color:var(--text-muted);background:transparent;border:1px solid var(--navy-border);border-radius:6px;padding:5px 12px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">← All Traders</button>
+            </div>
+          </div>
+
+          <!-- Trader stats -->
+          <div class="stat-row" id="tp-stats"></div>
+
+          <!-- Charts row -->
+          <div class="two-col" style="margin-bottom:20px;">
+            <div class="chart-card">
+              <div class="chart-header"><span class="chart-title">Equity Curve</span><span class="chart-meta" id="tp-equity-meta">—</span></div>
+              <canvas id="tp-equity-chart" height="100"></canvas>
+            </div>
+            <div class="chart-card">
+              <div class="chart-header"><span class="chart-title">Risk Exposure</span></div>
+              <div id="tp-risk-bars" style="padding-top:8px;"></div>
+            </div>
+          </div>
+
+          <!-- Performance & Compliance -->
+          <div class="two-col">
+            <div class="chart-card">
+              <div class="chart-header"><span class="chart-title">Performance</span></div>
+              <div id="tp-performance"></div>
+            </div>
+            <div class="chart-card">
+              <div class="chart-header"><span class="chart-title">Rule Compliance</span></div>
+              <div id="tp-compliance"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -904,7 +951,6 @@ function launchPortal() {
     document.getElementById('state-toggle').style.display = 'flex';
     document.getElementById('sl-traders').style.display = 'flex';
     document.getElementById('sl-monitor-link').style.display = 'flex';
-    document.getElementById('sl-contract-link').style.display = 'flex';
     document.getElementById('sl-audit-link').style.display = 'flex';
   } else {
     document.getElementById('role-badge').textContent = 'Trader';
@@ -912,7 +958,6 @@ function launchPortal() {
     document.getElementById('state-toggle').style.display = 'none';
     document.getElementById('sl-traders').style.display = 'none';
     document.getElementById('sl-monitor-link').style.display = 'none';
-    document.getElementById('sl-contract-link').style.display = 'none';
     document.getElementById('sl-audit-link').style.display = 'none';
   }
 
@@ -947,6 +992,8 @@ function renderDashboard(d) {
   const startingAccount = currentState === 'funded' ? 50 : d.account;
   const threshold = 600;
   const thresholdReached = currentState === 'funded' && balance >= threshold;
+  // Founder payout: render only logged-in user's card
+  renderFounderCardForUser();
   document.getElementById('dash-sub').textContent = currentState === 'funded'
     ? (thresholdReached ? `🎉 Withdrawal threshold reached! Your payout of $${((balance - 100) * 0.7).toFixed(2)} is ready.` : 'Your funded account performance overview.')
     : `Active ${d.label} — Day ${d.daysPassed} of ${d.totalDays}.`;
@@ -1141,24 +1188,234 @@ function renderMessages() {
   `).join('');
 }
 
+// ══ TRADER SELECTOR ═══════════════════════════════════
+let traderPhaseFilter = 'all';
+let selectedTraderIdx = null;
+let tpChartObj = null;
+
 function renderTraders() {
-  document.getElementById('traders-list').innerHTML = ALL_TRADERS.map(t => `
-    <div class="trader-row">
+  // Populate the overview list
+  const filtered = getFilteredTraders();
+  document.getElementById('traders-list').innerHTML = filtered.map((t,i) => {
+    const phaseColor = t.status==='funded'?'var(--green)':t.status==='phase2'?'var(--blue)':'var(--gold)';
+    return `<div class="trader-row" onclick="selectTrader(ALL_TRADERS.indexOf(t))"
+              style="cursor:pointer;" onmouseover="this.style.borderColor='var(--gold-border)'" onmouseout="this.style.borderColor='var(--navy-border)'">
       <div class="trader-avatar">${t.initials}</div>
-      <div class="trader-info">
+      <div class="trader-info" style="flex:1;">
         <div class="trader-name">${t.name}</div>
         <div class="trader-detail">${t.detail}</div>
       </div>
-      <span class="trader-status ts-${t.status}">${t.statusLabel}</span>
-      <div class="trader-pnl" style="color:${t.pnlColor}">${t.pnl}</div>
+      <span class="trader-status" style="padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700;background:${phaseColor}22;color:${phaseColor};border:1px solid ${phaseColor}44;">${t.statusLabel}</span>
+      <div class="trader-pnl" style="color:${t.pnlColor};font-family:'Outfit',sans-serif;font-weight:700;min-width:80px;text-align:right;">${t.pnl}</div>
+    </div>`;
+  }).join('') || '<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:14px;">No traders match this filter.</div>';
+
+  // Populate dropdown
+  renderTraderDropdown('');
+}
+
+function getFilteredTraders() {
+  return ALL_TRADERS.filter(t => traderPhaseFilter === 'all' || t.status === traderPhaseFilter);
+}
+
+function filterTradersByPhase(phase) {
+  traderPhaseFilter = phase;
+  ['all','phase1','phase2','funded'].forEach(p => {
+    const btn = document.getElementById('pt-' + (p==='phase1'?'p1':p==='phase2'?'p2':p==='funded'?'funded':'all'));
+    if (btn) { btn.style.background = p===phase?'var(--gold-dim)':'transparent'; btn.style.color = p===phase?'var(--gold)':'var(--text-muted)'; btn.style.borderColor = p===phase?'var(--gold-border)':'var(--navy-border)'; }
+  });
+  renderTraders();
+}
+
+function renderTraderDropdown(query) {
+  const q = query.toLowerCase();
+  const traders = ALL_TRADERS.filter(t =>
+    !q || t.name.toLowerCase().includes(q) || t.detail.toLowerCase().includes(q) || t.statusLabel.toLowerCase().includes(q)
+  );
+  const list = document.getElementById('trader-dropdown-list');
+  if (!list) return;
+  list.innerHTML = traders.map((t, i) => {
+    const idx = ALL_TRADERS.indexOf(t);
+    const phaseColor = t.status==='funded'?'var(--green)':t.status==='phase2'?'var(--blue)':'var(--gold)';
+    return `<div onclick="selectTrader(${idx})"
+      style="display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.15s;"
+      onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='transparent'">
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gold);flex-shrink:0;">${t.initials}</div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:700;">${t.name}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${t.detail}</div>
+      </div>
+      <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px;background:${phaseColor}22;color:${phaseColor};">${t.statusLabel}</span>
+    </div>`;
+  }).join('') || '<div style="padding:16px;text-align:center;font-size:13px;color:var(--text-muted);">No traders found</div>';
+}
+
+function filterTraderDropdown(val) {
+  document.getElementById('trader-dropdown').style.display = 'block';
+  renderTraderDropdown(val);
+}
+
+function selectTrader(idx) {
+  selectedTraderIdx = idx;
+  const t = ALL_TRADERS[idx];
+  document.getElementById('traders-overview').style.display = 'none';
+  document.getElementById('trader-profile').style.display = 'block';
+  document.getElementById('trader-search-input').value = t.name;
+  document.getElementById('trader-dropdown').style.display = 'none';
+  renderTraderProfile(t);
+}
+
+function clearTraderProfile() {
+  selectedTraderIdx = null;
+  document.getElementById('trader-profile').style.display = 'none';
+  document.getElementById('traders-overview').style.display = 'block';
+  document.getElementById('trader-search-input').value = '';
+}
+
+function renderTraderProfile(t) {
+  const phaseColor = t.status==='funded'?'var(--green)':t.status==='phase2'?'var(--blue)':'var(--gold)';
+  document.getElementById('tp-initials').textContent = t.initials;
+  document.getElementById('tp-name').textContent     = t.name;
+  document.getElementById('tp-detail').textContent   = t.detail + ' · Joined March 2026';
+  document.getElementById('tp-equity-meta').textContent = t.statusLabel + ' · ' + t.detail;
+  const badge = document.getElementById('tp-phase-badge');
+  badge.textContent = t.statusLabel;
+  badge.style.cssText = `font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;background:${phaseColor}22;color:${phaseColor};border:1px solid ${phaseColor}44;`;
+
+  // Stats
+  const pnlNum = parseFloat(t.pnl.replace(/[^0-9.-]/g,'')) || 0;
+  const wr = 80 + Math.floor(Math.random()*10);
+  const dd = (1 + Math.random()*5).toFixed(1);
+  const trades = 8 + Math.floor(Math.random()*40);
+  document.getElementById('tp-stats').innerHTML = `
+    <div class="stat-card"><div class="sc-label">P&L</div><div class="sc-value" style="color:${t.pnlColor}">${t.pnl}</div><div class="sc-change ${pnlNum>=0?'up':'down'}">${pnlNum>=0?'Profitable':'In loss'}</div></div>
+    <div class="stat-card"><div class="sc-label">Win Rate</div><div class="sc-value" style="color:${wr>=80?'var(--green)':'var(--red)'}">${wr}%</div><div class="sc-change ${wr>=80?'up':'down'}">${wr>=80?'✓ Above min':'✗ Below min'}</div></div>
+    <div class="stat-card"><div class="sc-label">Drawdown</div><div class="sc-value" style="color:var(--text)">${dd}%</div><div class="sc-change neutral">10% limit</div></div>
+    <div class="stat-card"><div class="sc-label">Total Trades</div><div class="sc-value" style="color:var(--gold)">${trades}</div><div class="sc-change neutral">All time</div></div>
+  `;
+
+  // Risk bars
+  const dailyPct = Math.floor(Math.random()*80);
+  const ddPct    = parseFloat(dd)*10;
+  const wrBarPct = wr;
+  const riskColor = p => p>=90?'var(--red)':p>=70?'var(--orange)':'var(--green)';
+  document.getElementById('tp-risk-bars').innerHTML = ['Daily Loss Used','Total Drawdown','Win Rate'].map((label,i) => {
+    const pct = [dailyPct, ddPct, wrBarPct][i];
+    const c = i===2?(wr>=80?'var(--green)':'var(--red)'):riskColor(pct);
+    const val = i===0?`${pct}%`:i===1?`${dd}%`:`${wr}%`;
+    const limit = i===0?'5%':i===1?'10%':'80% min';
+    return `<div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;">
+        <span style="color:var(--text)">${label}</span>
+        <span style="font-family:'Outfit',sans-serif;font-weight:700;color:${c}">${val} / ${limit}</span>
+      </div>
+      <div style="height:8px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;">
+        <div style="width:${Math.min(pct,100)}%;height:100%;border-radius:4px;background:${c};transition:width 0.5s;"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Performance
+  document.getElementById('tp-performance').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;padding-top:4px;">
+      ${[['Win Rate',`${wr}%`,wr>=80],['Consistency',`${85+Math.floor(Math.random()*10)}%`,true],['Avg R:R',`${(1+Math.random()*1.5).toFixed(1)}:1`,true],['Profit Factor',`${(1.2+Math.random()).toFixed(2)}`,true]].map(([l,v,ok])=>`
+      <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:14px;">
+        <span style="color:var(--text-muted)">${l}</span>
+        <span style="font-weight:700;color:${ok?'var(--green)':'var(--red)'};">${v}</span>
+      </div>`).join('')}
     </div>
-  `).join('');
+  `;
+
+  // Compliance
+  const rules = [
+    ['Stop Loss Compliance', true],
+    ['Max Risk Per Trade ≤ 3%', true],
+    ['Daily Loss ≤ 5%', dailyPct < 90],
+    ['Total Drawdown ≤ 10%', parseFloat(dd) < 9],
+    ['Win Rate ≥ 80%', wr >= 80],
+    ['No Automated Trading', true],
+  ];
+  document.getElementById('tp-compliance').innerHTML = `<div style="display:flex;flex-direction:column;gap:8px;padding-top:4px;">`
+    + rules.map(([r,ok])=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:${ok?'var(--green-dim)':'var(--red-dim)'};border:1px solid ${ok?'rgba(34,197,94,0.2)':'rgba(239,68,68,0.2)'};">
+      <span>${ok?'✅':'❌'}</span>
+      <span style="font-size:13px;font-weight:600;color:${ok?'var(--green)':'var(--red)'};">${r}</span>
+    </div>`).join('') + '</div>';
+
+  // Equity chart
+  if (tpChartObj) tpChartObj.destroy();
+  let v = 50; const data = [v];
+  for (let i=0;i<trades;i++) { v += (Math.random()>0.3?1:-1)*Math.random()*0.5; data.push(parseFloat(v.toFixed(2))); }
+  tpChartObj = new Chart(document.getElementById('tp-equity-chart').getContext('2d'), {
+    type:'line',
+    data:{ labels:data.map((_,i)=>i), datasets:[{ data, borderColor:'var(--gold)', backgroundColor:'rgba(201,168,76,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:0 }] },
+    options:{ responsive:true, maintainAspectRatio:true, animation:false,
+      plugins:{ legend:{display:false} },
+      scales:{ x:{display:false}, y:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#64748b',font:{size:10}}, title:{display:true,text:'Balance ($)',color:'#64748b',font:{size:11}} } }
+    }
+  });
 }
 
 function renderSettings(d) {
-  const phaseMap = { phase1: 'Phase 1', phase2: 'Phase 2', funded: 'Funded' };
-  document.getElementById('s-phase').textContent = phaseMap[currentState];
-  document.getElementById('s-phase').className = `pill ${currentState === 'funded' ? 'pill-green' : 'pill-gold'}`;
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  const isCEO   = currentUser && currentUser.email === 'ceo@lazzerquant.com';
+
+  if (isAdmin) {
+    // Admin: no trading account, no phase, no profit split
+    document.getElementById('settings-page-title').textContent = 'Administration Settings';
+    document.getElementById('settings-page-sub').textContent   = isCEO ? 'CEO account settings · Kelvin Chafachaipa' : 'COO account settings · Tatenda Fortune Vambe';
+
+    // Hide broker and payment fields (admins don't trade)
+    document.getElementById('s-broker-label').closest('.form-group') && (document.getElementById('s-broker-label').closest('.form-group').style.display='none');
+    const brokerInput = document.getElementById('s-broker');
+    if (brokerInput) { brokerInput.closest('.form-group') && (brokerInput.closest('.form-group').style.display='none'); brokerInput.style.display='none'; brokerInput.previousElementSibling && (brokerInput.previousElementSibling.style.display='none'); }
+    document.getElementById('payment-settings-card').style.display = 'none';
+
+    // Admin account details
+    document.getElementById('s-account-details-title').textContent = 'Role & Access';
+    document.getElementById('account-details-rows').innerHTML = `
+      <div style="display:flex;justify-content:space-between;font-size:14px;padding:12px 0;border-bottom:1px solid var(--navy-border);">
+        <span style="color:var(--text-muted)">Role</span>
+        <span class="pill pill-gold">${isCEO?'CEO — Founder':'COO — Co-Founder'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;padding:12px 0;border-bottom:1px solid var(--navy-border);">
+        <span style="color:var(--text-muted)">Ownership</span>
+        <span style="font-weight:700;color:var(--gold);">${isCEO?'60%':'40%'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;padding:12px 0;border-bottom:1px solid var(--navy-border);">
+        <span style="color:var(--text-muted)">Access Level</span>
+        <span class="pill pill-green">${isCEO?'Full Access':'Admin Access'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;padding:12px 0;">
+        <span style="color:var(--text-muted)">Member Since</span>
+        <span>March 2026</span>
+      </div>
+    `;
+  } else {
+    // Trader: show full trading account details
+    document.getElementById('settings-page-title').textContent = 'Account Settings';
+    document.getElementById('settings-page-sub').textContent   = 'Manage your profile and security settings.';
+    document.getElementById('payment-settings-card').style.display = 'block';
+    const phaseMap = { phase1: 'Phase 1', phase2: 'Phase 2', funded: 'Funded' };
+    document.getElementById('account-details-rows').innerHTML = `
+      <div style="display:flex;justify-content:space-between;font-size:14px;padding:12px 0;border-bottom:1px solid var(--navy-border);">
+        <span style="color:var(--text-muted)">Account Status</span>
+        <span class="pill pill-green">Active</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;padding:12px 0;border-bottom:1px solid var(--navy-border);">
+        <span style="color:var(--text-muted)">Current Phase</span>
+        <span class="pill ${currentState==='funded'?'pill-green':'pill-gold'}">${phaseMap[currentState]}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;padding:12px 0;border-bottom:1px solid var(--navy-border);">
+        <span style="color:var(--text-muted)">Member Since</span>
+        <span>March 2026</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:14px;padding:12px 0;">
+        <span style="color:var(--text-muted)">Profit Split</span>
+        <span style="color:var(--green);font-weight:700;">70% / 30%</span>
+      </div>
+    `;
+  }
 }
 
 function saveSettings() { alert('Profile saved successfully.'); }

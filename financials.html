@@ -474,25 +474,8 @@ html,body{height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif
         <div><div class="pg-title">Founder Payout</div><div class="pg-sub">CEO only · Withdraw from master account when conditions are met</div></div>
       </div>
 
-      <!-- Founder split cards -->
-      <div class="grid-2" style="margin-bottom:24px;">
-        <div style="background:var(--navy-card);border:1px solid var(--gold-border);border-radius:20px;padding:32px;text-align:center;">
-          <div style="font-size:48px;margin-bottom:12px;">👑</div>
-          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px;">Kelvin Chafachaipa</div>
-          <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;">CEO & Founder · 60%</div>
-          <div style="font-family:'Outfit',sans-serif;font-size:40px;font-weight:800;color:var(--gold);margin-bottom:8px;" id="ceo-share">$0.00</div>
-          <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">60% of available withdrawal amount</div>
-          <button class="action-btn gold" id="ceo-withdraw-btn" onclick="openFounderWithdrawal('ceo')" style="width:100%;padding:12px;">Request Withdrawal</button>
-        </div>
-        <div style="background:var(--navy-card);border:1px solid var(--navy-border);border-radius:20px;padding:32px;text-align:center;">
-          <div style="font-size:48px;margin-bottom:12px;">⚙️</div>
-          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px;">Tatenda Fortune Vambe</div>
-          <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;">COO & Co-Founder · 40%</div>
-          <div style="font-family:'Outfit',sans-serif;font-size:40px;font-weight:800;color:var(--text);margin-bottom:8px;" id="coo-share">$0.00</div>
-          <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">40% of available withdrawal amount</div>
-          <button class="action-btn outline" id="coo-withdraw-btn" onclick="openFounderWithdrawal('coo')" style="width:100%;padding:12px;">Request Withdrawal</button>
-        </div>
-      </div>
+      <!-- My founder card — shows only the logged-in founder's card -->
+      <div id="my-founder-card-wrap" style="margin-bottom:24px;max-width:480px;"></div>
 
       <!-- Conditions panel -->
       <div class="fs-card" style="margin-bottom:20px;">
@@ -1265,12 +1248,16 @@ function exportStatement(name) {
   showToast(`${name} exported as PDF`, 'success');
 }
 
-function showToast(msg, type='info') {
+function showToast(msg, type='info', link=null) {
   const t = document.getElementById('toast');
   const icons = { success:'✅', error:'❌', info:'💡' };
-  t.innerHTML = `<span>${icons[type]||'💡'}</span> ${msg}`;
+  if (link) {
+    t.innerHTML = `<span>${icons[type]||'💡'}</span><span style="flex:1;">${msg}</span><a href="${link}" style="color:var(--gold);font-weight:700;white-space:nowrap;text-decoration:none;font-size:12px;margin-left:8px;">View →</a>`;
+  } else {
+    t.innerHTML = `<span>${icons[type]||'💡'}</span> ${msg}`;
+  }
   t.className = `toast ${type} show`;
-  setTimeout(() => t.classList.remove('show'), 3500);
+  setTimeout(() => t.classList.remove('show'), 4000);
 }
 
 // ══ INIT ═══════════════════════════════════════════════
@@ -1402,30 +1389,48 @@ function renderMasterAccount() {
   document.getElementById('ledger-tbody').innerHTML = rows;
 }
 
-// ── Render founder payout ──
+// ── Render founder payout — shows only current admin's card ──
+// Simulate who is logged in (Phase 2B: read from JWT)
+function getLoggedInFounder() {
+  const stored = sessionStorage.getItem('lq_admin_fin');
+  if (stored) return JSON.parse(stored);
+  // Default — prompt login
+  return null;
+}
+
 function renderFounderPayout() {
   const available = getMasterAvailable();
   const bal = getMasterBalance();
-  const ceoShare = available * 0.60;
-  const cooShare = available * 0.40;
   const canWithdraw = bal >= 1000;
 
-  document.getElementById('ceo-share').textContent = fmt(ceoShare);
-  document.getElementById('coo-share').textContent = fmt(cooShare);
-  document.getElementById('ceo-share').style.color = canWithdraw ? 'var(--gold)' : 'var(--muted)';
-  document.getElementById('coo-share').style.color = canWithdraw ? 'var(--text)' : 'var(--muted)';
+  // Determine which founder is viewing
+  // In Phase 2B this reads from the JWT token
+  // For now, we use the admin login stored in sessionStorage
+  // or default to CEO for demo purposes
+  const adminEmail = sessionStorage.getItem('lq_fin_user') || 'ceo@lazzerquant.com';
+  const isCEO  = adminEmail.includes('ceo');
+  const who    = isCEO ? 'ceo' : 'coo';
+  const name   = isCEO ? 'Kelvin Chafachaipa' : 'Tatenda Fortune Vambe';
+  const role   = isCEO ? 'CEO & Founder' : 'COO & Co-Founder';
+  const pct    = isCEO ? 60 : 40;
+  const share  = available * (isCEO ? 0.60 : 0.40);
+  const icon   = isCEO ? '👑' : '⚙️';
+  const shareColor = canWithdraw ? 'var(--gold)' : 'var(--muted)';
 
-  const ceoBtn = document.getElementById('ceo-withdraw-btn');
-  const cooBtn = document.getElementById('coo-withdraw-btn');
-  ceoBtn.disabled = !canWithdraw;
-  cooBtn.disabled = !canWithdraw;
-  if (!canWithdraw) {
-    ceoBtn.style.opacity = '0.4'; ceoBtn.style.cursor = 'not-allowed';
-    cooBtn.style.opacity = '0.4'; cooBtn.style.cursor = 'not-allowed';
-  } else {
-    ceoBtn.style.opacity = '1'; ceoBtn.style.cursor = 'pointer';
-    cooBtn.style.opacity = '1'; cooBtn.style.cursor = 'pointer';
-  }
+  document.getElementById('my-founder-card-wrap').innerHTML = `
+    <div style="background:var(--navy-card);border:1px solid ${canWithdraw?'var(--gold-border)':'var(--navy-border)'};border-radius:20px;padding:32px;text-align:center;transition:border-color 0.3s;">
+      <div style="font-size:48px;margin-bottom:12px;">${icon}</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px;">${name}</div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:20px;">${role} · ${pct}%</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:48px;font-weight:800;color:${shareColor};margin-bottom:8px;">${fmt(share)}</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:24px;">${pct}% of $${available.toFixed(2)} available amount</div>
+      <button onclick="openFounderWithdrawal('${who}')" ${canWithdraw?'':'disabled'}
+        style="width:100%;padding:13px;background:${canWithdraw?'var(--gold)':'var(--navy-border)'};color:${canWithdraw?'var(--navy)':'var(--muted)'};border:none;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:14px;cursor:${canWithdraw?'pointer':'not-allowed'};">
+        ${canWithdraw?'Request Withdrawal':'Threshold Not Met'}
+      </button>
+      ${!canWithdraw?`<div style="margin-top:12px;font-size:12px;color:var(--muted);">Need $${(1000-bal).toFixed(2)} more in master account</div>`:''}
+    </div>
+  `;
 
   // Conditions
   const conditions = [
@@ -1682,6 +1687,181 @@ renderAll = function() {
 
 // Show pending on load
 setTimeout(showPendingApprovalBanner, 1500);
+
+
+// ══ FUNCTIONAL EXPORT UTILITIES ════════════════════════════════
+// These work in the browser without a server
+
+function downloadCSV(filename, headers, rows) {
+  const escape = v => {
+    const s = String(v ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g,'""')}"` : s;
+  };
+  const csv = [headers, ...rows].map(r => r.map(escape).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement('a'), { href:url, download:filename });
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function printSection(title, html) {
+  const win = window.open('', '_blank', 'width=900,height=700');
+  win.document.write(`<!DOCTYPE html><html><head>
+    <title>${title}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+      * { margin:0; padding:0; box-sizing:border-box; }
+      body { font-family:'Plus Jakarta Sans',sans-serif; background:#fff; color:#111; padding:32px; }
+      h1 { font-family:'Outfit',sans-serif; font-size:22px; font-weight:800; margin-bottom:4px; }
+      .sub { font-size:13px; color:#666; margin-bottom:24px; }
+      table { width:100%; border-collapse:collapse; margin-bottom:20px; }
+      th { background:#f5f5f5; text-align:left; padding:10px 12px; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#666; border-bottom:2px solid #ddd; }
+      td { padding:10px 12px; font-size:13px; border-bottom:1px solid #eee; }
+      .header-bar { display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #111; padding-bottom:16px; margin-bottom:24px; }
+      .logo { font-family:'Outfit',sans-serif; font-size:18px; font-weight:800; }
+      .footer { margin-top:32px; font-size:11px; color:#999; border-top:1px solid #eee; padding-top:12px; }
+      @media print { body { padding:16px; } }
+    </style>
+  </head><body>
+    <div class="header-bar">
+      <div class="logo">Lazzer Quant Trading Firm</div>
+      <div style="font-size:12px;color:#666;">Generated: ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}</div>
+    </div>
+    ${html}
+    <div class="footer">Lazzer Quant Trading Firm · Harare, Zimbabwe · lazzerquant.com · Confidential</div>
+  </body></html>`);
+  win.document.close();
+  setTimeout(() => { win.focus(); win.print(); }, 600);
+}
+
+function exportStatement(name) {
+  // Generate a print-ready version of the financial statements
+  const sectionMap = {
+    'Income Statement': buildIncomeStatementPrint,
+    'Balance Sheet':    buildBalanceSheetPrint,
+    'Cash Flow Statement': buildCashFlowPrint,
+    'Expense Report':   buildExpenseReportCSV,
+    'Weekly Report':    buildWeeklyReportPrint,
+    'Notes to Financials': buildNotesPrint,
+  };
+  const fn = sectionMap[name];
+  if (fn) { fn(); }
+  else { showToast(`${name} exported`, 'success'); }
+}
+
+function buildIncomeStatementPrint() {
+  const d = DATA[currentPeriod];
+  const firmShare = (d.tradingProfit * 0.30);
+  const totalExp  = d.brokerFees + d.salaries + d.techHosting + d.legal + d.marketing + d.office + d.misc;
+  const net = firmShare - totalExp;
+  const html = `
+    <h1>Income Statement</h1>
+    <div class="sub">Statement of Profit & Loss · ${d.label}</div>
+    <table>
+      <thead><tr><th>Line Item</th><th style="text-align:right">Amount (USD)</th></tr></thead>
+      <tbody>
+        <tr style="background:#f9f9f9"><td colspan="2" style="font-weight:700;padding:8px 12px;">REVENUE</td></tr>
+        <tr><td style="padding-left:24px">Gross Trading Profit</td><td style="text-align:right">$${d.tradingProfit.toFixed(2)}</td></tr>
+        <tr><td style="padding-left:24px">Trader Payout (70%)</td><td style="text-align:right">-$${d.traderPayouts.toFixed(2)}</td></tr>
+        <tr style="font-weight:700"><td>Firm Revenue (30%)</td><td style="text-align:right">$${firmShare.toFixed(2)}</td></tr>
+        <tr style="background:#f9f9f9"><td colspan="2" style="font-weight:700;padding:8px 12px;">OPERATING EXPENSES</td></tr>
+        <tr><td style="padding-left:24px">Platform & Broker Fees</td><td style="text-align:right">$${d.brokerFees.toFixed(2)}</td></tr>
+        <tr><td style="padding-left:24px">Technology & Hosting</td><td style="text-align:right">$${d.techHosting.toFixed(2)}</td></tr>
+        <tr><td style="padding-left:24px">Marketing</td><td style="text-align:right">$${d.marketing.toFixed(2)}</td></tr>
+        <tr><td style="padding-left:24px">Office & Operations</td><td style="text-align:right">$${d.office.toFixed(2)}</td></tr>
+        <tr><td style="padding-left:24px">Miscellaneous</td><td style="text-align:right">$${d.misc.toFixed(2)}</td></tr>
+        <tr style="font-weight:700;background:#fff3cd"><td>NET PROFIT / (LOSS)</td><td style="text-align:right;color:${net>=0?'green':'red'}">$${net.toFixed(2)}</td></tr>
+      </tbody>
+    </table>`;
+  printSection('Income Statement — Lazzer Quant', html);
+}
+
+function buildExpenseReportCSV() {
+  downloadCSV(
+    `lazzerquant-expenses-${new Date().toISOString().split('T')[0]}.csv`,
+    ['#','Date','Description','Category','Amount (USD)','Vendor','Invoice Ref','Payment Method','Approved By','Status'],
+    EXPENSES.map((e,i) => [i+1, e.date, e.desc, e.cat, e.amount.toFixed(2), e.vendor, e.ref, e.method, e.approver, e.status])
+  );
+}
+
+function buildBalanceSheetPrint() {
+  const d = DATA[currentPeriod];
+  const totalAssets = d.cash + d.capitalDeployed + d.equipment + d.prepaid;
+  const firmShare   = d.tradingProfit * 0.30;
+  const totalExp    = d.brokerFees + d.salaries + d.techHosting + d.legal + d.marketing + d.office + d.misc;
+  const retained    = firmShare - totalExp;
+  const totalEquity = d.ownerCapital + retained;
+  const html = `
+    <h1>Balance Sheet</h1>
+    <div class="sub">Statement of Financial Position · ${d.label}</div>
+    <table>
+      <thead><tr><th>Item</th><th style="text-align:right">Amount (USD)</th></tr></thead>
+      <tbody>
+        <tr style="background:#f9f9f9"><td colspan="2" style="font-weight:700;padding:8px 12px;">ASSETS</td></tr>
+        <tr><td style="padding-left:24px">Cash & Cash Equivalents</td><td style="text-align:right">$${d.cash.toFixed(2)}</td></tr>
+        <tr><td style="padding-left:24px">Capital in Trader Accounts</td><td style="text-align:right">$${d.capitalDeployed.toFixed(2)}</td></tr>
+        <tr><td style="padding-left:24px">Prepaid Expenses</td><td style="text-align:right">$${d.prepaid.toFixed(2)}</td></tr>
+        <tr><td style="padding-left:24px">Equipment & Technology</td><td style="text-align:right">$${d.equipment.toFixed(2)}</td></tr>
+        <tr style="font-weight:700"><td>TOTAL ASSETS</td><td style="text-align:right">$${totalAssets.toFixed(2)}</td></tr>
+        <tr style="background:#f9f9f9"><td colspan="2" style="font-weight:700;padding:8px 12px;">LIABILITIES & EQUITY</td></tr>
+        <tr><td style="padding-left:24px">Accounts Payable</td><td style="text-align:right">$${d.payables.toFixed(2)}</td></tr>
+        <tr><td style="padding-left:24px">Owner's Capital</td><td style="text-align:right">$${d.ownerCapital.toFixed(2)}</td></tr>
+        <tr><td style="padding-left:24px">Retained Earnings</td><td style="text-align:right">$${retained.toFixed(2)}</td></tr>
+        <tr style="font-weight:700"><td>TOTAL EQUITY</td><td style="text-align:right">$${totalEquity.toFixed(2)}</td></tr>
+      </tbody>
+    </table>`;
+  printSection('Balance Sheet — Lazzer Quant', html);
+}
+
+function buildCashFlowPrint() {
+  const d = DATA[currentPeriod];
+  const firmShare = d.tradingProfit * 0.30;
+  const totalExp  = d.brokerFees + d.techHosting + d.marketing + d.office + d.misc + d.legal + d.salaries;
+  const operating = firmShare - totalExp;
+  const investing  = -(d.capitalDeployed * 0.1);
+  const netChange  = operating + investing;
+  const closing    = d.openingCash + netChange;
+  const html = `
+    <h1>Cash Flow Statement</h1>
+    <div class="sub">Statement of Cash Flows · ${d.label}</div>
+    <table>
+      <thead><tr><th>Item</th><th style="text-align:right">Amount (USD)</th></tr></thead>
+      <tbody>
+        <tr style="background:#f9f9f9"><td colspan="2" style="font-weight:700;padding:8px 12px;">OPERATING ACTIVITIES</td></tr>
+        <tr><td style="padding-left:24px">Cash received — firm share (30%)</td><td style="text-align:right">$${firmShare.toFixed(2)}</td></tr>
+        <tr><td style="padding-left:24px">Trader payouts paid</td><td style="text-align:right">-$${d.traderPayouts.toFixed(2)}</td></tr>
+        <tr><td style="padding-left:24px">Operating expenses paid</td><td style="text-align:right">-$${totalExp.toFixed(2)}</td></tr>
+        <tr style="font-weight:700"><td>Net Operating Cash Flow</td><td style="text-align:right">$${operating.toFixed(2)}</td></tr>
+        <tr style="background:#f9f9f9"><td colspan="2" style="font-weight:700;padding:8px 12px;">INVESTING ACTIVITIES</td></tr>
+        <tr><td style="padding-left:24px">Capital deployed to accounts</td><td style="text-align:right">$${investing.toFixed(2)}</td></tr>
+        <tr style="font-weight:700"><td>NET CHANGE IN CASH</td><td style="text-align:right;color:${netChange>=0?'green':'red'}">$${netChange.toFixed(2)}</td></tr>
+        <tr><td>Opening Balance</td><td style="text-align:right">$${d.openingCash.toFixed(2)}</td></tr>
+        <tr style="font-weight:700;background:#fff3cd"><td>CLOSING BALANCE</td><td style="text-align:right">$${closing.toFixed(2)}</td></tr>
+      </tbody>
+    </table>`;
+  printSection('Cash Flow Statement — Lazzer Quant', html);
+}
+
+function buildNotesPrint() {
+  const html = `<h1>Notes to Financial Statements</h1><div class="sub">Supporting disclosures · ${DATA[currentPeriod].label}</div>
+    <p style="margin:16px 0;font-size:14px;line-height:1.8;color:#333;">
+    <strong>Note 1 — Basis of Preparation:</strong> Statements prepared on accrual basis. Functional currency: USD.<br><br>
+    <strong>Note 2 — Revenue Recognition:</strong> Firm share (30%) recognised upon settlement of trades.<br><br>
+    <strong>Note 3 — Trader Payouts:</strong> 70% of net profit allocated to traders upon reaching withdrawal threshold.<br><br>
+    <strong>Note 4 — Related Parties:</strong> Kelvin Chafachaipa (CEO, 60%) and Tatenda Fortune Vambe (COO, 40%) are the firm's founders.<br><br>
+    <strong>Note 5 — Debt:</strong> The firm has no external debt. All obligations are current liabilities under $50.
+    </p>`;
+  printSection('Notes to Financials — Lazzer Quant', html);
+}
+
+function buildWeeklyReportPrint() {
+  const el = document.getElementById('report-body');
+  if (el) {
+    const html = `<h1>Weekly Performance Report</h1><div class="sub">Week of Mar 9–15, 2026</div>${el.innerHTML}`;
+    printSection('Weekly Report — Lazzer Quant', html);
+  }
+}
 
 </script>
 </body>
