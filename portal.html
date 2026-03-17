@@ -486,6 +486,9 @@ html, body {
         <div class="sidebar-link" onclick="showSection('settings', this)" id="sl-settings">
           <span class="sl-icon">⚙️</span> Settings
         </div>
+        <div class="sidebar-link" onclick="window.location.href='trade.html'">
+          <span class="sl-icon">📊</span> Trading Terminal
+        </div>
         <div class="sidebar-link" onclick="window.location.href='contract.html'" id="sl-agreement" style="display:none">
           <span class="sl-icon">✍️</span> My Agreement
         </div>
@@ -1351,7 +1354,7 @@ function renderTraderProfile(t) {
     data:{ labels:data.map((_,i)=>i), datasets:[{ data, borderColor:'var(--gold)', backgroundColor:'rgba(201,168,76,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:0 }] },
     options:{ responsive:true, maintainAspectRatio:true, animation:false,
       plugins:{ legend:{display:false} },
-      scales:{ x:{display:false}, y:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#64748b',font:{size:10}}, title:{display:true,text:'Balance ($)',color:'#64748b',font:{size:11}} } }
+      scales:{ x:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:9}}, title:{display:true,text:'Trade #',color:'#64748b',font:{size:10}} }, y:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#64748b',font:{size:10}}, title:{display:true,text:'Balance ($)',color:'#64748b',font:{size:10}} } }
     }
   });
 }

@@ -1330,11 +1330,18 @@ function buildConfirmStep() {
     dest = w ? w.substring(0,8) + '...' + w.substring(w.length-6) : 'On file';
   }
 
+  // Agent commission (3% of firm's 30%)
+  const agentComm = parseFloat((currentPayout.firmShare * 0.03).toFixed(2));
+  const firmNet   = parseFloat((currentPayout.firmShare - agentComm).toFixed(2));
+  const hasAgent  = true; // In Phase 2B: check if trader has a referring agent
+
   document.getElementById('pay-confirm-summary').innerHTML = `
     <div class="ps-row"><span class="ps-label">Trader</span><span class="ps-val">${currentPayout.name}</span></div>
     <div class="ps-row"><span class="ps-label">Gross Profit</span><span class="ps-val">$${currentPayout.grossProfit.toFixed(2)}</span></div>
     <div class="ps-row"><span class="ps-label">Trader's 70% Share</span><span class="ps-val" style="color:var(--green)">$${traderShare.toFixed(2)}</span></div>
     <div class="ps-row"><span class="ps-label">Firm's 30% Share</span><span class="ps-val" style="color:var(--gold)">$${currentPayout.firmShare.toFixed(2)}</span></div>
+    ${hasAgent ? `<div class="ps-row"><span class="ps-label" style="color:var(--orange);">Agent Commission (3%)</span><span class="ps-val" style="color:var(--orange);">-$${agentComm.toFixed(2)}</span></div>` : ''}
+    ${hasAgent ? `<div class="ps-row"><span class="ps-label">Firm Net (after agent)</span><span class="ps-val" style="color:var(--gold);">$${firmNet.toFixed(2)}</span></div>` : ''}
     <div class="ps-row"><span class="ps-label">Payment Method</span><span class="ps-val">${method}</span></div>
     <div class="ps-row"><span class="ps-label">Destination</span><span class="ps-val">${dest}</span></div>
     <div class="ps-row"><span class="ps-label">Transfer Fee (~)</span><span class="ps-val" style="color:var(--red)">-$${fee.toFixed(2)}</span></div>
@@ -1342,6 +1349,7 @@ function buildConfirmStep() {
       <span class="ps-label" style="font-weight:700;color:var(--white);">Trader Receives</span>
       <span class="ps-val" style="color:var(--green);font-size:20px;font-weight:800;">$${net}</span>
     </div>
+    ${hasAgent ? `<div style="margin-top:10px;padding:10px 12px;background:var(--orange-dim);border:1px solid rgba(249,115,22,0.25);border-radius:8px;font-size:12px;color:var(--text);">📧 Agent will receive an email to submit payment details if this is their first payout.</div>` : ''}
   `;
 }
 

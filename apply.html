@@ -151,6 +151,18 @@
               <textarea class="form-textarea" id="f-why" placeholder="Tell us about your trading goals, what draws you to Lazzer Quant, and why you believe you are ready for funded trading..."></textarea>
             </div>
 
+            <!-- REFERRAL SECTION -->
+            <div style="border-top:1px solid var(--navy-border);padding-top:24px;margin-top:8px;margin-bottom:20px;">
+              <div style="font-size:13px;font-weight:700;color:var(--gold);margin-bottom:6px;letter-spacing:0.5px;">Referral (Optional)</div>
+              <div style="font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:16px;">
+                Were you referred to Lazzer Quant by an agent? If so, please include their full name and email. Your referee will be notified of your application and kept updated on your progress.
+              </div>
+              <label class="form-label">Referring Agent Full Name</label>
+              <input type="text" class="form-input" id="f-ref-name" placeholder="Full name of your referring agent (optional)">
+              <label class="form-label">Referring Agent Email</label>
+              <input type="email" class="form-input" id="f-ref-email" placeholder="Agent email address (optional)" style="margin-bottom:0;">
+            </div>
+
             <button class="form-submit" onclick="submitApp()">Submit Application →</button>
           </div>
 
@@ -175,6 +187,8 @@ function submitApp() {
   const name = document.getElementById('f-name').value.trim();
   const email = document.getElementById('f-email').value.trim();
   const why = document.getElementById('f-why').value.trim();
+  const refName  = document.getElementById('f-ref-name')?.value.trim() || '';
+  const refEmail = document.getElementById('f-ref-email')?.value.trim() || '';
   if (!name || !email || !why) { alert('Please fill in all required fields.'); return; }
   document.getElementById('form-main').style.display = 'none';
   document.getElementById('form-success').style.display = 'block';

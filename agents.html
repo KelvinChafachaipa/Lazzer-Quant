@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Become an Agent — Lazzer Quant Trading Firm</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --navy:#060d1a;--navy-mid:#0c1628;--navy-card:#101e35;--navy-border:#1a2d4a;
+  --gold:#c9a84c;--gold-light:#e2bf6e;--gold-dim:rgba(201,168,76,0.12);--gold-border:rgba(201,168,76,0.25);
+  --green:#22c55e;--green-dim:rgba(34,197,94,0.12);
+  --red:#ef4444;--blue:#3b82f6;--orange:#f97316;
+  --white:#fff;--text:#cbd5e1;--muted:#64748b;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100%;font-family:'Plus Jakarta Sans',sans-serif;background:var(--navy);color:var(--white);}
+
+header{position:sticky;top:0;z-index:100;height:64px;background:rgba(6,13,26,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--navy-border);display:flex;align-items:center;padding:0 5%;justify-content:space-between;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--white);}
+.logo-b{width:34px;height:34px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:800;font-size:14px;color:var(--navy);}
+.logo-n{font-family:'Outfit',sans-serif;font-weight:700;font-size:17px;}
+.logo-n span{color:var(--gold);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-link{font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;padding:7px 14px;border-radius:6px;transition:all 0.2s;}
+.nav-link:hover{color:var(--white);background:rgba(255,255,255,0.05);}
+.nav-cta{font-size:13px;font-weight:700;color:var(--navy);background:var(--gold);padding:7px 18px;border-radius:7px;text-decoration:none;transition:background 0.2s;}
+.nav-cta:hover{background:var(--gold-light);}
+
+/* HERO */
+.hero{padding:100px 5% 80px;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(201,168,76,0.08),transparent);text-align:center;}
+.hero-label{display:inline-block;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-border);padding:5px 16px;border-radius:100px;margin-bottom:20px;}
+.hero-title{font-family:'Outfit',sans-serif;font-size:clamp(32px,5vw,56px);font-weight:800;line-height:1.1;letter-spacing:-1px;margin-bottom:16px;}
+.hero-title span{color:var(--gold);}
+.hero-sub{font-size:18px;color:var(--text);line-height:1.7;max-width:600px;margin:0 auto 36px;}
+.hero-cta{display:inline-flex;align-items:center;gap:8px;padding:16px 32px;background:var(--gold);color:var(--navy);font-weight:800;font-size:16px;border-radius:12px;text-decoration:none;transition:all 0.2s;}
+.hero-cta:hover{background:var(--gold-light);transform:translateY(-2px);box-shadow:0 8px 32px rgba(201,168,76,0.3);}
+
+/* SECTION */
+.section{padding:80px 5%;}
+.section-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;}
+.section-title{font-family:'Outfit',sans-serif;font-size:clamp(24px,3vw,36px);font-weight:800;letter-spacing:-0.5px;margin-bottom:16px;}
+.section-sub{font-size:16px;color:var(--text);line-height:1.7;max-width:600px;margin-bottom:48px;}
+
+/* HOW IT WORKS */
+.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:0;}
+.how-card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:16px;padding:28px;position:relative;}
+.how-num{font-family:'Outfit',sans-serif;font-size:40px;font-weight:800;color:var(--gold-border);margin-bottom:16px;line-height:1;}
+.how-icon{font-size:32px;margin-bottom:14px;}
+.how-title{font-size:16px;font-weight:700;margin-bottom:8px;}
+.how-body{font-size:14px;color:var(--text);line-height:1.7;}
+.how-connector{position:absolute;top:50%;right:-12px;width:24px;height:2px;background:var(--gold-dim);z-index:1;}
+
+/* EARNINGS */
+.earn-section{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:24px;padding:48px;margin:0 5%;}
+.earn-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;}
+.earn-example{background:var(--navy);border:1px solid var(--navy-border);border-radius:16px;overflow:hidden;}
+.ee-header{padding:16px 20px;background:var(--gold-dim);border-bottom:1px solid var(--gold-border);}
+.ee-title{font-size:13px;font-weight:700;color:var(--gold);}
+.ee-row{display:flex;justify-content:space-between;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:14px;}
+.ee-row:last-child{border-bottom:none;}
+.ee-label{color:var(--muted);}
+.ee-val{font-family:'Outfit',sans-serif;font-weight:700;}
+
+/* GROWTH CALCULATOR */
+.calc-card{background:var(--navy-card);border:1px solid var(--gold-border);border-radius:20px;padding:32px;}
+.calc-title{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px;}
+.calc-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+.calc-row{display:flex;align-items:center;gap:16px;margin-bottom:16px;}
+.calc-label{font-size:13px;color:var(--text);width:140px;flex-shrink:0;}
+.calc-input{flex:1;padding:10px 14px;background:rgba(255,255,255,0.04);border:1.5px solid var(--navy-border);border-radius:8px;color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;outline:none;transition:border-color 0.2s;}
+.calc-input:focus{border-color:var(--gold);}
+.calc-result{background:var(--navy);border:1px solid var(--navy-border);border-radius:12px;padding:20px;margin-top:16px;}
+.cr-row{display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.cr-row:last-child{border-bottom:none;}
+.cr-label{color:var(--muted);}
+.cr-val{font-family:'Outfit',sans-serif;font-weight:700;}
+
+/* GROWTH TABLE */
+.growth-table{width:100%;border-collapse:collapse;margin-top:24px;}
+.growth-table th{text-align:left;padding:12px 16px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--navy-border);}
+.growth-table td{padding:12px 16px;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.growth-table tr:last-child td{border-bottom:none;}
+.growth-table tr:hover td{background:rgba(255,255,255,0.02);}
+
+/* REGISTER FORM */
+.reg-card{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:20px;padding:40px;max-width:560px;margin:0 auto;}
+.f-label{display:block;font-size:12px;font-weight:700;color:var(--text);margin-bottom:7px;letter-spacing:0.3px;}
+.f-input{width:100%;padding:12px 16px;background:rgba(255,255,255,0.04);border:1.5px solid var(--navy-border);border-radius:10px;color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;margin-bottom:16px;appearance:none;}
+.f-input:focus{border-color:var(--gold);background:rgba(201,168,76,0.04);}
+.f-input::placeholder{color:var(--muted);}
+.f-select option{background:var(--navy-mid);}
+.submit-btn{width:100%;padding:14px;background:var(--gold);color:var(--navy);font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:15px;border:none;border-radius:10px;cursor:pointer;transition:all 0.2s;margin-top:8px;}
+.submit-btn:hover{background:var(--gold-light);transform:translateY(-2px);}
+
+/* FAQ */
+.faq-item{background:var(--navy-card);border:1px solid var(--navy-border);border-radius:12px;margin-bottom:10px;overflow:hidden;}
+.faq-q{padding:18px 22px;font-size:15px;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.2s;}
+.faq-q:hover{background:var(--gold-dim);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height 0.3s;font-size:14px;color:var(--text);line-height:1.8;}
+.faq-a.open{max-height:300px;}
+.faq-a-inner{padding:0 22px 18px;}
+
+footer{background:var(--navy-mid);border-top:1px solid var(--navy-border);padding:24px 5%;display:flex;justify-content:space-between;align-items:center;}
+.footer-l{font-size:12px;color:var(--muted);}
+.footer-r{font-size:11px;font-weight:700;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-family:'Outfit',sans-serif;}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy-card);border:1px solid var(--navy-border);border-radius:12px;padding:14px 18px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5);transform:translateY(80px);opacity:0;transition:all 0.3s;z-index:999;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:rgba(34,197,94,0.4);}
+
+@media(max-width:900px){.how-grid{grid-template-columns:1fr 1fr;}.earn-grid{grid-template-columns:1fr;}.how-connector{display:none;}}
+@media(max-width:600px){.how-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<header>
+  <a href="index.html" class="logo">
+    <div class="logo-b">LQ</div>
+    <span class="logo-n">Lazzer <span>Quant</span></span>
+  </a>
+  <div class="nav-right">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="apply.html" class="nav-link">Apply as Trader</a>
+    <a href="#register" class="nav-cta">Register as Agent →</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">Agent Programme</div>
+  <h1 class="hero-title">Earn Money by<br><span>Referring Traders</span></h1>
+  <p class="hero-sub">No trading required. Simply refer talented traders to Lazzer Quant and earn 3% of the firm's share every time they withdraw — automatically, forever.</p>
+  <a href="#register" class="hero-cta">Become an Agent →</a>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section">
+  <div class="section-label">How It Works</div>
+  <h2 class="section-title">Simple. Automatic. Forever.</h2>
+  <p class="section-sub">Four steps to start earning passive income from Lazzer Quant.</p>
+
+  <div class="how-grid">
+    <div class="how-card">
+      <div class="how-num">01</div>
+      <div class="how-icon">✍️</div>
+      <div class="how-title">Register as an Agent</div>
+      <div class="how-body">Sign up below with your full name and email. No fees, no trading knowledge required. Anyone can be an agent.</div>
+      <div class="how-connector"></div>
+    </div>
+    <div class="how-card">
+      <div class="how-num">02</div>
+      <div class="how-icon">🤝</div>
+      <div class="how-title">Refer a Trader</div>
+      <div class="how-body">Find traders in your network. Ask them to include your full name and email in their application to Lazzer Quant.</div>
+      <div class="how-connector"></div>
+    </div>
+    <div class="how-card">
+      <div class="how-num">03</div>
+      <div class="how-icon">📈</div>
+      <div class="how-title">Trader Gets Funded</div>
+      <div class="how-body">If your referred trader passes evaluation and gets funded, you receive an email confirming they are now a funded trader.</div>
+      <div class="how-connector"></div>
+    </div>
+    <div class="how-card">
+      <div class="how-num">04</div>
+      <div class="how-icon">💳</div>
+      <div class="how-title">Earn Automatically</div>
+      <div class="how-body">Every time the trader reaches their withdrawal threshold, you automatically receive 3% of the firm's 30% share — processed immediately after the trader's payment.</div>
+    </div>
+  </div>
+</div>
+
+<!-- EARNINGS EXPLAINED -->
+<div class="section" style="padding-top:0;">
+  <div class="earn-section">
+    <div class="earn-grid">
+      <div>
+        <div class="section-label">The Numbers</div>
+        <h2 class="section-title">Your Earnings<br>Grow with the Trader</h2>
+        <p style="font-size:15px;color:var(--text);line-height:1.8;margin-bottom:24px;">As the trader's account levels up, their withdrawal threshold increases by 25% each level. Your commission grows automatically with every withdrawal — no extra effort needed.</p>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="background:var(--navy);border:1px solid var(--navy-border);border-radius:12px;padding:16px 20px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Commission Formula</div>
+            <div style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;color:var(--gold);">3% × (Trader Profit × 30%)</div>
+          </div>
+          <div style="background:var(--navy);border:1px solid var(--navy-border);border-radius:12px;padding:16px 20px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Payment Order</div>
+            <div style="font-size:14px;color:var(--text);">1. Trader receives 70% → 2. Your 3% commission → immediately after</div>
+          </div>
+          <div style="background:var(--navy);border:1px solid var(--navy-border);border-radius:12px;padding:16px 20px;">
+            <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Payment Method</div>
+            <div style="font-size:14px;color:var(--text);">Wise or USDT — details collected on first payout</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="earn-example">
+          <div class="ee-header"><div class="ee-title">Example — Single Trader, First 4 Withdrawals</div></div>
+          <div class="ee-row"><span class="ee-label">Level 1 — Threshold $600</span></div>
+          <div class="ee-row" style="padding-left:32px;"><span class="ee-label">Trader's profit</span><span class="ee-val">$500.00</span></div>
+          <div class="ee-row" style="padding-left:32px;"><span class="ee-label">Firm's 30%</span><span class="ee-val">$150.00</span></div>
+          <div class="ee-row" style="padding-left:32px;"><span class="ee-label" style="color:var(--gold);">Your 3% commission</span><span class="ee-val" style="color:var(--gold);">$4.50</span></div>
+
+          <div class="ee-row"><span class="ee-label">Level 2 — Threshold $750</span></div>
+          <div class="ee-row" style="padding-left:32px;"><span class="ee-label">Firm's 30%</span><span class="ee-val">$187.50</span></div>
+          <div class="ee-row" style="padding-left:32px;"><span class="ee-label" style="color:var(--gold);">Your 3% commission</span><span class="ee-val" style="color:var(--gold);">$5.63</span></div>
+
+          <div class="ee-row"><span class="ee-label">Level 3 — Threshold $938</span></div>
+          <div class="ee-row" style="padding-left:32px;"><span class="ee-label">Firm's 30%</span><span class="ee-val">$234.38</span></div>
+          <div class="ee-row" style="padding-left:32px;"><span class="ee-label" style="color:var(--gold);">Your 3% commission</span><span class="ee-val" style="color:var(--gold);">$7.03</span></div>
+
+          <div class="ee-row" style="background:var(--gold-dim);"><span class="ee-label" style="font-weight:700;color:var(--white);">Total earned (3 withdrawals)</span><span class="ee-val" style="color:var(--gold);font-size:18px;">$17.16</span></div>
+        </div>
+
+        <div style="margin-top:16px;padding:14px;background:var(--green-dim);border:1px solid rgba(34,197,94,0.25);border-radius:10px;font-size:13px;color:var(--text);line-height:1.6;">
+          💡 <strong style="color:var(--green);">Scale up:</strong> With 10 traders all at the same level — you earn 10× this amount, automatically.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GROWTH CALCULATOR -->
+<div class="section" style="background:rgba(255,255,255,0.01);border-top:1px solid var(--navy-border);border-bottom:1px solid var(--navy-border);">
+  <div style="max-width:1100px;margin:0 auto;">
+    <div class="section-label">Earnings Calculator</div>
+    <h2 class="section-title">Calculate Your Income</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
+      <div class="calc-card">
+        <div class="calc-title">Agent Earnings Estimator</div>
+        <div class="calc-sub">Adjust the inputs to see your projected earnings.</div>
+        <div class="calc-row">
+          <label class="calc-label">No. of Traders</label>
+          <input type="number" class="calc-input" id="calc-traders" value="5" min="1" max="100" oninput="calcEarnings()">
+        </div>
+        <div class="calc-row">
+          <label class="calc-label">Avg Profit Per Withdrawal ($)</label>
+          <input type="number" class="calc-input" id="calc-profit" value="500" min="100" oninput="calcEarnings()">
+        </div>
+        <div class="calc-row">
+          <label class="calc-label">Withdrawals Per Year</label>
+          <input type="number" class="calc-input" id="calc-withdrawals" value="4" min="1" max="12" oninput="calcEarnings()">
+        </div>
+        <div class="calc-result" id="calc-result">
+          <div class="cr-row"><span class="cr-label">Firm's 30% per withdrawal</span><span class="cr-val" id="cr-firm-share">$0</span></div>
+          <div class="cr-row"><span class="cr-label">Your 3% per withdrawal</span><span class="cr-val" id="cr-per-withdrawal" style="color:var(--gold);">$0</span></div>
+          <div class="cr-row"><span class="cr-label">Your annual income estimate</span><span class="cr-val" id="cr-annual" style="color:var(--green);font-size:20px;">$0</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div style="margin-bottom:16px;">
+          <div class="section-label" style="margin-bottom:8px;">Growth Over Levels</div>
+          <canvas id="growth-chart" height="160" style="background:var(--navy-card);border:1px solid var(--navy-border);border-radius:12px;padding:12px;"></canvas>
+        </div>
+        <table class="growth-table" style="background:var(--navy-card);border:1px solid var(--navy-border);border-radius:12px;overflow:hidden;">
+          <thead><tr><th>Level</th><th>Threshold</th><th>Firm's 30%</th><th style="color:var(--gold);">Your 3%</th></tr></thead>
+          <tbody id="growth-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER FORM -->
+<div class="section" id="register">
+  <div class="section-label">Get Started</div>
+  <h2 class="section-title" style="text-align:center;">Register as an Agent</h2>
+  <p style="font-size:15px;color:var(--text);line-height:1.7;text-align:center;max-width:500px;margin:0 auto 36px;">Fill in your details below. Once registered, share your name and email with traders so they can include it on their application.</p>
+
+  <div class="reg-card">
+    <div id="reg-form-view">
+      <label class="f-label">Full Name <span style="color:var(--red);">*</span></label>
+      <input type="text" class="f-input" id="ag-name" placeholder="Your full legal name">
+
+      <label class="f-label">Email Address <span style="color:var(--red);">*</span></label>
+      <input type="email" class="f-input" id="ag-email" placeholder="your@email.com">
+
+      <label class="f-label">Phone Number</label>
+      <input type="tel" class="f-input" id="ag-phone" placeholder="+263 77 000 0000">
+
+      <label class="f-label">Country <span style="color:var(--red);">*</span></label>
+      <input type="text" class="f-input" id="ag-country" placeholder="Your country">
+
+      <label class="f-label">How do you know traders? <span style="color:var(--red);">*</span></label>
+      <select class="f-input f-select" id="ag-source">
+        <option value="">Select your network</option>
+        <option>Social media / Content creator</option>
+        <option>Trading community / Group</option>
+        <option>Friends and family</option>
+        <option>Trading coach / Mentor</option>
+        <option>University / College network</option>
+        <option>Other</option>
+      </select>
+
+      <label class="f-label">How many traders can you refer per month?</label>
+      <select class="f-input f-select" id="ag-capacity">
+        <option>1–3 traders</option>
+        <option>4–10 traders</option>
+        <option>10–20 traders</option>
+        <option>20+ traders</option>
+      </select>
+
+      <div style="padding:14px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:10px;font-size:13px;color:var(--text);line-height:1.7;margin-bottom:16px;">
+        📋 <strong style="color:var(--gold);">Next step:</strong> After registering, simply ask any trader you refer to include your <strong>full name</strong> and <strong>email address</strong> in the referral section of their application form.
+      </div>
+
+      <button class="submit-btn" onclick="submitAgent()">Register as Agent →</button>
+    </div>
+
+    <div id="reg-success-view" style="display:none;text-align:center;padding:20px 0;">
+      <div style="font-size:64px;margin-bottom:20px;">🎉</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:24px;font-weight:800;margin-bottom:12px;">You're Registered!</div>
+      <div style="font-size:15px;color:var(--text);line-height:1.7;margin-bottom:24px;">Your agent profile has been created. Start referring traders now. Share your name and email with any trader you want to refer.</div>
+      <div style="background:var(--navy);border:1px solid var(--gold-border);border-radius:14px;padding:20px;margin-bottom:24px;text-align:left;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">Your Referral Details</div>
+        <div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <span style="color:var(--muted);">Name</span><span id="success-name" style="font-weight:700;"></span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:14px;padding:8px 0;">
+          <span style="color:var(--muted);">Email</span><span id="success-email" style="font-weight:700;color:var(--gold);"></span>
+        </div>
+      </div>
+      <div style="font-size:14px;color:var(--text);line-height:1.8;">
+        Ask traders to include your name and email in the <strong style="color:var(--white);">Referral</strong> field on the <a href="apply.html" style="color:var(--gold);">application form →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="section" style="padding-top:0;">
+  <div style="max-width:720px;margin:0 auto;">
+    <h2 class="section-title" style="text-align:center;margin-bottom:32px;">Frequently Asked Questions</h2>
+    <div id="faq-list"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-l">© 2026 Lazzer Quant Trading Firm · Harare, Zimbabwe</div>
+  <div class="footer-r">Agent Programme</div>
+</footer>
+
+<script>
+// Growth table + chart
+const LEVELS = [
+  {level:1,threshold:600},
+  {level:2,threshold:750},
+  {level:3,threshold:938},
+  {level:4,threshold:1172},
+  {level:5,threshold:1465},
+  {level:6,threshold:1831},
+];
+
+function renderGrowthTable() {
+  document.getElementById('growth-tbody').innerHTML = LEVELS.map(l => {
+    const firmShare = (l.threshold * 0.30).toFixed(2);
+    const agentShare = (l.threshold * 0.30 * 0.03).toFixed(2);
+    return `<tr>
+      <td style="font-weight:700;">L${l.level}</td>
+      <td style="font-family:'Outfit',sans-serif;font-weight:600;">$${l.threshold}</td>
+      <td style="font-family:'Outfit',sans-serif;">$${firmShare}</td>
+      <td style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--gold);">$${agentShare}</td>
+    </tr>`;
+  }).join('');
+}
+
+function buildGrowthChart() {
+  new Chart(document.getElementById('growth-chart').getContext('2d'), {
+    type:'bar',
+    data:{
+      labels: LEVELS.map(l=>`L${l.level}`),
+      datasets:[
+        { label:'Firm Share (30%)', data:LEVELS.map(l=>+(l.threshold*0.30).toFixed(2)), backgroundColor:'rgba(59,130,246,0.5)', borderRadius:4 },
+        { label:'Your 3%', data:LEVELS.map(l=>+(l.threshold*0.30*0.03).toFixed(2)), backgroundColor:'rgba(201,168,76,0.8)', borderRadius:4 },
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:true, animation:false,
+      plugins:{ legend:{ display:true, position:'bottom', labels:{color:'#cbd5e1',font:{size:11},padding:12} } },
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#64748b',font:{size:11}}, title:{display:true,text:'Account Level',color:'#64748b',font:{size:11}} },
+        y:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#64748b',font:{size:11}}, title:{display:true,text:'Amount ($)',color:'#64748b',font:{size:11}} }
+      }
+    }
+  });
+}
+
+function calcEarnings() {
+  const traders     = parseInt(document.getElementById('calc-traders').value) || 1;
+  const profit      = parseFloat(document.getElementById('calc-profit').value) || 500;
+  const withdrawals = parseInt(document.getElementById('calc-withdrawals').value) || 4;
+  const firmShare   = profit * 0.30;
+  const perWithdrawal = firmShare * 0.03 * traders;
+  const annual      = perWithdrawal * withdrawals;
+  document.getElementById('cr-firm-share').textContent      = `$${(firmShare*traders).toFixed(2)}`;
+  document.getElementById('cr-per-withdrawal').textContent  = `$${perWithdrawal.toFixed(2)}`;
+  document.getElementById('cr-annual').textContent          = `$${annual.toFixed(2)}`;
+}
+
+// FAQ
+const FAQS = [
+  { q:'Do I need to be a trader myself?', a:'Not at all. You just need to know people who are interested in trading. Your job is simply to refer them. Lazzer Quant handles everything else — the evaluation, funding, and monitoring.' },
+  { q:'How exactly do I refer someone?', a:'Ask the person you are referring to include your full name and email address in the "Referral" section on the Lazzer Quant application form. That\'s it. The system tracks them automatically from that point.' },
+  { q:'When do I receive my commission?', a:'You receive your commission immediately after the trader receives their payout. If the trader withdraws on Monday, your commission is processed the same day.' },
+  { q:'What if the trader I referred fails the evaluation?', a:'You will receive an email notifying you that your referred trader did not pass. No commission is earned for that trader. However, you are welcome to refer other traders at any time.' },
+  { q:'How do I receive my commission payment?', a:'When your first trader reaches their withdrawal threshold, you will receive an email with a link to submit your payment details (Wise or USDT). These details are saved and used for all future payments automatically.' },
+  { q:'Is there a limit on how many traders I can refer?', a:'No limit at all. The more traders you refer, the more you earn. Ten traders earning commissions means ten times the income.' },
+  { q:'Do commissions keep growing?', a:'Yes. As a trader levels up (every withdrawal), their threshold increases by 25%. Your commission automatically grows by the same proportion since it is always 3% of the firm\'s share.' },
+  { q:'Is there any cost to register as an agent?', a:'No. Registration is completely free. There are no fees, no subscriptions, and no minimum referrals required.' },
+];
+
+document.getElementById('faq-list').innerHTML = FAQS.map((f,i) => `
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFaq(${i})">
+      <span>${f.q}</span>
+      <span id="faq-arrow-${i}" style="color:var(--gold);font-size:18px;transition:transform 0.3s;">▼</span>
+    </div>
+    <div class="faq-a" id="faq-a-${i}">
+      <div class="faq-a-inner">${f.a}</div>
+    </div>
+  </div>
+`).join('');
+
+function toggleFaq(i) {
+  const a = document.getElementById(`faq-a-${i}`);
+  const arrow = document.getElementById(`faq-arrow-${i}`);
+  const isOpen = a.classList.contains('open');
+  a.classList.toggle('open', !isOpen);
+  arrow.style.transform = isOpen ? '' : 'rotate(180deg)';
+}
+
+// Register agent
+function submitAgent() {
+  const name    = document.getElementById('ag-name').value.trim();
+  const email   = document.getElementById('ag-email').value.trim();
+  const country = document.getElementById('ag-country').value.trim();
+  const source  = document.getElementById('ag-source').value;
+  if (!name || !email || !country || !source) {
+    showToast('Please fill in all required fields', 'error'); return;
+  }
+  if (!email.includes('@')) { showToast('Please enter a valid email address', 'error'); return; }
+
+  document.getElementById('success-name').textContent  = name;
+  document.getElementById('success-email').textContent = email;
+  document.getElementById('reg-form-view').style.display  = 'none';
+  document.getElementById('reg-success-view').style.display = 'block';
+  showToast('Agent registration successful! Welcome to Lazzer Quant.', 'success');
+}
+
+function showToast(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<span>${type==='success'?'✅':type==='error'?'❌':'💡'}</span> ${msg}`;
+  t.className = `toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+renderGrowthTable();
+buildGrowthChart();
+calcEarnings();
+</script>
+</body>
+</html>

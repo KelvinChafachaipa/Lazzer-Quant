@@ -1123,12 +1123,14 @@ function buildCharts(d) {
   buildExpenseCharts(d);
 }
 
-const cOpts = (extra={}) => ({
+const cOpts = (xLabel='', yLabel='', extra={}) => ({
   responsive:true, maintainAspectRatio:true, animation:false,
   plugins:{ legend:{ display:false } },
   scales:{
-    x:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}} },
-    y:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}} }
+    x:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}},
+        title:{display:!!xLabel, text:xLabel, color:'#64748b', font:{size:10}} },
+    y:{ grid:{color:'rgba(255,255,255,0.03)'}, ticks:{color:'#64748b',font:{size:10}},
+        title:{display:!!yLabel, text:yLabel, color:'#64748b', font:{size:10}} }
   }, ...extra
 });
 
@@ -1146,7 +1148,7 @@ function buildRevExpChart(d) {
   const rev = months.map((_, i) => (d.tradingProfit * 0.30 * (0.7 + i * 0.15)).toFixed(2));
   const exp = months.map((_, i) => (d.brokerFees + d.techHosting + d.marketing + d.office + d.misc) * (0.8 + i * 0.1));
 
-  mkChart('revExpChart', {
+  mkChart('revExpChart', {/* Month|Amount ($) */
     type:'bar',
     data:{
       labels: months,
@@ -1189,17 +1191,17 @@ function buildEquityGrowthChart(d) {
   const months = ['Oct','Nov','Dec','Jan','Feb','Mar'];
   const base = d.ownerCapital;
   const data = months.map((_, i) => parseFloat((base + i * 18.4).toFixed(2)));
-  mkChart('equityGrowthChart', {
+  mkChart('equityGrowthChart', {/* Month|Equity ($) */
     type:'line',
     data:{ labels:months, datasets:[{ data, borderColor:'var(--gold)', backgroundColor:'rgba(201,168,76,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:3, pointBackgroundColor:'var(--gold)' }] },
-    options:cOpts()
+    options:cOpts('Month','Amount ($)')
   });
 }
 
 function buildWaterfallChart(d) {
   const firmRev = d.tradingProfit * 0.30;
   const totalExp = d.brokerFees + d.techHosting + d.marketing + d.office + d.misc + d.legal + d.salaries;
-  mkChart('waterfallChart', {
+  mkChart('waterfallChart', {/* Category|Amount ($) */
     type:'bar',
     data:{
       labels:['Firm Revenue','Broker Fees','Tech','Marketing','Office','Misc','Net Profit'],
@@ -1214,7 +1216,7 @@ function buildWaterfallChart(d) {
         borderRadius:6
       }]
     },
-    options:cOpts()
+    options:cOpts('Month','Amount ($)')
   });
 }
 
@@ -1236,10 +1238,10 @@ function buildExpenseCharts(d) {
   // Weekly trend
   const weeks = ['Week 1','Week 2','Week 3','Week 4'];
   const weeklyData = [21.00, 14.50, 18.20, 12.70];
-  mkChart('expTrendChart', {
+  mkChart('expTrendChart', {/* Week|Spend ($) */
     type:'line',
     data:{ labels:weeks, datasets:[{ data:weeklyData, borderColor:'var(--red)', backgroundColor:'rgba(239,68,68,0.08)', borderWidth:2, fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'var(--red)' }] },
-    options:cOpts()
+    options:cOpts('Month','Amount ($)')
   });
 }
 
@@ -1407,7 +1409,15 @@ function renderFounderPayout() {
   // In Phase 2B this reads from the JWT token
   // For now, we use the admin login stored in sessionStorage
   // or default to CEO for demo purposes
-  const adminEmail = sessionStorage.getItem('lq_fin_user') || 'ceo@lazzerquant.com';
+  // Read from portal session (same key portal.html uses)
+  let adminEmail = 'ceo@lazzerquant.com'; // default for direct access
+  try {
+    const portalSession = sessionStorage.getItem('lq_admin');
+    if (portalSession) {
+      const parsed = JSON.parse(portalSession);
+      adminEmail = parsed.email || adminEmail;
+    }
+  } catch(e) {}
   const isCEO  = adminEmail.includes('ceo');
   const who    = isCEO ? 'ceo' : 'coo';
   const name   = isCEO ? 'Kelvin Chafachaipa' : 'Tatenda Fortune Vambe';

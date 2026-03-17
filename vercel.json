@@ -57,6 +57,14 @@
     {
       "source": "/audit",
       "destination": "/audit.html"
+    },
+    {
+      "source": "/trade",
+      "destination": "/trade.html"
+    },
+    {
+      "source": "/agents",
+      "destination": "/agents.html"
     }
   ]
 }
