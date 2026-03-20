@@ -866,15 +866,15 @@ const ALERTS = [
   { id:3, type:'warning',  icon:'⚠️', severity:'warning',  title:'Drawdown Warning — Farai Manyika', desc:'Total drawdown has reached 4.1% of 10% limit. While still within bounds, the rate of drawdown over the past 2 days is above average.', trader:'Farai Manyika', time:'Today, 10:05 AM', dismissed:false },
   { id:4, type:'warning',  icon:'⚠️', severity:'warning',  title:'Win Rate Watch — Farai Manyika', desc:'Win rate has slipped to 81% — within requirement but trending downward. Last 4 trades: 2 wins, 2 losses. Monitor closely.', trader:'Farai Manyika', time:'Today, 08:50 AM', dismissed:false },
   { id:5, type:'info',     icon:'💡', severity:'info',     title:'Phase 1 Complete — Nyasha Zvobgo', desc:'Nyasha has completed all 7 days of Phase 1 with 86% win rate and no rule violations. Eligible for Phase 2 after market reset week.', trader:'Nyasha Zvobgo', time:'Today, 07:00 AM', dismissed:false },
-  { id:6, type:'info',     icon:'💡', severity:'info',     title:'Withdrawal Threshold Reached — Simba Makoni', desc:'Simba has reached their Level 1 withdrawal threshold of $600. Payout of $368.15 (70%) is ready for processing.', trader:'Admire Mureza', time:'Yesterday, 16:22 PM', dismissed:false },
+  { id:6, type:'info',     icon:'💡', severity:'info',     title:'Withdrawal Threshold Reached — Simba Makoni', desc:'Simba has reached their Level 1 withdrawal threshold of $350. Payout of $175.00 (70%) is ready for processing.', trader:'Admire Mureza', time:'Yesterday, 16:22 PM', dismissed:false },
 ];
 
 const FUNDED = [
-  { initials:'SM', name:'Simba Makoni',   account:50, balance:624.50, threshold:600, level:'L1' },
-  { initials:'PN', name:'Plaxedes Ncube', account:50, balance:189.20, threshold:600, level:'L1' },
-  { initials:'AM', name:'Admire Mureza',  account:50, balance:303.10, threshold:600, level:'L1' },
-  { initials:'TG', name:'Tariro Gova',    account:50, balance:167.40, threshold:600, level:'L1' },
-  { initials:'DM', name:'Danai Mutemeri', account:50, balance:256.80, threshold:600, level:'L1' },
+  { initials:'SM', name:'Simba Makoni',   account:50, balance:624.50, threshold:350, level:'L1' },
+  { initials:'PN', name:'Plaxedes Ncube', account:50, balance:189.20, threshold:350, level:'L1' },
+  { initials:'AM', name:'Admire Mureza',  account:50, balance:303.10, threshold:350, level:'L1' },
+  { initials:'TG', name:'Tariro Gova',    account:50, balance:167.40, threshold:350, level:'L1' },
+  { initials:'DM', name:'Danai Mutemeri', account:50, balance:256.80, threshold:350, level:'L1' },
 ];
 
 // Composite score
@@ -1485,7 +1485,7 @@ function renderReport() {
     { icon:'📈', text:'<strong>Scale Admire Mureza:</strong> Consistent 89% win rate with lowest drawdown among funded traders. Consider increasing account to Level 2 ($150).' },
     { icon:'⚠️', text:'<strong>Review Brian Mutasa:</strong> Win rate has dropped to 78% in Phase 1. Consider scheduling a check-in call before his evaluation ends on Day 7.' },
     { icon:'💡', text:'<strong>Nyasha Zvobgo is Phase 2 ready:</strong> Completed Phase 1 with 86% win rate and zero violations. Reset week begins today — Phase 2 starts Monday.' },
-    { icon:'💳', text:'<strong>Process Simba Makoni payout:</strong> Has reached the $600 withdrawal threshold. Trader share of $368.15 is ready for processing.' },
+    { icon:'💳', text:'<strong>Process Simba Makoni payout:</strong> Has reached the $350 withdrawal threshold. Trader share of $175.00 is ready for processing.' },
   ].map(r => `
     <div style="display:flex; gap:14px; align-items:flex-start; padding:14px; background:var(--navy); border-radius:10px; border:1px solid var(--navy-border);">
       <span style="font-size:20px;">${r.icon}</span>

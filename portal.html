@@ -864,10 +864,10 @@ const MESSAGES = [
   {
     type: 'unread',
     icon: '🎉',
-    title: '🎉 Withdrawal Threshold Reached — $600.00',
+    title: '🎉 Withdrawal Threshold Reached — $350.00',
     from: 'Lazzer Quant System · Automated',
     date: 'Mar 15, 2026',
-    body: 'Congratulations! Your account balance has reached the Level 1 withdrawal threshold of $600.00. You are now eligible to request your first payout.\n\nYour earnings breakdown:\n• Total Balance: $624.50\n• Your Share (70%): $368.15\n• Lazzer Quant Share (30%): $157.78\n\nThe COO has been notified and will process your payout shortly. When your payout is being processed, you will be asked to provide your preferred payment method (Wise or USDT) and your payment details.\n\nAfter this payout, your account will be upgraded to Level 2 ($100 account, $750 threshold). Keep trading.'
+    body: 'Congratulations! Your account balance has reached the Level 1 withdrawal threshold of $350.00. You are now eligible to request your first payout.\n\nYour earnings breakdown:\n• Total Balance: $400.00\n• Your Share (70%): $245.00\n• Lazzer Quant Share (30%): $105.00\n\nThe COO has been notified and will process your payout shortly. When your payout is being processed, you will be asked to provide your preferred payment method (Wise or USDT) and your payment details.\n\nAfter this payout, your account will be upgraded to Level 2 ($100 account, $437 threshold). Keep trading.'
   },
   {
     type: 'unread',
@@ -993,12 +993,12 @@ function renderDashboard(d) {
   document.getElementById('dash-title').textContent = d.label;
   const balance = d.balance;
   const startingAccount = currentState === 'funded' ? 50 : d.account;
-  const threshold = 600;
+  const threshold = 350;
   const thresholdReached = currentState === 'funded' && balance >= threshold;
   // Founder payout: render only logged-in user's card
   renderFounderCardForUser();
   document.getElementById('dash-sub').textContent = currentState === 'funded'
-    ? (thresholdReached ? `🎉 Withdrawal threshold reached! Your payout of $${((balance - 100) * 0.7).toFixed(2)} is ready.` : 'Your funded account performance overview.')
+    ? (thresholdReached ? `🎉 Withdrawal threshold reached! Your payout of $${((balance - 50) * 0.7).toFixed(2)} is ready.` : 'Your funded account performance overview.')
     : `Active ${d.label} — Day ${d.daysPassed} of ${d.totalDays}.`;
 
   // Show/hide threshold banner
@@ -1013,7 +1013,7 @@ function renderDashboard(d) {
         <span style="font-size:32px;">🎉</span>
         <div>
           <div style="font-family:'Outfit',sans-serif; font-size:16px; font-weight:800; color:var(--gold); margin-bottom:3px;">Withdrawal Threshold Reached!</div>
-          <div style="font-size:13px; color:var(--text);">Your account has passed the $600 threshold. Your payout of <strong style="color:var(--green);">$${((balance - 100) * 0.7).toFixed(2)}</strong> is being processed by the COO.</div>
+          <div style="font-size:13px; color:var(--text);">Your account has passed the $350 threshold. Your payout of <strong style="color:var(--green);">$${((balance - 50) * 0.7).toFixed(2)}</strong> is being processed by the COO.</div>
         </div>
       </div>
       <button onclick="document.getElementById('sl-messages').click()" style="padding:9px 20px; background:var(--gold); color:var(--navy); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:13px; border:none; border-radius:8px; cursor:pointer;">View Message →</button>
@@ -1560,7 +1560,7 @@ function showSection(id, el) {
 
 // ══ NOTIFICATIONS ══════════════════════════════════════
 const NOTIFICATIONS = [
-  { id:1, icon:'🎉', bg:'var(--green-dim)',  msg:'Your withdrawal threshold of $600 has been reached. Payout is being processed.', time:'Just now', unread:true },
+  { id:1, icon:'🎉', bg:'var(--green-dim)',  msg:'Your withdrawal threshold of $350 has been reached. Payout is being processed.', time:'Just now', unread:true },
   { id:2, icon:'📬', bg:'var(--gold-dim)',   msg:'New message from Kelvin Chafachaipa (CEO): Welcome to Lazzer Quant.', time:'2 hours ago', unread:true },
   { id:3, icon:'📋', bg:'var(--blue-dim)',   msg:'Your Funded Trader Agreement is ready to sign. Please review and sign to activate your account.', time:'Today, 09:00', unread:true },
   { id:4, icon:'⚠️', bg:'var(--orange-dim)', msg:'Platform maintenance on Deriv MT5 — Sunday Mar 16, 02:00–04:00 CAT. Avoid open trades.', time:'Yesterday', unread:false },
